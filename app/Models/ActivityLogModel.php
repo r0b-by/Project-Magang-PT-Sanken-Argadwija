@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class ActivityLogModel extends Model
 {
-    protected $table      = 'activity_logs';  // sesuaikan dengan nama tabel Anda
+    protected $table      = 'activity_logs';
     protected $primaryKey = 'id';
 
     protected $allowedFields = [

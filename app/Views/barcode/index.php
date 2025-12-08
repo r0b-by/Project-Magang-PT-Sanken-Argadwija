@@ -37,7 +37,7 @@
                     <td><?= $dok['nama_file'] ?></td>
                     <td>
                         <a href="/barcode/generate/<?= $dok['id'] ?>" class="btn btn-primary btn-sm">Generate</a>
-                        <a href="/barcode/detail/<?= $dok['id'] ?>" class="btn btn-secondary btn-sm">Cek Data</a>
+                        <a href="/scan/detail/<?= $dok['id'] ?>" class="btn btn-secondary btn-sm">Cek Data</a>
                     </td>
                 </tr>
                 <?php endforeach ?>
@@ -58,7 +58,7 @@
                 <th>Kode</th>
                 <th>Departement</th>
                 <th>QR Code</th>
-                <th>Preview</th>
+                <th>Link</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -68,19 +68,35 @@
                 <td><?= $dok['kode_dokumen'] ?></td>
                 <td><?= $dok['departement'] ?></td>
                 <td>
-                    <a href="/barcode/detail/<?= $dok['id'] ?>"><?= $dok['barcode'] ?></a>
-                </td>
-                <td>
+                    <style>
+                        .disabled-qrcode {
+                            pointer-events: none;
+                            cursor: default; /* Changes the cursor from a hand icon to a default arrow */
+                            color: gray;    /* Optional: styles the link to look disabled */
+                            text-decoration: none; /* Optional: removes the underline */
+                        }
+                    </style>
                     <?php if (!empty($dok['barcodeBase64'])): ?>
-                        <a href="/barcode/detail/<?= $dok['id'] ?>">
+                        <a class="disabled-qrcode" href="/barcode/detail/<?= $dok['id'] ?>">
                             <img src="data:image/png;base64,<?= $dok['barcodeBase64'] ?>" alt="QR Code" height="80">
                         </a>
                     <?php endif ?>
+                </td>s
+                <td>
+                    <style>
+                        .disabled-link {
+                            pointer-events: none;
+                            cursor: default; /* Changes the cursor from a hand icon to a default arrow */
+                            color: gray;    /* Optional: styles the link to look disabled */
+                            text-decoration: none; /* Optional: removes the underline */
+                        }
+                    </style>
+                    <a class="text-muted disabled-link" href="/scan/detail/<?= $dok['id'] ?>"><?= $dok['barcode'] ?></a>
                 </td>
                 <td>
                     <a href="/barcode/print/<?= $dok['id'] ?>" target="_blank" class="btn btn-success btn-sm">Download PNG</a>
                     <a href="/barcode/delete/<?= $dok['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus QR Code ini?')">Hapus</a>
-                    <a href="/barcode/detail/<?= $dok['id'] ?>" class="btn btn-info btn-sm">Cek Data</a>
+                    <a href="/scan/detail/<?= $dok['id'] ?>" class="btn btn-info btn-sm">Cek Data</a>
                 </td>
             </tr>
             <?php endforeach ?>

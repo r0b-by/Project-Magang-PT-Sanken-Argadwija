@@ -6,11 +6,11 @@ use App\Models\Iso00Model;
 
 class ScanController extends BaseController
 {
-    protected $iso00;
+    protected $iso;
 
     public function __construct()
     {
-        $this->iso00 = new Iso00Model();
+        $this->iso = new Iso00Model();
     }
 
     // Halaman form scan
@@ -29,7 +29,7 @@ class ScanController extends BaseController
         }
 
         // Cari dokumen berdasarkan barcode / kode dokumen
-        $item = $this->iso00
+        $item = $this->iso
             ->groupStart()
                 ->where('kode_dokumen', $barcode)
                 ->orWhere('barcode', $barcode)
@@ -47,7 +47,7 @@ class ScanController extends BaseController
     // Halaman detail setelah scan
     public function detail($id)
     {
-        $dok = $this->iso00->find($id);
+        $dok = $this->iso->find($id);
 
         if (!$dok) {
             return redirect()->back()->with('error', 'Data tidak ditemukan.');
@@ -57,5 +57,19 @@ class ScanController extends BaseController
         return view('Home/scan/detail', [
             'dok' => $dok
         ]);
+    }
+
+    public function file($id)
+    {
+        $dok = $this->iso->find($id);
+        if (!$dok || empty($dok['upload_dokumen'])) {
+            return $this->response->setStatusCode(404)->setBody('File tidak ditemukan');
+        }
+
+        // Jika yang disimpan adalah BINARY PDF
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $dok['nama_file'] . '"')
+            ->setBody($dok['upload_dokumen']);
     }
 }

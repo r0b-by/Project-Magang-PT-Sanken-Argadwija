@@ -23,34 +23,7 @@
             -ms-user-select: none;
             -webkit-touch-callout: none;
         }
-
-        /* Back to Home Button */
-        .btn-back-home {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            padding: 0.5rem 1.25rem;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.2);
-            z-index: 1000;
-        }
-
-        .btn-back-home:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-        }
-
+        
         .detail-card {
             background: white;
             border-radius: 20px;
@@ -113,12 +86,7 @@
             body {
                 padding: 0.5rem 0;
             }
-            .btn-back-home {
-                top: 15px;
-                left: 15px;
-                padding: 0.4rem 1rem;
-                font-size: 0.875rem;
-            }
+            
             .container {
                 padding: 0 0.5rem;
             }
@@ -151,15 +119,6 @@
         }
         
         @media (max-width: 576px) {
-            .btn-back-home {
-                position: relative;
-                top: 0;
-                left: 0;
-                margin-bottom: 1.5rem;
-                width: 100%;
-                justify-content: center;
-            }
-
             .card-header-custom h4 i,
             .section-title i {
                 font-size: 1rem;
@@ -182,13 +141,6 @@
 </head>
 <body oncontextmenu="return false;">
 <div class="container">
-
-    <!-- Back to Home Button -->
-    <a href="<?= base_url('/') ?>" class="btn-back-home">
-        <i class="fas fa-arrow-left"></i>
-        <span>Kembali ke Home</span>
-    </a>
-
     <!-- Detail Card -->
     <div class="detail-card">
         <div class="card-header-custom">
@@ -208,7 +160,7 @@
                     </div>
                     <div class="pdf-viewer-container">
                         <iframe 
-                            src="<?= base_url('scan/file/'.$dok['id']) ?>#toolbar=0&navpanes=0&scrollbar=1&view=FitH"
+                            src="<?= base_url('barcode/file/'.$dok['id']) ?>#toolbar=0&navpanes=0&scrollbar=1&view=FitH"
                             frameborder="0">
                         </iframe>
                     </div>

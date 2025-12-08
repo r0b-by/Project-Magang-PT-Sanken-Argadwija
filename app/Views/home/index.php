@@ -80,44 +80,8 @@
             box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
             color: white;
         }
-        /* Feature Cards */
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            margin: 0 auto 1rem;
-            transition: all 0.3s ease;
-        }
-        .feature-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-        }
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-        .feature-card h5 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: #212529;
-        }
-        .feature-card p {
-            font-size: 0.95rem;
-            line-height: 1.6;
+
+
         }
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
@@ -157,29 +121,7 @@
                 width: 100%;
                 max-width: 300px;
             }
-            /* Feature Cards Mobile - 3 Kolom Kecil */
-            .feature-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-                margin-bottom: 0.5rem;
-                border-radius: 10px;
-            }
-            .feature-card {
-                padding: 0.75rem 0.5rem;
-                border-radius: 10px;
-                margin-bottom: 0.75rem;
-            }
-            .feature-card h5 {
-                font-size: 0.8rem;
-                margin-bottom: 0.35rem;
-                font-weight: 600;
-            }
-            .feature-card p {
-                font-size: 0.65rem;
-                line-height: 1.4;
-                margin-bottom: 0;
-            }
+            
             /* Scanner Card Mobile */
             .scanner-card {
                 padding: 1.5rem 1rem;
@@ -226,26 +168,7 @@
                 padding: 0.6rem 1.25rem;
                 font-size: 0.875rem;
             }
-            /* Feature Cards Extra Small - Tetap 3 Kolom */
-            .feature-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 0.95rem;
-                margin-bottom: 0.4rem;
-                border-radius: 8px;
-            }
-            .feature-card {
-                padding: 0.65rem 0.4rem;
-                border-radius: 8px;
-            }
-            .feature-card h5 {
-                font-size: 0.75rem;
-                margin-bottom: 0.3rem;
-            }
-            .feature-card p {
-                font-size: 0.6rem;
-                line-height: 1.3;
-            }
+            
             .scanner-card {
                 padding: 1.25rem 0.875rem;
             }
@@ -264,20 +187,7 @@
             .hero-section p {
                 font-size: 0.85rem;
             }
-            .feature-icon {
-                width: 34px;
-                height: 34px;
-                font-size: 0.9rem;
-            }
-            .feature-card {
-                padding: 0.6rem 0.35rem;
-            }
-            .feature-card h5 {
-                font-size: 0.7rem;
-            }
-            .feature-card p {
-                font-size: 0.55rem;
-            }
+          
             .g-4 {
                 --bs-gutter-x: 0.4rem;
             }
@@ -344,36 +254,6 @@
             <a href="<?= base_url('/login') ?>" class="btn btn-custom-primary btn-lg">
                 <i class="fas fa-sign-in-alt me-2"></i>Login ke Sistem
             </a>
-        </div>
-    </div>
-    <!-- Features Section -->
-    <div class="row mb-5 g-4">
-        <div class="col-4">
-            <div class="feature-card text-center">
-                <div class="feature-icon">
-                    <i class="fas fa-camera"></i>
-                </div>
-                <h5>Scan Cepat</h5>
-                <p class="text-muted mb-0">Gunakan kamera untuk scan QR Code atau Barcode dalam hitungan detik</p>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="feature-card text-center">
-                <div class="feature-icon">
-                    <i class="fas fa-file-pdf"></i>
-                </div>
-                <h5>Akses Dokumen</h5>
-                <p class="text-muted mb-0">Lihat detail dan preview dokumen PDF secara langsung</p>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="feature-card text-center">
-                <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h5>Aman & Terpercaya</h5>
-                <p class="text-muted mb-0">Sistem terenkripsi untuk menjaga keamanan data dokumen Anda</p>
-            </div>
         </div>
     </div>
     <!-- Scanner Section -->

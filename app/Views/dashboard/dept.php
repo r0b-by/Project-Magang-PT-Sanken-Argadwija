@@ -109,7 +109,7 @@
                                         </td>
                                         <td><?= date('d/m/Y', strtotime($doc['uploaded_at'])) ?></td>
                                         <td>
-                                            <a href="/iso00/detail/<?= $doc['id'] ?>" 
+                                            <a href="/barcode/detail/<?= $doc['id'] ?>" 
                                                class="btn btn-sm btn-info">
                                                 <i class="fas fa-eye"></i>
                                             </a>

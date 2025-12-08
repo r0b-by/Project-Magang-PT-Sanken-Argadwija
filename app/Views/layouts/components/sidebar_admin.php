@@ -46,25 +46,7 @@
                     <i class="fas fa-qrcode me-2"></i>
                     <span>Generate Barcode</span>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= strpos(current_url(), '/iso001') !== false ? 'active' : '' ?>" 
-                   href="/iso001">
-                    <i class="fas fa-qrcode me-2"></i>
-                    <span>Hasil Scan</span>
-                </a>
-            </li>
-            
-            <li class="nav-item mt-3">
-                <small class="text-uppercase text-muted ms-3">Monitoring</small>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= strpos(current_url(), '/activity') !== false ? 'active' : '' ?>" 
-                   href="/activity">
-                    <i class="fas fa-history me-2"></i>
-                    <span>Activity Log</span>
-                </a>
-            </li>
+            </li> 
         </ul>
     </div>
     

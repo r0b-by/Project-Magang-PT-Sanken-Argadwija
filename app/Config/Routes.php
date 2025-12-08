@@ -58,8 +58,10 @@ $routes->group('barcode', ['filter' => 'auth'], function($routes) {
     $routes->post('generate-bulk', 'BarcodeController::generateBulk');
     $routes->get('delete/(:num)', 'BarcodeController::delete/$1');
     $routes->get('print/(:num)', 'BarcodeController::print/$1');
+    $routes->get('file/(:num)', 'BarcodeController::file/$1');
+    
 });
-$routes->get('barcode/file/(:num)', 'BarcodeController::file/$1');
+
 /*
 |-------------------------------------------------------------------------- 
 | SCAN QR / BARCODE
@@ -69,6 +71,7 @@ $routes->get('barcode/file/(:num)', 'BarcodeController::file/$1');
 $routes->get('scan', 'ScanController::form');
 $routes->post('scan/process', 'ScanController::process');
 $routes->get('scan/detail/(:num)', 'BarcodeController::detail/$1');
+$routes->get('scan/file/(:num)','ScanController::file/$1');
 
 /*
 |-------------------------------------------------------------------------- 
