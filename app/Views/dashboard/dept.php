@@ -46,16 +46,6 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-body text-center">
-                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                    <h3>12</h3>
-                    <p class="mb-0">Dokumen Terverifikasi</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
                     <i class="fas fa-clock fa-3x text-warning mb-3"></i>
                     <h3>3</h3>
                     <p class="mb-0">Menunggu Review</p>
@@ -109,10 +99,6 @@
                                         </td>
                                         <td><?= date('d/m/Y', strtotime($doc['uploaded_at'])) ?></td>
                                         <td>
-                                            <a href="/barcode/detail/<?= $doc['id'] ?>" 
-                                               class="btn btn-sm btn-info">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
                                             <a href="/iso00/edit/<?= $doc['id'] ?>" 
                                                class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
@@ -129,6 +115,7 @@
         </div>
         
         <!-- Recent Activity -->
+        <!-- Recent Activity -->
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
@@ -139,15 +126,27 @@
                         <p class="text-muted text-center py-3">Belum ada aktivitas</p>
                     <?php else: ?>
                         <div class="list-group list-group-flush">
+
                             <?php foreach ($log_saya as $log): ?>
+                            <?php
+                                // ---- FIXED ICON DETECTION (tanpa activity_type) ----
+                                $activity = strtolower($log['activity']);
+                                if (str_contains($activity, 'login')) {
+                                    $icon = 'sign-in-alt';
+                                } elseif (str_contains($activity, 'upload')) {
+                                    $icon = 'upload';
+                                } elseif (str_contains($activity, 'scan')) {
+                                    $icon = 'qrcode';
+                                } else {
+                                    $icon = 'edit';
+                                }
+                            ?>
+                            
                             <div class="list-group-item border-0 px-0 py-2">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm rounded-circle bg-light d-flex align-items-center justify-content-center">
-                                            <i class="fas fa-<?= 
-                                                $log['activity_type'] == 'login' ? 'sign-in-alt' : 
-                                                ($log['activity_type'] == 'upload' ? 'upload' : 
-                                                ($log['activity_type'] == 'scan' ? 'qrcode' : 'edit')) ?> text-primary"></i>
+                                            <i class="fas fa-<?= $icon ?> text-primary"></i>
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
@@ -157,6 +156,7 @@
                                 </div>
                             </div>
                             <?php endforeach; ?>
+
                         </div>
                     <?php endif; ?>
                 </div>

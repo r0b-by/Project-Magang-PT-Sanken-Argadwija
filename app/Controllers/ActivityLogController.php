@@ -13,28 +13,48 @@ class ActivityLogController extends BaseController
         $this->log = new ActivityLogModel();
     }
 
-    // Menampilkan semua log
+    // ============================================
+    // LIST ALL ACTIVITY LOG
+    // ============================================
     public function index()
     {
-        $data['logs'] = $this->log
-            ->select('activity_logs.*, users.username')
+        $logs = $this->log
+            ->select('activity_logs.*, users.fullname AS user_fullname, users.role AS user_role')
             ->join('users', 'users.id = activity_logs.user_id', 'left')
             ->orderBy('activity_logs.id', 'DESC')
             ->findAll();
 
-        return view('activity_log/index', $data);
+        // Fallback jika user sudah dihapus
+        foreach ($logs as &$log) {
+            $log['user_fullname'] = $log['user_fullname'] ?: 'Unknown User';
+            $log['user_role']     = $log['user_role'] ?: '-';
+        }
+
+        return view('activity_log/index', [
+            'logs' => $logs
+        ]);
     }
 
-    // Log milik user tertentu
+    // ============================================
+    // LIST LOG BY USER
+    // ============================================
     public function userLog($id)
     {
-        $data['logs'] = $this->log
-            ->select('activity_logs.*, users.username')
+        $logs = $this->log
+            ->select('activity_logs.*, users.fullname AS user_fullname, users.role AS user_role')
             ->join('users', 'users.id = activity_logs.user_id', 'left')
-            ->where('user_id', $id)
+            ->where('activity_logs.user_id', $id)
             ->orderBy('activity_logs.id', 'DESC')
             ->findAll();
 
-        return view('activity_log/user', $data);
+        // fallback tetap diperlukan
+        foreach ($logs as &$log) {
+            $log['user_fullname'] = $log['user_fullname'] ?: 'Unknown User';
+            $log['user_role']     = $log['user_role'] ?: '-';
+        }
+
+        return view('activity_log/user_log', [
+            'logs' => $logs
+        ]);
     }
 }
