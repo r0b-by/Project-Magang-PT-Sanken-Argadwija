@@ -23,12 +23,21 @@ class DashboardAdminController extends BaseController
 
     public function index()
     {
+        // Ambil log dengan JOIN + PAGINATION
+        $logQuery = $this->log
+            ->select('activity_logs.*, users.fullname AS user_fullname, users.role AS user_role')
+            ->join('users', 'users.id = activity_logs.user_id', 'left')
+            ->orderBy('activity_logs.id', 'DESC');
+
         $data = [
             'total_user'      => $this->user->countAll(),
             'total_dokumen'   => $this->iso00->countAll(),
             'dokumen_baru'    => $this->iso00->orderBy('id', 'DESC')->limit(6)->find(),
             'dept'            => $this->user->where('role', 'dept')->findAll(),
-            'log_terbaru'     => $this->log->orderBy('id', 'DESC')->limit(15)->find(),
+
+            // Hasil JOIN + pagination
+            'log_terbaru'     => $logQuery->paginate(5, 'log'),
+            'pager'           => $this->log->pager
         ];
 
         return view('dashboard/admin', $data);

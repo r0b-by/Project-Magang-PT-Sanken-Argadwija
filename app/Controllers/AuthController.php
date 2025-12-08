@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\ActivityLogModel;
 
 class AuthController extends BaseController
 {
@@ -19,6 +20,7 @@ class AuthController extends BaseController
     {
         $session = session();
         $model = new UserModel();
+        $log    = new ActivityLogModel();
 
         $username = trim($this->request->getPost('username'));
         $password = trim($this->request->getPost('password'));
@@ -33,12 +35,10 @@ class AuthController extends BaseController
             return redirect()->back()->with('error', 'Username tidak ditemukan!');
         }
 
-        // Cek status akun
         if ($user['status_akun'] === 'nonaktif') {
             return redirect()->back()->with('error', 'Akun anda tidak aktif. Silakan hubungi admin.');
         }
 
-        // Verifikasi password
         if (!password_verify($password, $user['password'])) {
             return redirect()->back()->with('error', 'Password salah!');
         }
@@ -57,6 +57,13 @@ class AuthController extends BaseController
         $model->update($user['id'], [
             'last_active_at' => date('Y-m-d H:i:s'),
             'is_online'      => 1,
+        ]);
+
+        // 1️⃣ SIMPAN LOG LOGIN
+        $log->save([
+            'user_id'   => $user['id'],
+            'activity'  => 'Login ke sistem',
+            'ip_address'=> $this->request->getIPAddress(),
         ]);
 
         return $this->redirectByRole($user['role']);
@@ -78,9 +85,17 @@ class AuthController extends BaseController
 
     public function logout()
     {
+        $log = new ActivityLogModel();
         $userId = session()->get('user_id');
 
         if ($userId) {
+            // 2️⃣ SIMPAN LOG LOGOUT
+            $log->save([
+                'user_id'   => $userId,
+                'activity'  => 'Logout dari sistem',
+                'ip_address'=> $this->request->getIPAddress(),
+            ]);
+
             $model = new UserModel();
             $model->update($userId, [
                 'is_online' => 0,
