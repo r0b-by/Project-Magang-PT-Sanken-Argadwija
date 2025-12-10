@@ -3,36 +3,37 @@
 <?= $this->section('title') ?>Upload Dokumen Baru<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-upload me-2"></i>Upload Dokumen Baru
+<div class="container-fluid px-2 px-md-3">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0 text-gray-800">
+            <i class="fas fa-upload me-2"></i>Upload Dokumen
         </h1>
-        <a href="/iso00" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Kembali
+        <a href="/iso00" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+            <span class="d-none d-sm-inline"> Kembali</span>
         </a>
     </div>
     
-    <!-- Upload Form -->
+    <!-- Form -->
     <div class="card">
-        <div class="card-body">
+        <div class="card-body p-3 p-md-4">
             <form action="/iso00/store" method="POST" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 
                 <!-- Document Code -->
                 <div class="mb-3">
-                    <label for="kode_dokumen" class="form-label">Kode Dokumen *</label>
+                    <label for="kode_dokumen" class="form-label small fw-bold">Kode Dokumen *</label>
                     <input type="text" 
-                           class="form-control <?= session('errors.kode_dokumen') ? 'is-invalid' : '' ?>" 
+                           class="form-control form-control-sm <?= session('errors.kode_dokumen') ? 'is-invalid' : '' ?>" 
                            id="kode_dokumen" 
                            name="kode_dokumen" 
                            value="<?= old('kode_dokumen') ?>"
-                           placeholder="Contoh: ISO-001/2023"
+                           placeholder="ISO-001/2023"
                            required>
-                    <small class="text-muted">Format: ISO-[nomor]/[tahun]</small>
                     <?php if (session('errors.kode_dokumen')): ?>
-                        <div class="invalid-feedback">
+                        <div class="invalid-feedback small">
                             <?= session('errors.kode_dokumen') ?>
                         </div>
                     <?php endif; ?>
@@ -40,8 +41,8 @@
                 
                 <!-- Department -->
                 <div class="mb-3">
-                    <label for="departement" class="form-label">Departemen *</label>
-                    <select class="form-control <?= session('errors.departement') ? 'is-invalid' : '' ?>" 
+                    <label for="departement" class="form-label small fw-bold">Departemen *</label>
+                    <select class="form-select form-select-sm <?= session('errors.departement') ? 'is-invalid' : '' ?>" 
                             id="departement" 
                             name="departement" 
                             required>
@@ -54,7 +55,7 @@
                         <option value="QA" <?= old('departement') == 'QA' ? 'selected' : '' ?>>QA</option>
                     </select>
                     <?php if (session('errors.departement')): ?>
-                        <div class="invalid-feedback">
+                        <div class="invalid-feedback small">
                             <?= session('errors.departement') ?>
                         </div>
                     <?php endif; ?>
@@ -62,59 +63,58 @@
                 
                 <!-- File Upload -->
                 <div class="mb-3">
-                    <label for="upload_dokumen" class="form-label">File Dokumen *</label>
-                    <div class="input-group">
-                        <input type="file" 
-                               class="form-control <?= session('errors.upload_dokumen') ? 'is-invalid' : '' ?>" 
-                               id="upload_dokumen" 
-                               name="upload_dokumen" 
-                               accept=".pdf,.doc,.docx,.xls,.xlsx"
-                               required>
-                        <span class="input-group-text">
-                            <i class="fas fa-file"></i>
-                        </span>
-                    </div>
-                    <small class="text-muted">Format: PDF, DOC, DOCX, XLS, XLSX (Max 10MB)</small>
+                    <label for="upload_dokumen" class="form-label small fw-bold">File Dokumen *</label>
+                    <input type="file" 
+                           class="form-control form-control-sm <?= session('errors.upload_dokumen') ? 'is-invalid' : '' ?>" 
+                           id="upload_dokumen" 
+                           name="upload_dokumen" 
+                           accept=".pdf"
+                           required>
+                    <small class="text-muted d-block mt-1">PDF only • Max 10MB</small>
                     <?php if (session('errors.upload_dokumen')): ?>
-                        <div class="invalid-feedback d-block">
+                        <div class="invalid-feedback small d-block">
                             <?= session('errors.upload_dokumen') ?>
                         </div>
                     <?php endif; ?>
                 </div>
                 
                 <!-- Description -->
-                <div class="mb-4">
-                    <label for="keterangan" class="form-label">Keterangan</label>
-                    <textarea class="form-control <?= session('errors.keterangan') ? 'is-invalid' : '' ?>" 
+                <div class="mb-3">
+                    <label for="keterangan" class="form-label small fw-bold">Keterangan</label>
+                    <textarea class="form-control form-control-sm <?= session('errors.keterangan') ? 'is-invalid' : '' ?>" 
                               id="keterangan" 
                               name="keterangan" 
-                              rows="3"
-                              placeholder="Deskripsi atau catatan tentang dokumen ini"><?= old('keterangan') ?></textarea>
+                              rows="2"
+                              placeholder="Catatan tentang dokumen ini"><?= old('keterangan') ?></textarea>
                     <?php if (session('errors.keterangan')): ?>
-                        <div class="invalid-feedback">
+                        <div class="invalid-feedback small">
                             <?= session('errors.keterangan') ?>
                         </div>
                     <?php endif; ?>
                 </div>
                 
-                <!-- Auto-generated info -->
-                <div class="alert alert-info">
-                    <h6><i class="fas fa-info-circle me-2"></i>Informasi Sistem:</h6>
-                    <ul class="mb-0">
-                        <li>Barcode akan dibuat otomatis oleh sistem</li>
-                        <li>Uploader: <?= session()->get('fullname') ?></li>
-                        <li>Tanggal: <?= date('d F Y H:i') ?></li>
-                        <li>Status: <span class="badge bg-info">Draft</span></li>
-                    </ul>
+                <!-- System Info -->
+                <div class="alert alert-info py-2 mb-3">
+                    <div class="small">
+                        <div class="fw-semibold">
+                            <i class="fas fa-info-circle me-1"></i>Informasi:
+                        </div>
+                        <div class="mt-1">
+                            <span class="badge bg-secondary"><?= session()->get('fullname') ?></span>
+                            <span class="badge bg-secondary ms-1"><?= date('d/m/Y') ?></span>
+                            <span class="badge bg-info ms-1">Draft</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Submit Button -->
-                <div class="text-end">
-                    <button type="reset" class="btn btn-secondary">
-                        <i class="fas fa-redo me-1"></i>Reset
+                <!-- Submit Buttons -->
+                <div class="d-flex justify-content-between">
+                    <button type="reset" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-redo"></i>
+                        <span class="d-none d-sm-inline"> Reset</span>
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-upload me-1"></i>Upload Dokumen
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-upload me-1"></i>Upload
                     </button>
                 </div>
             </form>
@@ -123,18 +123,16 @@
 </div>
 
 <script>
-    // Auto-generate document code
-    document.getElementById('departement').addEventListener('change', function() {
-        var dept = this.value;
-        var codeInput = document.getElementById('kode_dokumen');
-        
-        if (dept && !codeInput.value) {
-            var deptCode = dept.substring(0, 3).toUpperCase();
-            var year = new Date().getFullYear();
-            var random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            
-            codeInput.value = 'ISO-' + deptCode + '-' + random + '/' + year;
-        }
-    });
+document.getElementById('departement').addEventListener('change', function() {
+    var dept = this.value;
+    var codeInput = document.getElementById('kode_dokumen');
+    
+    if (dept && !codeInput.value) {
+        var deptCode = dept.substring(0, 3).toUpperCase();
+        var year = new Date().getFullYear();
+        var random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        codeInput.value = 'ISO-' + deptCode + '-' + random + '/' + year;
+    }
+});
 </script>
 <?= $this->endSection() ?>

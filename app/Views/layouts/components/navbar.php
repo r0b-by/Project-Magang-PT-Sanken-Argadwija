@@ -1,62 +1,46 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
-    <div class="container-fluid">
-        <button class="btn btn-light me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container-fluid px-2 px-md-3">
+        <!-- Menu Toggle for Mobile -->
+        <button class="btn btn-sm btn-outline-secondary me-2 d-lg-none" 
+                type="button" 
+                data-bs-toggle="offcanvas" 
+                data-bs-target="#offcanvasSidebar">
             <i class="fas fa-bars"></i>
         </button>
         
-        <span class="navbar-brand fw-bold text-primary">
-            <i class="fas fa-folder-tree me-2"></i>DMS
+        <!-- Brand -->
+        <span class="navbar-brand fw-bold">
+            <i class="fas fa-folder-tree me-2 text-primary"></i>DMS
         </span>
         
-        <div class="ms-auto d-flex align-items-center">
-            <!-- Notifications -->
-            <div class="dropdown me-3">
-                <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        3
-                    </span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end">
-                    <h6 class="dropdown-header">Notifikasi</h6>
-                    <a class="dropdown-item" href="#">
-                        <small>Dokumen baru diupload</small>
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <small>Scan berhasil dicatat</small>
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <small>Update sistem tersedia</small>
-                    </a>
-                </div>
-            </div>
-            
-            <!-- User Profile -->
+        <!-- User Menu -->
+        <div class="ms-auto">
             <div class="dropdown">
-                <button class="btn btn-light d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center" 
+                        type="button" 
+                        data-bs-toggle="dropdown">
                     <?php if (session()->get('photo')): ?>
                         <img src="/uploads/foto_user/<?= session()->get('photo') ?>" 
-                             class="profile-img me-2" 
+                             class="rounded-circle me-2" 
+                             width="32" 
+                             height="32"
                              alt="Profile">
                     <?php else: ?>
                         <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                             style="width: 40px; height: 40px;">
+                             style="width: 32px; height: 32px;">
                             <?= strtoupper(substr(session()->get('fullname'), 0, 1)) ?>
                         </div>
                     <?php endif; ?>
-                    
-                    <div class="text-start">
-                        <div class="fw-bold"><?= session()->get('fullname') ?></div>
-                        <small class="text-muted"><?= ucfirst(session()->get('role')) ?></small>
-                    </div>
+                    <span class="d-none d-sm-inline">
+                        <?= session()->get('fullname') ?>
+                    </span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-user me-2"></i>Profil
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-cog me-2"></i>Pengaturan
-                    </a>
+                    <div class="px-3 py-2 small">
+                        <div class="fw-bold"><?= session()->get('fullname') ?></div>
+                        <div class="text-muted"><?= ucfirst(session()->get('role')) ?></div>
+                    </div>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="/logout">
                         <i class="fas fa-sign-out-alt me-2"></i>Logout
@@ -67,22 +51,24 @@
     </div>
 </nav>
 
-<!-- Offcanvas Sidebar for Mobile -->
+<!-- Mobile Sidebar -->
 <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="offcanvasSidebar">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Menu</h5>
+    <div class="offcanvas-header border-bottom">
+        <h6 class="offcanvas-title">Menu</h6>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body p-0">
+
         <?php 
-        $role = session()->get('role');
+        // FIX: tambahkan ini supaya tidak error
+        $role = session()->get('role'); 
+
         if ($role === 'admin') {
             echo view('layouts/components/sidebar_admin');
         } elseif ($role === 'dept') {
             echo view('layouts/components/sidebar_dept');
-        } elseif ($role === 'karyawan') {
-            echo view('layouts/components/sidebar_karyawan');
         }
         ?>
+        
     </div>
 </div>
