@@ -3,152 +3,114 @@
 <?= $this->section('title') ?>Dashboard Admin<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
+<div class="container-fluid px-2 px-md-3">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0 text-gray-800">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
         </h1>
-        <div>
-            <span class="badge bg-primary">
-                <i class="fas fa-calendar me-1"></i>
-                <?= date('d F Y') ?>
-            </span>
-        </div>
+        <span class="badge bg-primary d-none d-sm-inline">
+            <?= date('d/m/Y') ?>
+        </span>
     </div>
-    
-    <!-- Statistics Cards -->
-    <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-primary h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">
-                                Total User
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">
-                                <?= $total_user ?>
-                            </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-2 g-md-3 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border-start border-primary">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small text-muted">Total User</div>
+                            <div class="h5 mb-0 fw-bold"><?= $total_user ?></div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-primary"></i>
+                        <div class="ms-2">
+                            <i class="fas fa-users text-primary"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-success h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-success text-uppercase mb-1">
-                                Total Dokumen
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">
-                                <?= $total_dokumen ?>
-                            </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border-start border-success">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small text-muted">Total Dokumen</div>
+                            <div class="h5 mb-0 fw-bold"><?= $total_dokumen ?></div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-file-alt fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-info h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-info text-uppercase mb-1">
-                                Total Scan
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-qrcode fa-2x text-info"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card border-left-warning h-100">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">
-                                Online Users
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">
-                                15
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-signal fa-2x text-warning"></i>
+                        <div class="ms-2">
+                            <i class="fas fa-file-alt text-success"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- User Distribution -->
-    <div class="row mb-4">
-        <div class="col-lg-6 mb-4">
+
+    <!-- Content Row -->
+    <div class="row g-2 g-md-3">
+        <!-- User Stats -->
+        <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold">Distribusi User</h6>
-                    <a href="/users" class="btn btn-sm btn-primary">Lihat Semua</a>
+                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">Distribusi User</h6>
+                    <a href="/users" class="btn btn-sm btn-primary">Lihat</a>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="card bg-light">
+                <div class="card-body p-2 p-md-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2 text-center">
+                                <div class="h4 text-primary mb-1"><?= $total_user ?></div>
+                                <div class="small text-muted">Total User</div>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h3 class="text-success"><?= count($dept) ?></h3>
-                                    <p class="mb-0">Departemen</p>
-                                </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2 text-center">
+                                <div class="h4 text-success mb-1"><?= count($dept) ?></div>
+                                <div class="small text-muted">Departemen</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Recent Documents -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold">Dokumen Terbaru</h6>
-                    <a href="/iso00" class="btn btn-sm btn-primary">Lihat Semua</a>
+                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">Dokumen Terbaru</h6>
+                    <a href="/iso00" class="btn btn-sm btn-primary">Lihat</a>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead>
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Kode</th>
-                                    <th>Departemen</th>
+                                    <th class="ps-3">Kode</th>
+                                    <th class="d-none d-sm-table-cell">Departemen</th>
                                     <th>Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($dokumen_baru as $doc): ?>
-                                <tr>
-                                    <td><?= $doc['kode_dokumen'] ?></td>
-                                    <td><?= $doc['departement'] ?></td>
-                                    <td><?= date('d/m/Y', strtotime($doc['uploaded_at'])) ?></td>
-                                </tr>
-                                <?php endforeach; ?>
+                                <?php if (!empty($dokumen_baru)): ?>
+                                    <?php foreach ($dokumen_baru as $doc): ?>
+                                        <tr>
+                                            <td class="ps-3"><?= $doc['kode_dokumen'] ?></td>
+                                            <td class="d-none d-sm-table-cell"><?= $doc['departement'] ?></td>
+                                            <td><?= date('d/m/y', strtotime($doc['uploaded_at'])) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">
+                                            Tidak ada dokumen
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -156,64 +118,54 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Recent Activity -->
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="m-0 fw-bold">Aktivitas Terbaru</h6>
-            <a href="/activity" class="btn btn-sm btn-primary">Lihat Semua</a>
+    <div class="card mt-3">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold">Aktivitas Terbaru</h6>
+            <a href="/activity" class="btn btn-sm btn-primary">Lihat</a>
         </div>
-        <div class="card-body">
-            <div class="timeline">
-                <?php foreach ($log_terbaru as $log): ?>
-                <div class="timeline-item mb-3">
-                    <div class="timeline-marker bg-<?= 
-                        $log['activity_type'] == 'login' ? 'success' : 
-                        ($log['activity_type'] == 'upload' ? 'primary' : 
-                        ($log['activity_type'] == 'scan' ? 'info' : 'warning')) ?>"></div>
-                    <div class="timeline-content">
-                        <div class="d-flex justify-content-between">
-                            <h6 class="mb-1"><?= $log['activity'] ?></h6>
-                            <small class="text-muted"><?= $log['created_at'] ?></small>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                <?php if (!empty($log_terbaru)): ?>
+                    <?php foreach ($log_terbaru as $log): ?>
+                        <div class="list-group-item border-0 px-3 py-2">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <?php
+                                    $icon = 'edit';
+                                    $color = 'text-muted';
+                                    if (str_contains(strtolower($log['activity']), 'login')) {
+                                        $icon = 'sign-in-alt';
+                                        $color = 'text-success';
+                                    } elseif (str_contains(strtolower($log['activity']), 'upload')) {
+                                        $icon = 'upload';
+                                        $color = 'text-primary';
+                                    } elseif (str_contains(strtolower($log['activity']), 'scan')) {
+                                        $icon = 'qrcode';
+                                        $color = 'text-info';
+                                    }
+                                    ?>
+                                    <i class="fas fa-<?= $icon ?> <?= $color ?>"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small"><?= $log['activity'] ?></div>
+                                    <div class="text-muted smaller">
+                                        <?= $log['fullname'] ?> • 
+                                        <?= date('d/m/y H:i', strtotime($log['created_at'])) ?>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-muted mb-0">
-                            <i class="fas fa-user me-1"></i>
-                            <?= $log['fullname'] ?> (<?= $log['role'] ?>)
-                        </p>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="text-center py-3">
+                        <p class="text-muted small mb-0">Belum ada aktivitas</p>
                     </div>
-                </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-    
-    .timeline-item {
-        position: relative;
-        padding-left: 20px;
-    }
-    
-    .timeline-marker {
-        position: absolute;
-        left: -8px;
-        top: 6px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background-color: #007bff;
-    }
-    
-    .timeline-content {
-        background: #f8f9fa;
-        padding: 10px 15px;
-        border-radius: 5px;
-        border-left: 3px solid;
-    }
-</style>
+</div>
 <?= $this->endSection() ?>

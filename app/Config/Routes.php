@@ -7,19 +7,19 @@ use CodeIgniter\Config\Services;
 $routes = Services::routes();
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | AUTH
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
-$routes->get('/', 'HomeController::home');        // Halaman home dengan tombol login & scanner
+$routes->get('/', 'HomeController::home');        
 $routes->get('/login', 'AuthController::login');
 $routes->post('/login/process', 'AuthController::process');
 $routes->get('/logout', 'AuthController::logout');
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | USER MANAGEMENT (ADMIN ONLY)
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 $routes->group('users', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('/', 'UserController::index');
@@ -31,26 +31,42 @@ $routes->group('users', ['filter' => 'role:admin'], function ($routes) {
 });
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | ISO 00 — Master Dokumen
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
+
+    // Main pages
     $routes->get('/', 'Iso00Controller::index');
     $routes->get('create', 'Iso00Controller::create');
     $routes->post('store', 'Iso00Controller::store');
     $routes->get('edit/(:num)', 'Iso00Controller::edit/$1');
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
     $routes->get('delete/(:num)', 'Iso00Controller::delete/$1');
-    $routes->get('show/(:num)', 'Iso00Controller::show/$1');          // Detail dokumen
-    $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');      // View PDF
-    $routes->get('download/(:num)', 'Iso00Controller::download/$1');  // Download PDF
+
+    // Viewing & downloading
+    $routes->get('show/(:num)', 'Iso00Controller::show/$1');          
+    $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');      
+    $routes->get('download/(:num)', 'Iso00Controller::download/$1');  
+
+    // History per file (REQUIRED: ID)
+    $routes->get('history/(:num)', 'Iso00Controller::history/$1');     
+
+    // Semua history
+    $routes->get('all-history', 'Iso00Controller::allHistory');        
+
+    // View / Download file revisi
+    $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');  
+    $routes->get('history/download/(:num)', 'Iso00Controller::downloadHistoryFile/$1');
+    $routes->get('history', 'Iso00Controller::allHistory');
+    
 });
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | BARCODE GENERATOR
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 $routes->group('barcode', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'BarcodeController::index');
@@ -59,32 +75,30 @@ $routes->group('barcode', ['filter' => 'auth'], function($routes) {
     $routes->get('delete/(:num)', 'BarcodeController::delete/$1');
     $routes->get('print/(:num)', 'BarcodeController::print/$1');
     $routes->get('file/(:num)', 'BarcodeController::file/$1');
-    
 });
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | SCAN QR / BARCODE
-|-------------------------------------------------------------------------- 
-| Scanner akan ditampilkan langsung di home, tanpa ISO001
+|--------------------------------------------------------------------------
 */
 $routes->get('scan', 'ScanController::form');
 $routes->post('scan/process', 'ScanController::process');
 $routes->get('scan/detail/(:num)', 'BarcodeController::detail/$1');
-$routes->get('scan/file/(:num)','ScanController::file/$1');
+$routes->get('scan/file/(:num)', 'ScanController::file/$1');
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | DASHBOARD ROLE BASED
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 $routes->get('/dashboard/admin', 'DashboardAdminController::index', ['filter' => 'role:admin']);
 $routes->get('/dashboard/dept', 'DashboardDeptController::index', ['filter' => 'role:dept']);
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | ACTIVITY LOG
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 $routes->group('activity', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'ActivityLogController::index');

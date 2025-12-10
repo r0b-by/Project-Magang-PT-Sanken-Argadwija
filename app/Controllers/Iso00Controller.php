@@ -3,25 +3,27 @@
 namespace App\Controllers;
 
 use App\Models\Iso00Model;
+use App\Models\Iso001Model;
 use App\Models\UserModel;
-use CodeIgniter\Controller;
 
 class Iso00Controller extends BaseController
 {
     protected $iso00;
+    protected $iso001;
     protected $user;
 
     public function __construct()
     {
-        $this->iso00 = new Iso00Model();
-        $this->user  = new UserModel();
+        $this->iso00  = new Iso00Model();
+        $this->iso001 = new Iso001Model();
+        $this->user   = new UserModel();
     }
 
     public function index()
     {
         $data['dokumen'] = $this->iso00
             ->select('iso_00.*, users.fullname, users.foto, users.role')
-            ->join('users', 'users.id = iso_00.uploaded_by')  // Ubah ini
+            ->join('users', 'users.id = iso_00.uploaded_by')
             ->orderBy('iso_00.id', 'DESC')
             ->findAll();
 
@@ -37,31 +39,25 @@ class Iso00Controller extends BaseController
     {
         $file = $this->request->getFile('upload_dokumen');
 
-        if (!$file->isValid()) {
+        if (!$file || !$file->isValid()) {
             return redirect()->back()->with('error', 'File tidak valid!');
         }
 
-        // Ambil isi file sebagai binary
         $pdfData = file_get_contents($file->getTempName());
-
-        // Ambil data user yang sedang login
         $user = $this->user->find(session()->get('user_id'));
 
         $this->iso00->save([
             'kode_dokumen'   => $this->request->getPost('kode_dokumen'),
             'departement'    => $this->request->getPost('departement'),
-            'nama_file'      => $file->getClientName(), // nama asli file
-            'upload_dokumen' => $pdfData, // BLOB PDF
+            'nama_file'      => $file->getClientName(),
+            'upload_dokumen' => $pdfData,
             'keterangan'     => $this->request->getPost('keterangan'),
             'status'         => 'save',
-
-            // Uploader info
             'uploaded_by'    => session()->get('user_id'),
             'uploader_name'  => $user['fullname'] ?? 'Unknown',
             'uploader_role'  => $user['role'] ?? 'unknown',
             'uploader_foto'  => $user['foto'] ?? null,
             'uploaded_at'    => date('Y-m-d H:i:s'),
-
             'barcode'        => $this->request->getPost('barcode')
         ]);
 
@@ -71,50 +67,65 @@ class Iso00Controller extends BaseController
     public function edit($id)
     {
         $dokumen = $this->iso00->find($id);
-        
         if (!$dokumen) {
             return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
         }
-
-        // Kirim data dokumen ke view
-        $data['dokumen'] = $dokumen;
-        
-        return view('iso00/edit', $data);
+        return view('iso00/edit', ['dokumen' => $dokumen]);
     }
 
     public function update($id)
     {
+        $dokumen = $this->iso00->find($id);
+
+        if (!$dokumen) {
+            return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
+        }
+
         $file = $this->request->getFile('upload_dokumen');
+
+        // ==============================
+        // Simpan versi lama ke tabel histori iso_001
+        // ==============================
+        if (!empty($dokumen['upload_dokumen'])) {
+            $this->iso001->insert([
+                'iso00_id'      => $dokumen['id'],
+                'kode_dokumen'  => $dokumen['kode_dokumen'],
+                'departement'   => $dokumen['departement'],
+                'nama_file'     => $dokumen['nama_file'],
+                'upload_dokumen'=> $dokumen['upload_dokumen'], 
+                'keterangan'    => $dokumen['keterangan'],
+                'status'        => 'revisi',
+                'uploaded_by'   => $dokumen['uploaded_by'],
+                'uploader_name' => $dokumen['uploader_name'],
+                'uploaded_at'   => $dokumen['uploaded_at'],
+                'barcode'       => $dokumen['barcode']
+            ]);
+        }
+
+        // ==============================
+        // Siapkan data update
+        // ==============================
         $updateData = [
             'kode_dokumen' => $this->request->getPost('kode_dokumen'),
             'departement'  => $this->request->getPost('departement'),
             'keterangan'   => $this->request->getPost('keterangan'),
+            'status'       => $this->request->getPost('status') ?? 'revisi',
+            'barcode'      => $this->request->getPost('barcode'),
+            'updated_by'   => session()->get('user_id'),
+            'updated_at'   => date('Y-m-d H:i:s'),
         ];
 
-        if ($file && $file->isValid()) {
-            $filename = $file->getRandomName();
-            $file->move(WRITEPATH . 'uploads/', $filename);
-            $updateData['upload_dokumen'] = $filename;
-            $updateData['nama_file'] = $filename;
-        }
-
-        // Jika ada user yang update, simpan info
-        if (session()->has('user_id')) {
-            $user = $this->user->find(session()->get('user_id'));
-            $updateData['updated_by'] = session()->get('user_id');
-            $updateData['updated_at'] = date('Y-m-d H:i:s');
+        // File baru?
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $updateData['nama_file']      = $file->getClientName();
+            $updateData['upload_dokumen'] = file_get_contents($file->getTempName());
         }
 
         $this->iso00->update($id, $updateData);
 
-        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil diperbarui!');
+        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil diperbarui dan historis tersimpan!');
     }
 
-    public function detail($id)
-    {
-        // Panggil method show() yang sudah ada
-        return $this->show($id);
-    }
     public function show($id)
     {
         $data['dokumen'] = $this->iso00
@@ -122,12 +133,11 @@ class Iso00Controller extends BaseController
                 uploader.fullname AS uploader_name,
                 uploader.role AS uploader_role,
                 uploader.foto AS uploader_foto,
-
                 updater.fullname AS updater_name,
                 updater.role AS updater_role,
                 updater.foto AS updater_foto
             ')
-            ->join('users AS uploader', 'uploader.id = iso_00.uploaded_by') // Ubah ini
+            ->join('users AS uploader', 'uploader.id = iso_00.uploaded_by')
             ->join('users AS updater', 'updater.id = iso_00.updated_by', 'left')
             ->where('iso_00.id', $id)
             ->first();
@@ -138,34 +148,75 @@ class Iso00Controller extends BaseController
     public function viewFile($id)
     {
         $dokumen = $this->iso00->find($id);
-
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
-        }
+        if (!$dokumen) return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="' . $dokumen['nama_file'] . '"')
-            ->setBody($dokumen['upload_dokumen']); // ambil dari database
+            ->setHeader('Content-Disposition', 'inline; filename="'.$dokumen['nama_file'].'"')
+            ->setBody($dokumen['upload_dokumen']);
     }
 
     public function download($id)
     {
         $dokumen = $this->iso00->find($id);
-
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
-        }
+        if (!$dokumen) return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $dokumen['nama_file'] . '"')
-            ->setBody($dokumen['upload_dokumen']);  
+            ->setHeader('Content-Disposition', 'attachment; filename="'.$dokumen['nama_file'].'"')
+            ->setBody($dokumen['upload_dokumen']);
     }
 
-    public function delete($id)
+    // ==============================
+    // History per dokumen
+    // ==============================
+    public function history($id)
     {
-        $this->iso00->delete($id);
-        return redirect()->to('/iso00')->with('success', 'Data berhasil dihapus!');
+        $data['history'] = $this->iso001
+                                ->where('iso00_id', $id)
+                                ->orderBy('id', 'DESC')
+                                ->findAll();
+
+        return view('iso00/history', $data);
+    }
+
+    // ==============================
+    // Semua history
+    // ==============================
+    public function allHistory()
+    {
+        $data['all_history'] = $this->iso001
+                                    ->orderBy('id', 'DESC')
+                                    ->findAll();
+
+        return view('iso00/all_history', $data);
+    }
+
+    // ==============================
+    // View file history
+    // ==============================
+    public function viewHistoryFile($id)
+    {
+        $dokumen = $this->iso001->find($id);
+        if (!$dokumen) return redirect()->back()->with('error', 'File historis tidak ditemukan!');
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="'.$dokumen['nama_file'].'"')
+            ->setBody($dokumen['upload_dokumen']);
+    }
+
+    // ==============================
+    // Download file history
+    // ==============================
+    public function downloadHistoryFile($id)
+    {
+        $dokumen = $this->iso001->find($id);
+        if (!$dokumen) return redirect()->back()->with('error', 'File historis tidak ditemukan!');
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'attachment; filename="'.$dokumen['nama_file'].'"')
+            ->setBody($dokumen['upload_dokumen']);
     }
 }
