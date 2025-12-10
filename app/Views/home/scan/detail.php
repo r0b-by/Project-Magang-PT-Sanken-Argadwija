@@ -105,7 +105,49 @@
         </div>
     </div>
 </div>
+<style>
+    /* Disable right-click for all elements */
+* {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* IE/Edge */
+    user-select: none;           /* Standard */
+}
 
+/* Disable image/PDF drag */
+iframe, img {
+    pointer-events: none;
+}
+
+/* Prevent context menu via CSS (browsers that support it) */
+body {
+    -webkit-user-drag: none;
+}
+</style>
+<script>
+    // Disable Right Click
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Disable Shortcuts
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === "F12") e.preventDefault();
+
+        // Ctrl+U, Ctrl+S, Ctrl+P, Ctrl+C
+        if (e.ctrlKey && ['u', 's', 'p', 'c'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+        }
+
+        // Ctrl+Shift+I / Ctrl+Shift+J (Developer Tools)
+        if (e.ctrlKey && e.shiftKey && ['i', 'j'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+        }
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

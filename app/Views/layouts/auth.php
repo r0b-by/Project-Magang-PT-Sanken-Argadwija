@@ -10,38 +10,10 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="<?= base_url('css/layouts/auth.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/auth/login.css') ?>">
     
-    <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
-        }
-        
-        .login-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .login-header {
-            background: #2c3e50;
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-        }
-        
-        .login-body {
-            padding: 1.5rem;
-        }
-    </style>
 </head>
 <body>
     <div class="login-container">

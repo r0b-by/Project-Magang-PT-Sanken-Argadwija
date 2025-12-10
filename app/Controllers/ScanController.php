@@ -62,14 +62,48 @@ class ScanController extends BaseController
     public function file($id)
     {
         $dok = $this->iso->find($id);
-        if (!$dok || empty($dok['upload_dokumen'])) {
-            return $this->response->setStatusCode(404)->setBody('File tidak ditemukan');
+
+        if (!$dok) {
+            return $this->response
+                ->setStatusCode(404)
+                ->setBody("Dokumen tidak ditemukan");
         }
 
-        // Jika yang disimpan adalah BINARY PDF
+        // =============================
+        // 1. Jika file fisik tersedia
+        // =============================
+        $path = FCPATH . 'uploads/' . $dok['nama_file'];
+
+        if (!empty($dok['nama_file']) && file_exists($path)) {
+
+            return $this->response
+                ->setHeader('Content-Type', 'application/pdf')
+                ->setHeader('Content-Disposition', 'inline; filename="' . $dok['nama_file'] . '"')
+                ->setHeader('Content-Length', filesize($path))
+                ->setHeader('Accept-Ranges', 'bytes')
+                ->setBody(file_get_contents($path));
+        }
+
+        // =====================================
+        // 2. Jika file disimpan sebagai BLOB
+        // =====================================
+        if (!empty($dok['upload_dokumen'])) {
+
+            $binaryPDF = $dok['upload_dokumen'];
+            $size = strlen($binaryPDF);
+
+            return $this->response
+                ->setHeader('Content-Type', 'application/pdf')
+                ->setHeader('Content-Disposition', 'inline; filename="dokumen.pdf"')
+                ->setHeader('Content-Length', $size)
+                ->setHeader('Accept-Ranges', 'bytes')
+                ->setBody($binaryPDF);
+        }
+
+        // Jika kedua opsi tidak tersedia
         return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="' . $dok['nama_file'] . '"')
-            ->setBody($dok['upload_dokumen']);
+            ->setStatusCode(404)
+            ->setBody("File PDF tidak ditemukan dalam database maupun folder upload.");
     }
+
 }

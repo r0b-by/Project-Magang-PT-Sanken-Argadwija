@@ -10,39 +10,14 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link re="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="<?= base_url('css/layouts/main.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/iso00/show.css') ?>">
+
+
     <!-- Custom CSS -->
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: #f8f9fa;
-        }
         
-        .sidebar {
-            min-height: 100vh;
-            background-color: #2c3e50;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.5rem 1rem;
-        }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .main-content {
-            padding: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 0.75rem;
-            }
-        }
     </style>
 </head>
 <body>
@@ -52,11 +27,11 @@
             <div class="col-lg-2 d-none d-lg-block px-0">
                 <?php 
                 $role = session()->get('role');
+
                 if ($role === 'admin') {
                     echo view('layouts/components/sidebar_admin');
                 } elseif ($role === 'dept') {
-                    echo view('layouts/components/sidebar_admin');
-
+                    echo view('layouts/components/sidebar_dept');
                 }
                 ?>
             </div>

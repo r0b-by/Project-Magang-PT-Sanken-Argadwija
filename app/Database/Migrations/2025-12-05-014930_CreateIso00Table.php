@@ -35,7 +35,7 @@ class CreateIso00Table extends Migration
             ],
             'status' => [
                 'type' => 'ENUM',
-                'constraint' => ['save','revisi'],
+                'constraint' => ['save','non-save','revisi'],
                 'default' => 'save',
             ],
             'uploaded_by' => [
