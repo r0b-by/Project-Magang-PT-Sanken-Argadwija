@@ -15,35 +15,36 @@ class UserController extends BaseController
         $this->user = new UserModel();
     }
 
-    // ==============================
-    // LIST USER
-    // ==============================
+    /* ============================================================
+     * LIST USER
+     * ============================================================ */
     public function index()
     {
-        $data['users'] = $this->user->findAll();
-
+        $data['users'] = $this->user->orderBy('id', 'DESC')->findAll();
         return view('users/index', $data);
     }
 
-    // ==============================
-    // FORM TAMBAH USER
-    // ==============================
+    /* ============================================================
+     * FORM TAMBAH USER
+     * ============================================================ */
     public function create()
     {
         return view('users/create');
     }
 
-    // ==============================
-    // SIMPAN USER BARU
-    // ==============================
+    /* ============================================================
+     * SIMPAN USER BARU
+     * ============================================================ */
     public function store()
     {
         $rules = [
-            'username' => 'required|is_unique[users.username]',
-            'password' => 'required|min_length[5]',
-            'fullname' => 'required',
-            'role'     => 'required',
-            'status_akun' => 'required',
+            'username'     => 'required|is_unique[users.username]',
+            'password'     => 'required|min_length[5]',
+            'fullname'     => 'required',
+            'role'         => 'required|in_list[admin,dept]',
+            'status_akun'  => 'required|in_list[aktif,nonaktif]',
+            'nomor_holder' => 'permit_empty',
+
             'foto' => [
                 'uploaded[foto]',
                 'mime_in[foto,image/jpg,image/jpeg,image/png]',
@@ -57,32 +58,36 @@ class UserController extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
-        // Upload foto
+        // Upload Foto (optional)
         $file = $this->request->getFile('foto');
-        $fotoName = $file->getRandomName();
-        $file->move('uploads/foto_user/', $fotoName);
+        $fotoName = null;
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $fotoName = $file->getRandomName();
+            $file->move('uploads/foto_user/', $fotoName);
+        }
 
         $this->user->save([
-            'username'       => $this->request->getPost('username'),
-            'password'       => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-            'fullname'       => $this->request->getPost('fullname'),
-            'role'           => $this->request->getPost('role'),
-            'status_akun'    => $this->request->getPost('status_akun'),
-            'foto'           => $fotoName,
-            'is_online'      => 0,
-            'created_at'     => date('Y-m-d H:i:s'),
+            'username'     => $this->request->getPost('username'),
+            'password'     => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'fullname'     => $this->request->getPost('fullname'),
+            'nomor_holder' => $this->request->getPost('nomor_holder'),
+            'role'         => $this->request->getPost('role'),
+            'status_akun'  => $this->request->getPost('status_akun'),
+            'foto'         => $fotoName,
+            'is_online'    => 0,
+            'last_active_at' => null,
+            'created_at'   => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()->to('/users')->with('success', 'User berhasil ditambahkan!');
     }
 
-    // ==============================
-    // FORM EDIT USER
-    // ==============================
+    /* ============================================================
+     * EDIT USER
+     * ============================================================ */
     public function edit($id)
     {
         $data['user'] = $this->user->find($id);
-
         if (!$data['user']) {
             return redirect()->to('/users')->with('error', 'User tidak ditemukan!');
         }
@@ -90,32 +95,32 @@ class UserController extends BaseController
         return view('users/edit', $data);
     }
 
-    // ==============================
-    // UPDATE USER
-    // ==============================
+    /* ============================================================
+     * UPDATE USER
+     * ============================================================ */
     public function update($id)
     {
         $dbUser = $this->user->find($id);
-
         if (!$dbUser) {
             return redirect()->to('/users')->with('error', 'User tidak ditemukan!');
         }
 
         $rules = [
-            'fullname' => 'required',
-            'role'     => 'required',
-            'status_akun' => 'required'
+            'fullname'     => 'required',
+            'role'         => 'required|in_list[admin,dept]',
+            'status_akun'  => 'required|in_list[aktif,nonaktif]',
+            'nomor_holder' => 'permit_empty'
         ];
 
-        // Jika username berubah, cek unik
+        // Jika username berubah, cek unique
         if ($dbUser['username'] !== $this->request->getPost('username')) {
             $rules['username'] = 'required|is_unique[users.username]';
         }
 
-        // Validasi foto hanya jika diupload
-        if ($this->request->getFile('foto')->isValid()) {
+        // Validasi foto (optional)
+        $file = $this->request->getFile('foto');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
             $rules['foto'] = [
-                'uploaded[foto]',
                 'mime_in[foto,image/jpg,image/jpeg,image/png]',
                 'max_size[foto,2048]'
             ];
@@ -128,28 +133,24 @@ class UserController extends BaseController
         }
 
         $dataUpdate = [
-            'username'       => $this->request->getPost('username'),
-            'fullname'       => $this->request->getPost('fullname'),
-            'role'           => $this->request->getPost('role'),
-            'status_akun'    => $this->request->getPost('status_akun'),
-            'updated_at'     => date('Y-m-d H:i:s'),
+            'username'     => $this->request->getPost('username'),
+            'fullname'     => $this->request->getPost('fullname'),
+            'nomor_holder' => $this->request->getPost('nomor_holder'),
+            'role'         => $this->request->getPost('role'),
+            'status_akun'  => $this->request->getPost('status_akun'),
+            'updated_at'   => date('Y-m-d H:i:s'),
         ];
 
-        // Jika password diisi maka update
-        if ($this->request->getPost('password')) {
-            $dataUpdate['password'] = password_hash(
-                $this->request->getPost('password'),
-                PASSWORD_DEFAULT
-            );
+        // Update password jika diisi
+        if (!empty($this->request->getPost('password'))) {
+            $dataUpdate['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
         }
 
-        // Jika foto diupload, simpan foto baru
-        if ($this->request->getFile('foto')->isValid()) {
-            $file = $this->request->getFile('foto');
+        // Update foto bila ada upload baru
+        if ($file && $file->isValid() && !$file->hasMoved()) {
             $fotoName = $file->getRandomName();
             $file->move('uploads/foto_user/', $fotoName);
 
-            // Hapus foto lama
             if ($dbUser['foto'] && file_exists('uploads/foto_user/' . $dbUser['foto'])) {
                 unlink('uploads/foto_user/' . $dbUser['foto']);
             }
@@ -162,18 +163,20 @@ class UserController extends BaseController
         return redirect()->to('/users')->with('success', 'User berhasil diperbarui!');
     }
 
-    // ==============================
-    // HAPUS USER
-    // ==============================
+    /* ============================================================
+     * DELETE USER
+     * ============================================================ */
     public function delete($id)
     {
         $user = $this->user->find($id);
 
-        if ($user['foto'] && file_exists('uploads/foto_user/' . $user['foto'])) {
-            unlink('uploads/foto_user/' . $user['foto']);
-        }
+        if ($user) {
+            if ($user['foto'] && file_exists('uploads/foto_user/' . $user['foto'])) {
+                unlink('uploads/foto_user/' . $user['foto']);
+            }
 
-        $this->user->delete($id);
+            $this->user->delete($id);
+        }
 
         return redirect()->to('/users')->with('success', 'User berhasil dihapus!');
     }

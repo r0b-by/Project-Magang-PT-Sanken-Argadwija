@@ -6,14 +6,13 @@ use CodeIgniter\Model;
 
 class Iso001Model extends Model
 {
-    protected $table            = 'iso_001';
-    protected $primaryKey       = 'id';
-    protected $returnType       = 'array';
-    protected $useTimestamps    = false;
-
+    protected $table = 'iso_001';
+    protected $primaryKey = 'id';
+    protected $useTimestamps = false; // Karena kita menyimpan sendiri uploaded_at / updated_at
     protected $allowedFields = [
         'iso00_id',
         'kode_dokumen',
+        'departement',
         'nama_file',
         'upload_dokumen',
         'keterangan',
@@ -21,10 +20,10 @@ class Iso001Model extends Model
         'uploaded_by',
         'uploader_name',
         'uploaded_at',
-        'barcode'
+        'barcode',
     ];
 
-    // Relasi ke user uploader
+    // Bisa ditambahkan relasi ke user uploader
     public function getUploader($id)
     {
         return $this->select('iso_001.*, users.fullname, users.role, users.foto')
@@ -33,7 +32,7 @@ class Iso001Model extends Model
                     ->first();
     }
 
-    // Ambil semua revisi dari dokumen utama
+    // Ambil semua revisi untuk dokumen tertentu
     public function getHistory($iso00_id)
     {
         return $this->where('iso00_id', $iso00_id)
