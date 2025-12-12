@@ -15,6 +15,7 @@ class Iso00Model extends Model
 
     protected $allowedFields = [
         'kode_dokumen',
+        'nama_dokumen_internal',
         'nama_file',
         'upload_dokumen',
         'status',

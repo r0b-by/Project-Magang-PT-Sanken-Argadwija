@@ -17,6 +17,12 @@ class CreateIso00Table extends Migration
                 'constraint' => '50',
                 'unique' => true
             ],
+            'nama_dokumen_internal' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255',
+                'null'       => true,
+                'after'      => 'kode_dokumen'
+            ],
             'nama_file' => [
                 'type' => 'VARCHAR',
                 'constraint' => '255',

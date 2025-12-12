@@ -26,33 +26,73 @@
                 <div class="mb-3 row">
                     <label class="form-label small fw-bold">Kode Dokumen *</label>
 
+                    <!-- Kode Internal -->
                     <div class="col-md-3 mb-2">
-                        <input type="text" class="form-control form-control-sm" id="kode_internal" 
-                               value="<?= substr($dokumen['kode_dokumen'],0,2) ?>" required>
+                        <select class="form-select form-select-sm" id="kode_internal" required>
+                            <option value="">Pilih Kode</option>
+                            <option value="VD" data-name="DVD / Audio-Video" <?= (strpos($dokumen['kode_dokumen'], 'VD') === 0) ? 'selected' : '' ?>>VD</option>
+                            <option value="LD" data-name="LED / LCD TV" <?= (strpos($dokumen['kode_dokumen'], 'LD') === 0) ? 'selected' : '' ?>>LD</option>
+                            <option value="SP" data-name="Speaker Aktif" <?= (strpos($dokumen['kode_dokumen'], 'SP') === 0) ? 'selected' : '' ?>>SP</option>
+                            <option value="CR" data-name="CTV Repair" <?= (strpos($dokumen['kode_dokumen'], 'CR') === 0) ? 'selected' : '' ?>>CR</option>
+                            <option value="WT" data-name="Mesin Cuci" <?= (strpos($dokumen['kode_dokumen'], 'WT') === 0) ? 'selected' : '' ?>>WT</option>
+                            <option value="WD" data-name="Dispenser" <?= (strpos($dokumen['kode_dokumen'], 'WD') === 0) ? 'selected' : '' ?>>WD</option>
+                            <option value="HA" data-name="Home Appliances" <?= (strpos($dokumen['kode_dokumen'], 'HA') === 0) ? 'selected' : '' ?>>HA</option>
+                            <option value="SH" data-name="Solar Water Heater" <?= (strpos($dokumen['kode_dokumen'], 'SH') === 0) ? 'selected' : '' ?>>SH</option>
+                            <option value="AP" data-name="Air Cooler" <?= (strpos($dokumen['kode_dokumen'], 'AP') === 0) ? 'selected' : '' ?>>AP</option>
+                            <option value="DD" data-name="Dish Dryer" <?= (strpos($dokumen['kode_dokumen'], 'DD') === 0) ? 'selected' : '' ?>>DD</option>
+                            <option value="EO" data-name="Electric Oven" <?= (strpos($dokumen['kode_dokumen'], 'EO') === 0) ? 'selected' : '' ?>>EO</option>
+                            <option value="MOVEN" data-name="Microwave Electric" <?= (strpos($dokumen['kode_dokumen'], 'MOVEN') === 0) ? 'selected' : '' ?>>MOVEN</option>
+                            <option value="SN" data-name="Kulkas" <?= (strpos($dokumen['kode_dokumen'], 'SN') === 0) ? 'selected' : '' ?>>SN</option>
+                            <option value="AC" data-name="Air Conditioner" <?= (strpos($dokumen['kode_dokumen'], 'AC') === 0) ? 'selected' : '' ?>>AC</option>
+                            <option value="SC" data-name="Showcase" <?= (strpos($dokumen['kode_dokumen'], 'SC') === 0) ? 'selected' : '' ?>>SC</option>
+                            <option value="FZ" data-name="Chest Freezer" <?= (strpos($dokumen['kode_dokumen'], 'FZ') === 0) ? 'selected' : '' ?>>FZ</option>
+                            <option value="GC" data-name="Gas Cooker" <?= (strpos($dokumen['kode_dokumen'], 'GC') === 0) ? 'selected' : '' ?>>GC</option>
+                            <option value="FN" data-name="Kipas Angin" <?= (strpos($dokumen['kode_dokumen'], 'FN') === 0) ? 'selected' : '' ?>>FN</option>
+                            <option value="SL" data-name="Setrika Listrik" <?= (strpos($dokumen['kode_dokumen'], 'SL') === 0) ? 'selected' : '' ?>>SL</option>
+                            <option value="SJ" data-name="Rice Cooker" <?= (strpos($dokumen['kode_dokumen'], 'SJ') === 0) ? 'selected' : '' ?>>SJ</option>
+                            <option value="QW" data-name="QC Produk White Goods" <?= (strpos($dokumen['kode_dokumen'], 'QW') === 0) ? 'selected' : '' ?>>QW</option>
+                            <option value="QB" data-name="QC Produk Brown Goods" <?= (strpos($dokumen['kode_dokumen'], 'QB') === 0) ? 'selected' : '' ?>>QB</option>
+                        </select>
                         <small class="text-muted">Kode Internal</small>
                     </div>
 
+                    <!-- Nama Dokumen Internal -->
+                    <div class="col-md-3 mb-2">
+                        <input type="text" 
+                            class="form-control form-control-sm" 
+                            id="nama_internal"
+                            name="nama_dokumen_internal"
+                            value="<?= $dokumen['nama_dokumen_internal'] ?? '' ?>" 
+                            readonly>
+                        <small class="text-muted">Nama Dokumen Internal</small>
+                    </div>
+
+                    <!-- Kode Departemen -->
                     <div class="col-md-3 mb-2">
                         <select class="form-select form-select-sm" id="kode_dept" required>
                             <option value="">Pilih Dept</option>
-                            <option value="QS" <?= strpos($dokumen['kode_dokumen'],'QS')!==false ? 'selected':'' ?>>QS</option>
-                            <option value="HRD" <?= strpos($dokumen['kode_dokumen'],'HRD')!==false ? 'selected':'' ?>>HRD</option>
-                            <option value="IT" <?= strpos($dokumen['kode_dokumen'],'IT')!==false ? 'selected':'' ?>>IT</option>
-                            <option value="FIN" <?= strpos($dokumen['kode_dokumen'],'FIN')!==false ? 'selected':'' ?>>FIN</option>
-                            <option value="MK" <?= strpos($dokumen['kode_dokumen'],'MK')!==false ? 'selected':'' ?>>MK</option>
-                            <option value="PRD" <?= strpos($dokumen['kode_dokumen'],'PRD')!==false ? 'selected':'' ?>>PRD</option>
+                            <?php 
+                                $deptList = ['QS','HRD','IT','FIN','MK','PRD'];
+                                foreach ($deptList as $d): 
+                            ?>
+                                <option value="<?= $d ?>" <?= (strpos($dokumen['kode_dokumen'], $d) !== false) ? 'selected' : '' ?>>
+                                    <?= $d ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <small class="text-muted">Kode Departemen</small>
                     </div>
 
+                    <!-- Kode Running -->
                     <div class="col-md-3 mb-2">
-                        <input type="text" class="form-control form-control-sm" id="kode_running" 
-                               value="<?= preg_replace('/[^0-9]/','', $dokumen['kode_dokumen']) ?>" required>
+                        <input type="text" class="form-control form-control-sm" id="kode_running"
+                               value="<?= preg_replace('/[^0-9]/', '', $dokumen['kode_dokumen']) ?>" required>
                         <small class="text-muted">Kode Running</small>
                     </div>
 
+                    <!-- Final Kode Dokumen -->
                     <div class="col-md-3 mb-2">
-                        <input type="text" class="form-control form-control-sm" id="kode_dokumen" 
+                        <input type="text" class="form-control form-control-sm" id="kode_dokumen"
                                name="kode_dokumen" readonly
                                value="<?= $dokumen['kode_dokumen'] ?>">
                         <small class="text-muted">Kode Dokumen Final</small>
@@ -61,73 +101,69 @@
 
                 <!-- Tanggal Efektif -->
                 <div class="mb-3">
-                    <label for="tanggal_efektif" class="form-label small fw-bold">Tanggal Efektif *</label>
-                    <input type="date" class="form-control form-control-sm" id="tanggal_efektif" name="tanggal_efektif"
-                           value="<?= old('tanggal_efektif', $dokumen['tanggal_efektif'] ?? '') ?>" required>
+                    <label class="form-label small fw-bold">Tanggal Efektif *</label>
+                    <input type="date" class="form-control form-control-sm"
+                           id="tanggal_efektif"
+                           name="tanggal_efektif"
+                           value="<?= $dokumen['tanggal_efektif'] ?? '' ?>"
+                           required>
                 </div>
 
-                <!-- Halaman Dokumen -->
+                <!-- Halaman -->
                 <div class="mb-3">
-                    <label for="halaman_dokumen" class="form-label small fw-bold">Halaman Dokumen</label>
-                    <input type="text" class="form-control form-control-sm" id="halaman_dokumen" name="halaman_dokumen"
-                           value="<?= old('halaman_dokumen', $dokumen['halaman_dokumen'] ?? '') ?>">
+                    <label class="form-label small fw-bold">Halaman Dokumen</label>
+                    <input type="text" class="form-control form-control-sm" name="halaman_dokumen"
+                           value="<?= $dokumen['halaman_dokumen'] ?? '' ?>">
                 </div>
 
                 <!-- Ruang Lingkup -->
                 <div class="mb-3">
-                    <label for="ruang_lingkup" class="form-label small fw-bold">Ruang Lingkup</label>
-                    <textarea class="form-control form-control-sm" id="ruang_lingkup" name="ruang_lingkup" rows="2"><?= old('ruang_lingkup', $dokumen['ruang_lingkup'] ?? '') ?></textarea>
+                    <label class="form-label small fw-bold">Ruang Lingkup</label>
+                    <textarea name="ruang_lingkup" class="form-control form-control-sm" rows="2"><?= $dokumen['ruang_lingkup'] ?? '' ?></textarea>
                 </div>
 
                 <!-- Tujuan -->
                 <div class="mb-3">
-                    <label for="tujuan" class="form-label small fw-bold">Tujuan</label>
-                    <textarea class="form-control form-control-sm" id="tujuan" name="tujuan" rows="2"><?= old('tujuan', $dokumen['tujuan'] ?? '') ?></textarea>
+                    <label class="form-label small fw-bold">Tujuan</label>
+                    <textarea name="tujuan" class="form-control form-control-sm" rows="2"><?= $dokumen['tujuan'] ?? '' ?></textarea>
                 </div>
 
-                <!-- Current File -->
-                <?php if (!empty($dokumen['nama_file'])): ?>
+                <!-- File Lama -->
+                <?php if ($dokumen['nama_file']): ?>
                 <div class="mb-3">
                     <label class="form-label small fw-bold">File Saat Ini</label>
-                    <div class="alert alert-light py-2 small">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-file-pdf text-danger me-2"></i>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold"><?= $dokumen['nama_file'] ?></div>
-                                <div class="d-flex gap-2 mt-1">
-                                    <a href="/iso00/view/<?= $dokumen['id'] ?>" target="_blank" class="small">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </a>
-                                    <a href="/iso00/download/<?= $dokumen['id'] ?>" class="small">
-                                        <i class="fas fa-download me-1"></i>Download
-                                    </a>
-                                </div>
-                            </div>
+                    <div class="alert alert-light small">
+                        <i class="fas fa-file-pdf text-danger me-2"></i><?= $dokumen['nama_file'] ?>
+                        <div class="mt-2">
+                            <a href="/iso00/view/<?= $dokumen['id'] ?>" target="_blank" class="me-3">Lihat</a>
+                            <a href="/iso00/download/<?= $dokumen['id'] ?>">Download</a>
                         </div>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <!-- New File -->
+                <!-- File Baru -->
                 <div class="mb-3">
-                    <label for="upload_dokumen" class="form-label small fw-bold">File Baru</label>
-                    <input type="file" class="form-control form-control-sm" id="upload_dokumen" name="upload_dokumen" accept=".pdf">
-                    <small class="text-muted">PDF only • Max 10MB • Kosongkan jika tidak ganti</small>
+                    <label class="form-label small fw-bold">File Baru</label>
+                    <input type="file" class="form-control form-control-sm" name="upload_dokumen" accept="application/pdf">
+                    <small class="text-muted">Kosongkan jika tidak ganti • PDF Max 10MB</small>
                 </div>
 
                 <!-- Barcode -->
                 <div class="mb-3">
-                    <label for="barcode" class="form-label small fw-bold">Barcode</label>
+                    <label class="form-label small fw-bold">Barcode</label>
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" id="barcode" name="barcode" value="<?= $dokumen['barcode'] ?? '' ?>">
-                        <button type="button" class="btn btn-outline-secondary" onclick="generateBarcode()"><i class="fas fa-barcode"></i></button>
+                        <input type="text" class="form-control" id="barcode" name="barcode" value="<?= $dokumen['barcode'] ?>">
+                        <button type="button" class="btn btn-outline-secondary" onclick="generateBarcode()">
+                            <i class="fas fa-barcode"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Hidden status untuk revisi -->
+                <!-- Hidden Status -->
                 <input type="hidden" name="status" value="revisi">
 
-                <!-- Submit Buttons -->
+                <!-- Tombol -->
                 <div class="d-flex justify-content-between pt-3 border-top">
                     <a href="/iso00" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-times"></i> Batal
@@ -136,36 +172,40 @@
                         <i class="fas fa-save me-1"></i>Simpan
                     </button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
 
 <script>
-// Gabungkan tiga kode menjadi satu
 function updateKodeDokumen() {
-    var ik = document.getElementById('kode_internal').value.toUpperCase();
-    var dept = document.getElementById('kode_dept').value.toUpperCase();
-    var run = document.getElementById('kode_running').value;
-    var output = document.getElementById('kode_dokumen');
+    let ik   = document.getElementById('kode_internal').value.toUpperCase();
+    let dept = document.getElementById('kode_dept').value.toUpperCase();
+    let run  = document.getElementById('kode_running').value;
+    let out  = document.getElementById('kode_dokumen');
 
-    if (ik && dept && run) {
-        output.value = ik + '-' + dept + run;
-    } else {
-        output.value = '';
-    }
+    out.value = (ik && dept && run) ? ik + '-' + dept + run : "";
 }
+
+// Nama dokumen internal auto tampil
+document.getElementById('kode_internal').addEventListener('change', function() {
+    let name = this.options[this.selectedIndex].getAttribute('data-name') || "";
+    document.getElementById('nama_internal').value = name;
+    updateKodeDokumen();
+});
 
 document.getElementById('kode_internal').addEventListener('input', updateKodeDokumen);
 document.getElementById('kode_dept').addEventListener('change', updateKodeDokumen);
 document.getElementById('kode_running').addEventListener('input', updateKodeDokumen);
 
+// Generate barcode otomatis
 function generateBarcode() {
-    var codeInput = document.getElementById('barcode');
-    if (!codeInput.value) {
-        var random = Math.random().toString(36).substring(2, 10).toUpperCase();
-        var year = new Date().getFullYear();
-        codeInput.value = 'DOC-' + random + '-' + year;
+    let input = document.getElementById('barcode');
+    if (!input.value) {
+        let r = Math.random().toString(36).substring(2, 8).toUpperCase();
+        let y = new Date().getFullYear();
+        input.value = `DOC-${r}-${y}`;
     }
 }
 </script>

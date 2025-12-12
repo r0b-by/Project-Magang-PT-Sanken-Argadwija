@@ -49,6 +49,16 @@
                                         <?= ucfirst($doc['status']) ?>
                                     </span>
                                 </div>
+
+                                <!-- Mobile: nama_dokumen_internal -->
+                                <?php if (!empty($doc['nama_dokumen_internal'])): ?>
+                                    <div class="mt-1">
+                                        <small class="text-primary">
+                                            <i class="fas fa-tag me-1"></i>
+                                            <?= $doc['nama_dokumen_internal'] ?>
+                                        </small>
+                                    </div>
+                                <?php endif; ?>
                             </td>
 
                             <!-- Desktop: No -->
@@ -57,6 +67,7 @@
                             <!-- Desktop: Kode Dokumen -->
                             <td class="d-none d-md-table-cell">
                                 <strong><?= $doc['kode_dokumen'] ?></strong>
+
                                 <?php if ($doc['barcode']): ?>
                                     <br>
                                     <small class="text-muted">
@@ -64,10 +75,20 @@
                                         <?= $doc['barcode'] ?>
                                     </small>
                                 <?php endif; ?>
+
                                 <br>
                                 <small class="text-muted">
                                     <?= $doc['halaman_dokumen'] ?? '-' ?> | <?= $doc['ruang_lingkup'] ?? '-' ?>
                                 </small>
+
+                                <!-- Desktop: nama_dokumen_internal -->
+                                <?php if (!empty($doc['nama_dokumen_internal'])): ?>
+                                    <br>
+                                    <small class="text-primary">
+                                        <i class="fas fa-tag me-1"></i>
+                                        <?= $doc['nama_dokumen_internal'] ?>
+                                    </small>
+                                <?php endif; ?>
                             </td>
 
                             <!-- Desktop: File -->
@@ -84,7 +105,7 @@
                                             if (file_exists($filePath)) {
                                                 echo round(filesize($filePath) / 1024, 2) . ' KB';
                                             } else {
-                                                echo '<span class="text-danger">File ditemukan</span>';
+                                                echo '<span class="text-danger">File tidak ditemukan</span>';
                                             }
                                             ?>
                                         </small>
