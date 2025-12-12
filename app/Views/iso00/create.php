@@ -21,118 +21,120 @@
         <div class="card-body p-3 p-md-4">
             <form action="/iso00/store" method="POST" enctype="multipart/form-data">
                 <?= csrf_field() ?>
-                
-                <!-- Document Code -->
-                <div class="mb-3">
-                    <label for="kode_dokumen" class="form-label small fw-bold">Kode Dokumen *</label>
-                    <input type="text" 
-                           class="form-control form-control-sm <?= session('errors.kode_dokumen') ? 'is-invalid' : '' ?>" 
-                           id="kode_dokumen" 
-                           name="kode_dokumen" 
-                           value="<?= old('kode_dokumen') ?>"
-                           placeholder="ISO-001/2023"
-                           required>
-                    <?php if (session('errors.kode_dokumen')): ?>
-                        <div class="invalid-feedback small">
-                            <?= session('errors.kode_dokumen') ?>
-                        </div>
-                    <?php endif; ?>
+
+                <!-- Kode Dokumen Terpisah -->
+                <div class="mb-3 row">
+                    <label class="form-label small fw-bold">Kode Dokumen *</label>
+
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" id="kode_internal" placeholder="IK" required>
+                        <small class="text-muted">Kode Internal</small>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <select class="form-select form-select-sm" id="kode_dept" required>
+                            <option value="">Pilih Dept</option>
+                            <option value="QS">QS</option>
+                            <option value="HRD">HRD</option>
+                            <option value="IT">IT</option>
+                            <option value="FIN">FIN</option>
+                            <option value="MK">MK</option>
+                            <option value="PRD">PRD</option>
+                        </select>
+                        <small class="text-muted">Kode Departemen</small>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" id="kode_running" placeholder="001" required>
+                        <small class="text-muted">Kode Running</small>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <input type="text" class="form-control form-control-sm" id="kode_dokumen" name="kode_dokumen" readonly placeholder="IK-QS001/2">
+                        <small class="text-muted">Kode Dokumen Final</small>
+                    </div>
                 </div>
-                
+
                 <!-- Department -->
                 <div class="mb-3">
                     <label for="departement" class="form-label small fw-bold">Departemen *</label>
-                    <select class="form-select form-select-sm <?= session('errors.departement') ? 'is-invalid' : '' ?>" 
-                            id="departement" 
-                            name="departement" 
-                            required>
+                    <select class="form-select form-select-sm" id="departement" name="departement" required>
                         <option value="">Pilih Departemen</option>
-                        <option value="HRD" <?= old('departement') == 'HRD' ? 'selected' : '' ?>>HRD</option>
-                        <option value="IT" <?= old('departement') == 'IT' ? 'selected' : '' ?>>IT</option>
-                        <option value="Finance" <?= old('departement') == 'Finance' ? 'selected' : '' ?>>Finance</option>
-                        <option value="Marketing" <?= old('departement') == 'Marketing' ? 'selected' : '' ?>>Marketing</option>
-                        <option value="Produksi" <?= old('departement') == 'Produksi' ? 'selected' : '' ?>>Produksi</option>
-                        <option value="QA" <?= old('departement') == 'QA' ? 'selected' : '' ?>>QA</option>
+                        <option value="HRD">HRD</option>
+                        <option value="IT">IT</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Produksi">Produksi</option>
+                        <option value="QA">QA</option>
                     </select>
-                    <?php if (session('errors.departement')): ?>
-                        <div class="invalid-feedback small">
-                            <?= session('errors.departement') ?>
-                        </div>
-                    <?php endif; ?>
                 </div>
-                
+
+                <!-- Tanggal Efektif -->
+                <div class="mb-3">
+                    <label for="tanggal_efektif" class="form-label small fw-bold">Tanggal Efektif *</label>
+                    <input type="date" class="form-control form-control-sm" id="tanggal_efektif" name="tanggal_efektif" required>
+                </div>
+
+                <!-- Halaman Dokumen -->
+                <div class="mb-3">
+                    <label for="halaman_dokumen" class="form-label small fw-bold">Halaman Dokumen</label>
+                    <input type="text" class="form-control form-control-sm" id="halaman_dokumen" name="halaman_dokumen" placeholder="1-8">
+                </div>
+
+                <!-- Ruang Lingkup -->
+                <div class="mb-3">
+                    <label for="ruang_lingkup" class="form-label small fw-bold">Ruang Lingkup</label>
+                    <textarea class="form-control form-control-sm" id="ruang_lingkup" name="ruang_lingkup" rows="2" placeholder="Ongoing QS"></textarea>
+                </div>
+
+                <!-- Tujuan -->
+                <div class="mb-3">
+                    <label for="tujuan" class="form-label small fw-bold">Tujuan</label>
+                    <textarea class="form-control form-control-sm" id="tujuan" name="tujuan" rows="2" placeholder="Opsional"></textarea>
+                </div>
+
                 <!-- File Upload -->
                 <div class="mb-3">
                     <label for="upload_dokumen" class="form-label small fw-bold">File Dokumen *</label>
-                    <input type="file" 
-                           class="form-control form-control-sm <?= session('errors.upload_dokumen') ? 'is-invalid' : '' ?>" 
-                           id="upload_dokumen" 
-                           name="upload_dokumen" 
-                           accept=".pdf"
-                           required>
-                    <small class="text-muted d-block mt-1">PDF only • Max 10MB</small>
-                    <?php if (session('errors.upload_dokumen')): ?>
-                        <div class="invalid-feedback small d-block">
-                            <?= session('errors.upload_dokumen') ?>
-                        </div>
-                    <?php endif; ?>
+                    <input type="file" class="form-control form-control-sm" id="upload_dokumen" name="upload_dokumen" accept=".pdf" required>
+                    <small class="text-muted">PDF only • Max 10MB</small>
                 </div>
                 
-                <!-- Description -->
-                <div class="mb-3">
-                    <label for="keterangan" class="form-label small fw-bold">Keterangan</label>
-                    <textarea class="form-control form-control-sm <?= session('errors.keterangan') ? 'is-invalid' : '' ?>" 
-                              id="keterangan" 
-                              name="keterangan" 
-                              rows="2"
-                              placeholder="Catatan tentang dokumen ini"><?= old('keterangan') ?></textarea>
-                    <?php if (session('errors.keterangan')): ?>
-                        <div class="invalid-feedback small">
-                            <?= session('errors.keterangan') ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- System Info -->
-                <div class="alert alert-info py-2 mb-3">
-                    <div class="small">
-                        <div class="fw-semibold">
-                            <i class="fas fa-info-circle me-1"></i>Informasi:
-                        </div>
-                        <div class="mt-1">
-                            <span class="badge bg-secondary"><?= session()->get('fullname') ?></span>
-                            <span class="badge bg-secondary ms-1"><?= date('d/m/Y') ?></span>
-                            <span class="badge bg-info ms-1">Draft</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Submit Buttons -->
+                <!-- Tombol Submit -->
                 <div class="d-flex justify-content-between">
                     <button type="reset" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-redo"></i>
-                        <span class="d-none d-sm-inline"> Reset</span>
+                        <i class="fas fa-redo"></i> Reset
                     </button>
-                    <button type="submit" class="btn btn-primary btn-sm">
+                    <button type="submit" class="btn btn-primary btn-sm" onclick="document.getElementById('status_field').value='save'">
                         <i class="fas fa-upload me-1"></i>Upload
                     </button>
                 </div>
+
+                <!-- Hidden status field -->
+                <input type="hidden" id="status_field" name="status" value="save">
             </form>
         </div>
     </div>
 </div>
 
 <script>
-document.getElementById('departement').addEventListener('change', function() {
-    var dept = this.value;
-    var codeInput = document.getElementById('kode_dokumen');
-    
-    if (dept && !codeInput.value) {
-        var deptCode = dept.substring(0, 3).toUpperCase();
-        var year = new Date().getFullYear();
-        var random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        codeInput.value = 'ISO-' + deptCode + '-' + random + '/' + year;
+// Gabungkan tiga kode menjadi satu
+function updateKodeDokumen() {
+    var ik = document.getElementById('kode_internal').value.toUpperCase();
+    var dept = document.getElementById('kode_dept').value.toUpperCase();
+    var run = document.getElementById('kode_running').value;
+    var output = document.getElementById('kode_dokumen');
+
+    if (ik && dept && run) {
+        output.value = ik + '-' + dept + run;
+    } else {
+        output.value = '';
     }
-});
+}
+
+document.getElementById('kode_internal').addEventListener('input', updateKodeDokumen);
+document.getElementById('kode_dept').addEventListener('change', updateKodeDokumen);
+document.getElementById('kode_running').addEventListener('input', updateKodeDokumen);
 </script>
+
 <?= $this->endSection() ?>

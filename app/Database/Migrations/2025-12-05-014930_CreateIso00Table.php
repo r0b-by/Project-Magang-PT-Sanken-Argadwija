@@ -29,9 +29,24 @@ class CreateIso00Table extends Migration
                 'type' => 'LONGBLOB',
                 'null' => true,
             ],
-            'keterangan' => [
+            'tanggal_efektif' => [
+                'type' => 'DATE',
+                'null' => false,
+            ],
+            'halaman_dokumen' => [
+                'type' => 'VARCHAR',
+                'constraint' => '20',
+                'null' => true,
+                'comment' => 'Contoh: 1-8'
+            ],
+            'ruang_lingkup' => [
                 'type' => 'TEXT',
-                'null' => true, 
+                'null' => true,
+                'comment' => 'Contoh: Ongoing QS'
+            ],
+            'tujuan' => [
+                'type' => 'TEXT',
+                'null' => true,
             ],
             'status' => [
                 'type' => 'ENUM',

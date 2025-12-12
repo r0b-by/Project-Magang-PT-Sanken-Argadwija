@@ -11,15 +11,18 @@ class Iso00Model extends Model
     protected $useAutoIncrement = true;
 
     protected $returnType    = 'array';
-    protected $useTimestamps = false; // karena timestamp kita pakai uploaded_at & updated_at manual
+    protected $useTimestamps = false; // kita pakai uploaded_at & updated_at manual
 
     protected $allowedFields = [
         'kode_dokumen',
         'departement',
         'nama_file',
         'upload_dokumen',
-        'keterangan',
         'status',
+        'tanggal_efektif',
+        'halaman_dokumen',
+        'ruang_lingkup',
+        'tujuan',
         'uploaded_by',
         'uploader_name',
         'uploader_role',
@@ -45,6 +48,21 @@ class Iso00Model extends Model
     // Optional: update status dokumen
     public function updateStatus($id, $status)
     {
-        return $this->update($id, ['status' => $status, 'updated_at' => date('Y-m-d H:i:s')]);
+        return $this->update($id, [
+            'status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    // Fungsi tambahan: cari dokumen berdasarkan departemen
+    public function findByDepartement($departement)
+    {
+        return $this->where('departement', $departement)->orderBy('uploaded_at', 'DESC')->findAll();
+    }
+
+    // Fungsi tambahan: dokumen efektif pada tanggal tertentu
+    public function findByTanggalEfektif($tanggal)
+    {
+        return $this->where('tanggal_efektif', $tanggal)->findAll();
     }
 }

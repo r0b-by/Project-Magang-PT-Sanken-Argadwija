@@ -51,8 +51,11 @@ class Iso00Controller extends BaseController
             'departement'    => $this->request->getPost('departement'),
             'nama_file'      => $file->getClientName(),
             'upload_dokumen' => $pdfData,
-            'keterangan'     => $this->request->getPost('keterangan'),
             'status'         => 'save',
+            'tanggal_efektif'=> $this->request->getPost('tanggal_efektif'),
+            'halaman_dokumen'=> $this->request->getPost('halaman_dokumen'),
+            'ruang_lingkup'  => $this->request->getPost('ruang_lingkup'),
+            'tujuan'         => $this->request->getPost('tujuan'),
             'uploaded_by'    => session()->get('user_id'),
             'uploader_name'  => $user['fullname'] ?? 'Unknown',
             'uploader_role'  => $user['role'] ?? 'unknown',
@@ -88,17 +91,20 @@ class Iso00Controller extends BaseController
         // ==============================
         if (!empty($dokumen['upload_dokumen'])) {
             $this->iso001->insert([
-                'iso00_id'      => $dokumen['id'],
-                'kode_dokumen'  => $dokumen['kode_dokumen'],
-                'departement'   => $dokumen['departement'],
-                'nama_file'     => $dokumen['nama_file'],
-                'upload_dokumen'=> $dokumen['upload_dokumen'], 
-                'keterangan'    => $dokumen['keterangan'],
-                'status'        => 'revisi',
-                'uploaded_by'   => $dokumen['uploaded_by'],
-                'uploader_name' => $dokumen['uploader_name'],
-                'uploaded_at'   => $dokumen['uploaded_at'],
-                'barcode'       => $dokumen['barcode']
+                'iso00_id'       => $dokumen['id'],
+                'kode_dokumen'   => $dokumen['kode_dokumen'],
+                'departement'    => $dokumen['departement'],
+                'nama_file'      => $dokumen['nama_file'],
+                'upload_dokumen' => $dokumen['upload_dokumen'], 
+                'status'         => 'revisi',
+                'tanggal_efektif'=> $dokumen['tanggal_efektif'],
+                'halaman_dokumen'=> $dokumen['halaman_dokumen'],
+                'ruang_lingkup'  => $dokumen['ruang_lingkup'],
+                'tujuan'         => $dokumen['tujuan'],
+                'uploaded_by'    => $dokumen['uploaded_by'],
+                'uploader_name'  => $dokumen['uploader_name'],
+                'uploaded_at'    => $dokumen['uploaded_at'],
+                'barcode'        => $dokumen['barcode']
             ]);
         }
 
@@ -106,13 +112,16 @@ class Iso00Controller extends BaseController
         // Siapkan data update
         // ==============================
         $updateData = [
-            'kode_dokumen' => $this->request->getPost('kode_dokumen'),
-            'departement'  => $this->request->getPost('departement'),
-            'keterangan'   => $this->request->getPost('keterangan'),
-            'status'       => $this->request->getPost('status') ?? 'revisi',
-            'barcode'      => $this->request->getPost('barcode'),
-            'updated_by'   => session()->get('user_id'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+            'kode_dokumen'   => $this->request->getPost('kode_dokumen'),
+            'departement'    => $this->request->getPost('departement'),
+            'status'         => $this->request->getPost('status') ?? 'revisi',
+            'tanggal_efektif'=> $this->request->getPost('tanggal_efektif'),
+            'halaman_dokumen'=> $this->request->getPost('halaman_dokumen'),
+            'ruang_lingkup'  => $this->request->getPost('ruang_lingkup'),
+            'tujuan'         => $this->request->getPost('tujuan'),
+            'barcode'        => $this->request->getPost('barcode'),
+            'updated_by'     => session()->get('user_id'),
+            'updated_at'     => date('Y-m-d H:i:s'),
         ];
 
         // File baru?
@@ -167,9 +176,6 @@ class Iso00Controller extends BaseController
             ->setBody($dokumen['upload_dokumen']);
     }
 
-    // ==============================
-    // History per dokumen
-    // ==============================
     public function history($id)
     {
         $data['history'] = $this->iso001
@@ -180,9 +186,6 @@ class Iso00Controller extends BaseController
         return view('iso00/history', $data);
     }
 
-    // ==============================
-    // Semua history
-    // ==============================
     public function allHistory()
     {
         $data['all_history'] = $this->iso001
@@ -192,9 +195,6 @@ class Iso00Controller extends BaseController
         return view('iso00/all_history', $data);
     }
 
-    // ==============================
-    // View file history
-    // ==============================
     public function viewHistoryFile($id)
     {
         $dokumen = $this->iso001->find($id);
@@ -206,9 +206,6 @@ class Iso00Controller extends BaseController
             ->setBody($dokumen['upload_dokumen']);
     }
 
-    // ==============================
-    // Download file history
-    // ==============================
     public function downloadHistoryFile($id)
     {
         $dokumen = $this->iso001->find($id);
