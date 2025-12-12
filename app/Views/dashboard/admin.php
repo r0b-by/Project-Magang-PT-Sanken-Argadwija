@@ -67,12 +67,6 @@
                                 <div class="small text-muted">Total User</div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="bg-light rounded p-2 text-center">
-                                <div class="h4 text-success mb-1"><?= count($dept) ?></div>
-                                <div class="small text-muted">Departemen</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -91,7 +85,6 @@
                             <thead class="table-light">
                                 <tr>
                                     <th class="ps-3">Kode</th>
-                                    <th class="d-none d-sm-table-cell">Departemen</th>
                                     <th>Tanggal</th>
                                 </tr>
                             </thead>
@@ -99,14 +92,13 @@
                                 <?php if (!empty($dokumen_baru)): ?>
                                     <?php foreach ($dokumen_baru as $doc): ?>
                                         <tr>
-                                            <td class="ps-3"><?= $doc['kode_dokumen'] ?></td>
-                                            <td class="d-none d-sm-table-cell"><?= $doc['departement'] ?></td>
+                                            <td class="ps-3"><?= esc($doc['kode_dokumen']) ?></td>
                                             <td><?= date('d/m/y', strtotime($doc['uploaded_at'])) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="3" class="text-center text-muted py-3">
+                                        <td colspan="2" class="text-center text-muted py-3">
                                             Tidak ada dokumen
                                         </td>
                                     </tr>
@@ -149,9 +141,9 @@
                                     <i class="fas fa-<?= $icon ?> <?= $color ?>"></i>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <div class="small"><?= $log['activity'] ?></div>
+                                    <div class="small"><?= esc($log['activity']) ?></div>
                                     <div class="text-muted smaller">
-                                        <?= $log['fullname'] ?> • 
+                                        <?= esc($log['fullname']) ?> • 
                                         <?= date('d/m/y H:i', strtotime($log['created_at'])) ?>
                                     </div>
                                 </div>

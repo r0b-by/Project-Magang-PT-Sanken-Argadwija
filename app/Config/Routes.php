@@ -50,18 +50,43 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');      
     $routes->get('download/(:num)', 'Iso00Controller::download/$1');  
 
-    // History per file (REQUIRED: ID)
-    $routes->get('history/(:num)', 'Iso00Controller::history/$1');     
-
-    // Semua history
-    $routes->get('all-history', 'Iso00Controller::allHistory');        
-
-    // View / Download file revisi
-    $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');  
+    // History per file
+    $routes->get('history/(:num)', 'Iso00Controller::history/$1');
+    $routes->get('allHistory', 'Iso00Controller::allHistory');
+    $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');
     $routes->get('history/download/(:num)', 'Iso00Controller::downloadHistoryFile/$1');
-    $routes->get('history', 'Iso00Controller::allHistory');
-    
 });
+
+/*
+|--------------------------------------------------------------------------
+| HAK AKSES DOKUMEN (ISO ACCESS HOLDER)
+| (ADMIN ONLY)
+|--------------------------------------------------------------------------
+*/
+$routes->group('access', ['filter' => 'role:admin'], function ($routes) {
+
+    // List semua hak akses
+    $routes->get('/', 'IsoAccessController::index');
+
+    // Form tambah hak akses
+    $routes->get('create', 'IsoAccessController::create');
+
+    // Simpan hak akses baru
+    $routes->post('store', 'IsoAccessController::store');
+
+    // Hapus hak akses
+    $routes->get('delete/(:num)', 'IsoAccessController::delete/$1');
+
+    // Pencarian berdasarkan Holder Code
+    $routes->get('search', 'IsoAccessController::search');
+});
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD DOKUMEN USER BERDASARKAN HOLDER CODE
+|--------------------------------------------------------------------------
+*/
+$routes->get('my-documents', 'IsoAccessController::userDocuments', ['filter' => 'auth']);
 
 /*
 |--------------------------------------------------------------------------

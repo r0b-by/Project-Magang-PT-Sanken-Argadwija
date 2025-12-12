@@ -19,6 +19,7 @@ $role = $session->get('role'); // 'admin' atau 'dept'
     <div class="flex-grow-1 p-2">
         <ul class="nav flex-column">
 
+            <!-- Dashboard -->
             <li class="nav-item">
                 <a class="nav-link py-2 <?= current_url() == base_url('dashboard/admin') ? 'active' : '' ?>" 
                    href="<?= base_url('dashboard/admin') ?>">
@@ -26,6 +27,7 @@ $role = $session->get('role'); // 'admin' atau 'dept'
                 </a>
             </li>
 
+            <!-- Manajemen -->
             <li class="nav-item mt-2">
                 <div class="small text-muted px-3 mb-1">Manajemen</div>
             </li>
@@ -37,6 +39,7 @@ $role = $session->get('role'); // 'admin' atau 'dept'
                 </a>
             </li>
 
+            <!-- Dokumen -->
             <li class="nav-item mt-2">
                 <div class="small text-muted px-3 mb-1">Dokumen</div>
             </li>
@@ -48,14 +51,15 @@ $role = $session->get('role'); // 'admin' atau 'dept'
                 </a>
             </li>
 
-            <!-- History per dokumen -->
+            <!-- History semua dokumen -->
             <li class="nav-item">
-                <a class="nav-link" href="<?= base_url('iso00/history') ?>">
+                <a class="nav-link" href="<?= base_url('iso00/allHistory') ?>">
                     <i class="fa-solid fa-list me-2"></i> 
                     History File
                 </a>
             </li>
-            
+
+            <!-- BARCODE -->
             <li class="nav-item">
                 <a class="nav-link py-2 <?= strpos(current_url(), base_url('barcode')) !== false ? 'active' : '' ?>" 
                    href="<?= base_url('barcode') ?>">
@@ -63,6 +67,33 @@ $role = $session->get('role'); // 'admin' atau 'dept'
                 </a>
             </li>
 
+            <!-- Hak Akses Dokumen -->
+            <li class="nav-item mt-2">
+                <div class="small text-muted px-3 mb-1">Hak Akses Dokumen</div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link py-2 <?= strpos(current_url(), base_url('access')) !== false ? 'active' : '' ?>" 
+                href="<?= base_url('access') ?>">
+                    <i class="fas fa-id-badge me-2"></i> Semua Hak Akses
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link py-2 <?= strpos(current_url(), base_url('access/create')) !== false ? 'active' : '' ?>" 
+                href="<?= base_url('access/create') ?>">
+                    <i class="fas fa-user-lock me-2"></i> Tambah Hak Akses
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link py-2 <?= strpos(current_url(), base_url('access/search')) !== false ? 'active' : '' ?>" 
+                href="<?= base_url('access/search') ?>">
+                    <i class="fas fa-search me-2"></i> Cari Dokumen (Holder Code)
+                </a>
+            </li>
+
+            <!-- Aktivitas -->
             <li class="nav-item mt-2">
                 <div class="small text-muted px-3 mb-1">Aktivitas</div>
             </li>
