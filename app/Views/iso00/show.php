@@ -45,16 +45,6 @@
                             </div>
                         </div>
 
-                        <!-- Departemen -->
-                        <div class="col-12 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label text-muted small fw-bold mb-1">
-                                    <i class="fas fa-building me-1"></i>Departemen
-                                </label>
-                                <div class="h5 h4-md fw-bold"><?= esc($dokumen['departement']) ?></div>
-                            </div>
-                        </div>
-
                         <!-- Halaman & Ruang Lingkup -->
                         <div class="col-12 col-md-6">
                             <div class="form-group">

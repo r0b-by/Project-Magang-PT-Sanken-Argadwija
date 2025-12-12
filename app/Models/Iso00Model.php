@@ -15,7 +15,6 @@ class Iso00Model extends Model
 
     protected $allowedFields = [
         'kode_dokumen',
-        'departement',
         'nama_file',
         'upload_dokumen',
         'status',
@@ -52,12 +51,6 @@ class Iso00Model extends Model
             'status' => $status,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
-    }
-
-    // Fungsi tambahan: cari dokumen berdasarkan departemen
-    public function findByDepartement($departement)
-    {
-        return $this->where('departement', $departement)->orderBy('uploaded_at', 'DESC')->findAll();
     }
 
     // Fungsi tambahan: dokumen efektif pada tanggal tertentu

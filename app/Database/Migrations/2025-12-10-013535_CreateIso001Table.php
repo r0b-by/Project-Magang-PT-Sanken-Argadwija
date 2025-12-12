@@ -20,10 +20,6 @@ class CreateIso0001Table extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => '50',
             ],
-            'departement' => [
-                'type' => 'VARCHAR',
-                'constraint' => '100',
-            ],
             'nama_file' => [
                 'type' => 'VARCHAR',
                 'constraint' => '255',

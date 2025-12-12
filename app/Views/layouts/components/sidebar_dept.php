@@ -37,19 +37,6 @@ $role = $session->get('role'); // 'admin' atau 'dept'
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link py-2 <?= strpos(current_url(), base_url('iso00/history')) !== false ? 'active' : '' ?>" 
-                   href="<?= base_url('iso00/history') ?>">
-                    <i class="fas fa-clock-rotate-left me-2"></i> History Dokumen
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link py-2" href="<?= base_url('iso00/create') ?>">
-                    <i class="fas fa-upload me-2"></i> Upload Dokumen
-                </a>
-            </li>
-
         </ul>
     </div>
 

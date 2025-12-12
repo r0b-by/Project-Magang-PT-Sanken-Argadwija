@@ -12,7 +12,6 @@ class Iso001Model extends Model
     protected $allowedFields = [
         'iso00_id',
         'kode_dokumen',
-        'departement',
         'nama_file',
         'upload_dokumen',
         'keterangan',

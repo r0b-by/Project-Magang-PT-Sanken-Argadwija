@@ -55,20 +55,6 @@
                     </div>
                 </div>
 
-                <!-- Department -->
-                <div class="mb-3">
-                    <label for="departement" class="form-label small fw-bold">Departemen *</label>
-                    <select class="form-select form-select-sm" id="departement" name="departement" required>
-                        <option value="">Pilih Departemen</option>
-                        <option value="HRD">HRD</option>
-                        <option value="IT">IT</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Produksi">Produksi</option>
-                        <option value="QA">QA</option>
-                    </select>
-                </div>
-
                 <!-- Tanggal Efektif -->
                 <div class="mb-3">
                     <label for="tanggal_efektif" class="form-label small fw-bold">Tanggal Efektif *</label>
@@ -99,7 +85,7 @@
                     <input type="file" class="form-control form-control-sm" id="upload_dokumen" name="upload_dokumen" accept=".pdf" required>
                     <small class="text-muted">PDF only • Max 10MB</small>
                 </div>
-                
+
                 <!-- Tombol Submit -->
                 <div class="d-flex justify-content-between">
                     <button type="reset" class="btn btn-outline-secondary btn-sm">

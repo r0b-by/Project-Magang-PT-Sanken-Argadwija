@@ -70,9 +70,6 @@
                                 </small>
                             </td>
 
-                            <!-- Desktop: Departemen -->
-                            <td class="d-none d-md-table-cell"><?= $doc['departement'] ?></td>
-
                             <!-- Desktop: File -->
                             <td class="d-none d-md-table-cell">
                                 <div class="d-flex align-items-center">
@@ -87,7 +84,7 @@
                                             if (file_exists($filePath)) {
                                                 echo round(filesize($filePath) / 1024, 2) . ' KB';
                                             } else {
-                                                echo '<span class="text-danger">File tidak ditemukan</span>';
+                                                echo '<span class="text-danger">File ditemukan</span>';
                                             }
                                             ?>
                                         </small>

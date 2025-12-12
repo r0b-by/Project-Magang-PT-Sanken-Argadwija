@@ -48,7 +48,6 @@ class Iso00Controller extends BaseController
 
         $this->iso00->save([
             'kode_dokumen'   => $this->request->getPost('kode_dokumen'),
-            'departement'    => $this->request->getPost('departement'),
             'nama_file'      => $file->getClientName(),
             'upload_dokumen' => $pdfData,
             'status'         => 'save',
@@ -93,9 +92,9 @@ class Iso00Controller extends BaseController
             $this->iso001->insert([
                 'iso00_id'       => $dokumen['id'],
                 'kode_dokumen'   => $dokumen['kode_dokumen'],
-                'departement'    => $dokumen['departement'],
                 'nama_file'      => $dokumen['nama_file'],
                 'upload_dokumen' => $dokumen['upload_dokumen'], 
+                'keterangan'     => $dokumen['keterangan'],
                 'status'         => 'revisi',
                 'tanggal_efektif'=> $dokumen['tanggal_efektif'],
                 'halaman_dokumen'=> $dokumen['halaman_dokumen'],
@@ -113,7 +112,7 @@ class Iso00Controller extends BaseController
         // ==============================
         $updateData = [
             'kode_dokumen'   => $this->request->getPost('kode_dokumen'),
-            'departement'    => $this->request->getPost('departement'),
+            'keterangan'     => $this->request->getPost('keterangan'),
             'status'         => $this->request->getPost('status') ?? 'revisi',
             'tanggal_efektif'=> $this->request->getPost('tanggal_efektif'),
             'halaman_dokumen'=> $this->request->getPost('halaman_dokumen'),

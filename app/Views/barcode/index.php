@@ -36,7 +36,6 @@
                 <tr>
                     <th><input type="checkbox" onclick="toggle(this)"></th>
                     <th>Kode Dokumen</th>
-                    <th>Departement</th>
                     <th>Nama File</th>
                     <th>Aksi</th>
                 </tr>
@@ -46,7 +45,6 @@
                 <tr>
                     <td><input type="checkbox" name="dokumen[]" value="<?= $dok['id'] ?>"></td>
                     <td><?= $dok['kode_dokumen'] ?></td>
-                    <td><?= $dok['departement'] ?></td>
                     <td><?= $dok['nama_file'] ?></td>
                     <td>
                         <a href="/barcode/generate/<?= $dok['id'] ?>" class="btn btn-primary btn-sm">Generate</a>
@@ -71,7 +69,6 @@
         <thead>
             <tr>
                 <th>Kode</th>
-                <th>Departement</th>
                 <th>QR Code</th>
                 <th>Link</th>
                 <th>Aksi</th>
@@ -81,7 +78,6 @@
             <?php foreach($sudahBarcode as $dok): ?>
             <tr>
                 <td><?= $dok['kode_dokumen'] ?></td>
-                <td><?= $dok['departement'] ?></td>
                 <td>
                     <?php if (!empty($dok['barcodeBase64'])): ?>
                         <a class="disabled-qrcode">

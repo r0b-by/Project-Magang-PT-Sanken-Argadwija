@@ -59,13 +59,6 @@
                     </div>
                 </div>
 
-                <!-- Department -->
-                <div class="mb-3">
-                    <label for="departement" class="form-label small fw-bold">Departemen *</label>
-                    <input type="text" class="form-control form-control-sm" id="departement" name="departement"
-                           value="<?= old('departement', $dokumen['departement'] ?? '') ?>" required>
-                </div>
-
                 <!-- Tanggal Efektif -->
                 <div class="mb-3">
                     <label for="tanggal_efektif" class="form-label small fw-bold">Tanggal Efektif *</label>
