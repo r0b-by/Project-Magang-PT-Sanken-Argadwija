@@ -11,7 +11,7 @@ $routes = Services::routes();
 | AUTH
 |--------------------------------------------------------------------------
 */
-$routes->get('/', 'HomeController::home');        
+$routes->get('/', 'HomeController::home');
 $routes->get('/login', 'AuthController::login');
 $routes->post('/login/process', 'AuthController::process');
 $routes->get('/logout', 'AuthController::logout');
@@ -32,12 +32,10 @@ $routes->group('users', ['filter' => 'role:admin'], function ($routes) {
 
 /*
 |--------------------------------------------------------------------------
-| ISO 00 — Master Dokumen
+| ISO 00 — MASTER DOKUMEN
 |--------------------------------------------------------------------------
 */
 $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
-
-    // Main pages
     $routes->get('/', 'Iso00Controller::index');
     $routes->get('create', 'Iso00Controller::create');
     $routes->post('store', 'Iso00Controller::store');
@@ -45,12 +43,10 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
     $routes->get('delete/(:num)', 'Iso00Controller::delete/$1');
 
-    // Viewing & downloading
-    $routes->get('show/(:num)', 'Iso00Controller::show/$1');          
-    $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');      
-    $routes->get('download/(:num)', 'Iso00Controller::download/$1');  
+    $routes->get('show/(:num)', 'Iso00Controller::show/$1');
+    $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
+    $routes->get('download/(:num)', 'Iso00Controller::download/$1');
 
-    // History per file
     $routes->get('history/(:num)', 'Iso00Controller::history/$1');
     $routes->get('allHistory', 'Iso00Controller::allHistory');
     $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');
@@ -59,41 +55,62 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
 
 /*
 |--------------------------------------------------------------------------
-| HAK AKSES DOKUMEN (ISO ACCESS HOLDER)
-| (ADMIN ONLY)
+| ISO ACCESS HOLDER
+| MASTER HOLDER & HAK AKSES DOKUMEN
+| ADMIN ONLY
 |--------------------------------------------------------------------------
 */
 $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
 
-    // List semua hak akses
+    // ==========================
+    // MASTER HOLDER
+    // ==========================
     $routes->get('/', 'IsoAccessController::index');
-
-    // Form tambah hak akses
     $routes->get('create', 'IsoAccessController::create');
+    $routes->post('store-holder', 'IsoAccessController::storeHolder');
 
-    // Simpan hak akses baru
-    $routes->post('store', 'IsoAccessController::store');
+    // ==========================
+    // DETAIL HOLDER
+    // ==========================
+    $routes->get('detail/(:segment)', 'IsoAccessController::detail/$1');
 
-    // Hapus hak akses
-    $routes->get('delete/(:num)', 'IsoAccessController::delete/$1');
+    // ==========================
+    // ASSIGN USER & DOKUMEN
+    // ==========================
+    $routes->get('assign/(:segment)', 'IsoAccessController::assign/$1');
+    $routes->post('store-assignment', 'IsoAccessController::storeAssignment');
 
-    // Pencarian berdasarkan Holder Code
+    // ==========================
+    // DELETE
+    // ==========================
+    $routes->get('remove-user/(:num)', 'IsoAccessController::removeUser/$1');
+    $routes->get('delete-holder/(:num)', 'IsoAccessController::deleteHolder/$1');
+
+    // ==========================
+    // SEARCH
+    // ==========================
     $routes->get('search', 'IsoAccessController::search');
+
+    // ==========================
+    // API (OPTIONAL)
+    // ==========================
+    $routes->get('user-fullname/(:num)', 'IsoAccessController::getUserFullname/$1');
 });
+
 
 /*
 |--------------------------------------------------------------------------
-| DASHBOARD DOKUMEN USER BERDASARKAN HOLDER CODE
+| DASHBOARD DOKUMEN USER (BERDASARKAN HOLDER)
 |--------------------------------------------------------------------------
 */
 $routes->get('my-documents', 'IsoAccessController::userDocuments', ['filter' => 'auth']);
 
 /*
 |--------------------------------------------------------------------------
-| BARCODE GENERATOR
+| BARCODE
 |--------------------------------------------------------------------------
 */
-$routes->group('barcode', ['filter' => 'auth'], function($routes) {
+$routes->group('barcode', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'BarcodeController::index');
     $routes->get('generate/(:num)', 'BarcodeController::generate/$1');
     $routes->post('generate-bulk', 'BarcodeController::generateBulk');
@@ -101,6 +118,7 @@ $routes->group('barcode', ['filter' => 'auth'], function($routes) {
     $routes->get('print/(:num)', 'BarcodeController::print/$1');
     $routes->get('file/(:num)', 'BarcodeController::file/$1');
 });
+
 $routes->get('barcode/dept', 'BarcodeController::deptIndex', ['filter' => 'role:dept']);
 $routes->get('barcode/print/(:num)', 'BarcodeController::print/$1', ['filter' => 'role:dept']);
 
@@ -116,7 +134,7 @@ $routes->get('scan/file/(:num)', 'ScanController::file/$1');
 
 /*
 |--------------------------------------------------------------------------
-| DASHBOARD ROLE BASED
+| DASHBOARD ROLE
 |--------------------------------------------------------------------------
 */
 $routes->get('/dashboard/admin', 'DashboardAdminController::index', ['filter' => 'role:admin']);

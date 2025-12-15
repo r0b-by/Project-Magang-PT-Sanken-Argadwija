@@ -4,114 +4,189 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\IsoAccessHolderModel;
+use App\Models\IsoAccessUserModel;
 use App\Models\UserModel;
 use App\Models\Iso00Model;
 
 class IsoAccessController extends BaseController
 {
-    protected $accessModel;
+    protected $holderModel;
+    protected $accessUserModel;
     protected $userModel;
     protected $dokumenModel;
 
     public function __construct()
     {
-        $this->accessModel  = new IsoAccessHolderModel();
-        $this->userModel    = new UserModel();
-        $this->dokumenModel = new Iso00Model();
+        $this->holderModel     = new IsoAccessHolderModel();
+        $this->accessUserModel = new IsoAccessUserModel();
+        $this->userModel       = new UserModel();
+        $this->dokumenModel    = new Iso00Model();
     }
 
-    // --------------------------------------------------------
-    // LIST HAK AKSES (ADMIN)
-    // --------------------------------------------------------
+    /* =====================================================
+     * INDEX - MASTER HOLDER
+     * ===================================================== */
     public function index()
     {
-        
-        $data['akses'] = $this->accessModel
-            ->select('iso_access_holders.*, users.fullname, users.username, iso_00.kode_dokumen, iso_00.nama_dokumen_internal')
-            ->join('users', 'users.id = iso_access_holders.user_id')
-            ->join('iso_00', 'iso_00.id = iso_access_holders.dokumen_id')
-            ->orderBy('iso_access_holders.id', 'DESC')
-            ->findAll();
-
-        return view('access/index', $data);
+        return view('access/index', [
+            'holders' => $this->holderModel->getAllHolders()
+        ]);
     }
 
-    // --------------------------------------------------------
-    // FORM TAMBAH HAK AKSES
-    // --------------------------------------------------------
+    /* =====================================================
+     * CREATE HOLDER
+     * ===================================================== */
     public function create()
     {
-        $data['users']   = $this->userModel->where('status_akun', 'aktif')->findAll();
-        $data['dokumen'] = $this->dokumenModel->findAll();
-        $data['access']  = $this->accessModel->findAll(); // semua akses existing
-
-        return view('access/create', $data);
+        return view('access/create');
     }
 
-    // --------------------------------------------------------
-    // SIMPAN (Bisa multiple)
-    // --------------------------------------------------------
-    public function store()
+    public function storeHolder()
     {
-        $userIds     = $this->request->getPost('user_id');      // array
-        $dokumenIds  = $this->request->getPost('dokumen_id');   // array
-        $holderCodes = $this->request->getPost('holder_code');  // array
+        $holderCode = strtoupper(trim($this->request->getPost('holder_code')));
 
-        if (!$userIds || !is_array($userIds)) {
-            return redirect()->back()->with('error', 'Pilih minimal satu user.');
+        if (!$holderCode) {
+            return redirect()->back()->with('error', 'Kode holder wajib diisi!');
         }
 
-        foreach ($userIds as $i => $userId) {
-            $dokumenId  = $dokumenIds[$i] ?? null;
-            $holderCode = strtoupper($holderCodes[$i] ?? null);
-
-            if (!$dokumenId || !$holderCode) continue;
-
-            // Cek duplikasi: user + dokumen
-            $exists = $this->accessModel
-                ->where('user_id', $userId)
-                ->where('dokumen_id', $dokumenId)
-                ->first();
-
-            if (!$exists) {
-                $this->accessModel->insert([
-                    'user_id'     => $userId,
-                    'dokumen_id'  => $dokumenId,
-                    'holder_code' => $holderCode
-                ]);
-            }
+        if ($this->holderModel->getByHolderCode($holderCode)) {
+            return redirect()->back()->withInput()->with('error', 'Kode holder sudah digunakan!');
         }
 
-        return redirect()->to('/access')->with('success', 'Hak akses berhasil ditambahkan!');
+        $this->holderModel->insert([
+            'holder_code' => $holderCode
+        ]);
+
+        return redirect()->to("/access/assign/{$holderCode}")
+            ->with('success', 'Holder berhasil dibuat, silakan assign user & dokumen.');
     }
 
-    // --------------------------------------------------------
-    // DELETE
-    // --------------------------------------------------------
-    public function delete($id)
+    /* =====================================================
+     * ASSIGN USER & DOKUMEN
+     * ===================================================== */
+    private function checkAccess($docId)
     {
-        $this->accessModel->delete($id);
-        return redirect()->back()->with('success', 'Hak akses berhasil dihapus.');
+        $role   = session()->get('role');
+        $userId = session()->get('user_id');
+
+        if ($role === 'admin') return true;
+
+        $access = $this->accessUserModel
+            ->select('iso_access_users.id')
+            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
+            ->where('iso_access_users.user_id', $userId)
+            ->where('iso_access_holders.dokumen_id', $docId)
+            ->first();
+
+        return $access ? true : false;
     }
 
-    // --------------------------------------------------------
-    // SEARCH HOLDER CODE
-    // --------------------------------------------------------
-    public function search()
+    public function assign($holderCode)
     {
-        $keyword = trim($this->request->getGet('q') ?? '');
-        $data['results'] = $keyword ? $this->accessModel->searchByHolder($keyword) : [];
-        $data['keyword'] = $keyword;
+        $holder = $this->holderModel->where('holder_code', $holderCode)->first();
 
-        return view('access/search', $data);
+        if (!$holder) {
+            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan');
+        }
+
+        $assignedUsers = $this->accessUserModel->where('holder_id', $holder['id'])->findAll();
+
+        $dokumen = $this->dokumenModel
+            ->select('iso_00.*')
+            ->join('iso_access_holders', 'iso_access_holders.dokumen_id = iso_00.id', 'left')
+            ->groupStart()
+                ->where('iso_access_holders.dokumen_id IS NULL')
+                ->orWhere('iso_access_holders.id', $holder['id'])
+            ->groupEnd()
+            ->orderBy('iso_00.kode_dokumen', 'ASC')
+            ->findAll();
+
+        $users = $this->userModel
+            ->where('status_akun', 'aktif')
+            ->orderBy('fullname', 'ASC')
+            ->findAll();
+
+        return view('access/assign', [
+            'holder'        => $holder,
+            'dokumen'       => $dokumen,
+            'users'         => $users,
+            'assignedUsers' => $assignedUsers,
+        ]);
     }
 
-    // --------------------------------------------------------
-    // LIST DOKUMEN USER
-    // --------------------------------------------------------
-    public function userDocuments($userId)
+    public function storeAssignment()
     {
-        $data['dokumen'] = $this->accessModel->getByUser($userId);
-        return view('user/documents', $data);
+        $holderId  = $this->request->getPost('holder_id');
+        $dokumenId = $this->request->getPost('dokumen_id');
+        $userIds   = $this->request->getPost('user_ids') ?? [];
+
+        $holder = $this->holderModel->find($holderId);
+        if (!$holder) {
+            return redirect()->back()->with('error', 'Holder tidak valid!');
+        }
+
+        // Validasi dokumen
+        if ($dokumenId && $this->holderModel->isDokumenUsed($dokumenId, $holderId)) {
+            return redirect()->back()->with('error', 'Dokumen sudah digunakan holder lain!');
+        }
+
+        // Update dokumen holder
+        $this->holderModel->update($holderId, ['dokumen_id' => $dokumenId ?: null]);
+
+        // Assign user tanpa duplikat
+        foreach ($userIds as $userId) {
+            $this->accessUserModel->assignUserToHolder($holderId, $userId);
+        }
+
+        return redirect()->to("/access/detail/{$holder['holder_code']}")
+            ->with('success', 'Hak akses berhasil diperbarui.');
+    }
+
+    /* =====================================================
+     * DETAIL HOLDER
+     * ===================================================== */
+    public function detail($holderCode)
+    {
+        $holder = $this->holderModel->getByHolderCode($holderCode);
+
+        if (!$holder) {
+            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
+        }
+
+        return view('access/detail', [
+            'holder' => $holder,
+            'users'  => $this->accessUserModel->getUsersByHolder($holder['id'])
+        ]);
+    }
+
+    /* =====================================================
+     * REMOVE USER
+     * ===================================================== */
+    public function removeUser($accessId)
+    {
+        $this->accessUserModel->delete($accessId);
+        return redirect()->back()->with('success', 'User berhasil dihapus dari holder.');
+    }
+
+    /* =====================================================
+     * DELETE HOLDER
+     * ===================================================== */
+    public function deleteHolder($holderId)
+    {
+        $this->holderModel->delete($holderId);
+        return redirect()->to('/access')->with('success', 'Holder berhasil dihapus.');
+    }
+
+    /* =====================================================
+     * USER SIDE - DOKUMEN
+     * ===================================================== */
+    public function userDocuments()
+    {
+        $userId = session()->get('user_id');
+        if (!$userId) return redirect()->to('/login');
+
+        return view('user/documents', [
+            'dokumen' => $this->accessUserModel->getHoldersByUser($userId)
+        ]);
     }
 }

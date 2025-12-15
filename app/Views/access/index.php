@@ -1,75 +1,42 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 
-<div class="container mt-4">
-    <h3>Daftar Hak Akses Dokumen</h3>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between mb-3">
+        <h4>Master Holder Dokumen</h4>
+        <a href="<?= base_url('access/create') ?>" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Tambah Holder
+        </a>
+    </div>
 
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-    <?php endif; ?>
+        <div class="alert alert-success"><?= session('success') ?></div>
+    <?php endif ?>
 
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-    <?php endif; ?>
-
-    <a href="/access/create" class="btn btn-primary mb-3">+ Tambah Hak Akses</a>
-
-    <table class="table table-bordered table-striped">
-        <thead>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
             <tr>
-                <th>Kode Dokumen</th>
-                <th>Nama Dokumen</th>
-                <th>Holder Codes</th>
-                <th>Users</th>
+                <th>Kode Holder</th>
+                <th>Dokumen</th>
+                <th>Total User</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
-            <?php
-            // Kelompokkan akses berdasarkan dokumen
-            $grouped = [];
-            foreach ($akses as $row) {
-                $grouped[$row->dokumen_id][] = $row;
-            }
-            ?>
-
-            <?php foreach ($grouped as $dokumenId => $rows): ?>
-                <?php $first = $rows[0]; ?>
+            <?php foreach ($holders as $h): ?>
                 <tr>
-                    <td><?= esc($first->kode_dokumen) ?></td>
-                    <td><?= esc($first->nama_dokumen_internal) ?></td>
-
-                    <!-- Holder Codes -->
+                    <td><strong><?= esc($h['holder_code']) ?></strong></td>
+                    <td><?= esc($h['kode_dokumen'] ?? '-') ?></td>
+                    <td><?= esc($h['total_users']) ?></td>
                     <td>
-                        <ul class="list-unstyled mb-0">
-                            <?php foreach ($rows as $r): ?>
-                                <li><?= esc($r->holder_code) ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </td>
-
-                    <!-- Users -->
-                    <td>
-                        <ul class="list-unstyled mb-0">
-                            <?php foreach ($rows as $r): ?>
-                                <li><?= esc($r->fullname) ?>
-                                    <a href="/access/delete/<?= $r->id ?>" 
-                                       class="text-danger ms-1"
-                                       onclick="return confirm('Hapus akses ini?')">
-                                        (Hapus)
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </td>
-
-                    <td>
-                        <a href="/access/edit/<?= $first->dokumen_id ?>" class="btn btn-warning btn-sm">
-                            Edit Dokumen
-                        </a>
+                        <a href="<?= base_url('access/detail/'.$h['holder_code']) ?>" class="btn btn-info btn-sm">Detail</a>
+                        <a href="<?= base_url('access/assign/'.$h['holder_code']) ?>" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="<?= base_url('access/delete-holder/'.$h['id']) ?>"
+                           onclick="return confirm('Hapus holder ini?')"
+                           class="btn btn-danger btn-sm">Hapus</a>
                     </td>
                 </tr>
-            <?php endforeach; ?>
+            <?php endforeach ?>
         </tbody>
     </table>
 </div>

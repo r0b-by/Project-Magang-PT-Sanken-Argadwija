@@ -1,4 +1,6 @@
-<?php namespace App\Database\Migrations;
+<?php 
+
+namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
@@ -9,44 +11,52 @@ class CreateIsoAccessHoldersTable extends Migration
         $this->forge->addField([
             'id' => [
                 'type'           => 'INT',
+                'unsigned'       => true,
                 'auto_increment' => true,
-                'unsigned'       => true
-            ],
-            'user_id' => [
-                'type'     => 'INT',
-                'unsigned' => true
-            ],
-            'dokumen_id' => [
-                'type'     => 'INT',
-                'unsigned' => true,
-                'comment'  => 'Mengambil id dari iso_00'
             ],
             'holder_code' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 10,
-                'comment'    => 'Contoh: 1A, 2B, 3C'
+                'null'       => false,
+                'unique'     => true, // UNIQUE otomatis buat index
+                'comment'    => 'Kode holder, contoh: 1A, 2B',
+            ],
+            'dokumen_id' => [
+                'type'     => 'INT',
+                'unsigned' => true,
+                'null'     => true,
+                'comment'  => 'Relasi ke tabel iso_00',
             ],
             'created_at' => [
                 'type' => 'DATETIME',
-                'null' => true
+                'null' => true,
             ],
             'updated_at' => [
                 'type' => 'DATETIME',
-                'null' => true
+                'null' => true,
             ],
         ]);
 
+        // Primary key
         $this->forge->addKey('id', true);
 
-        // foreign keys
-        $this->forge->addForeignKey('user_id', 'users', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('dokumen_id', 'iso_00', 'id', 'CASCADE', 'CASCADE');
+        // Index tambahan
+        $this->forge->addKey('dokumen_id');
 
-        $this->forge->createTable('iso_access_holders');
+        // Foreign key
+        $this->forge->addForeignKey(
+            'dokumen_id',
+            'iso_00',
+            'id',
+            'SET NULL',
+            'CASCADE'
+        );
+
+        $this->forge->createTable('iso_access_holders', true);
     }
 
     public function down()
     {
-        $this->forge->dropTable('iso_access_holders');
+        $this->forge->dropTable('iso_access_holders', true);
     }
 }

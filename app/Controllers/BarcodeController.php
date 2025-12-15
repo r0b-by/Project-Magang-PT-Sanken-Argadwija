@@ -27,7 +27,7 @@ class BarcodeController extends Controller
     {
         $role = session()->get('role');
 
-        if($role === 'dept') {
+        if ($role === 'dept') {
             return $this->deptIndex();
         }
 
@@ -56,15 +56,18 @@ class BarcodeController extends Controller
     {
         $userId = session()->get('user_id');
 
-        // Ambil semua dokumen yang dept punya akses melalui holder
-        $allowedDocs = $this->holder->where('user_id', $userId)->findAll();
+        // Ambil semua holder user (join iso_access_users)
+        $allowedDocs = $this->holder
+            ->select('iso_access_holders.*')
+            ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_holders.id')
+            ->where('iso_access_users.user_id', $userId)
+            ->findAll();
+
         $docIds = array_column($allowedDocs, 'dokumen_id');
 
-        // Jika tidak ada dokumen, kembalikan array kosong
         if (empty($docIds)) {
             $barcodes = [];
         } else {
-            // Ambil dokumen yang sudah memiliki barcode
             $barcodesRaw = $this->iso
                 ->whereIn('id', $docIds)
                 ->where('barcode IS NOT NULL')
@@ -73,17 +76,13 @@ class BarcodeController extends Controller
 
             $barcodes = [];
             foreach ($barcodesRaw as $dok) {
-                // Pastikan barcode ada sebelum generate QR Code
-                if (!empty($dok['barcode'])) {
-                    $dok['barcodeBase64'] = $this->qrCodeBase64($dok['barcode'], 150);
-                } else {
-                    $dok['barcodeBase64'] = null;
-                }
+                $dok['barcodeBase64'] = !empty($dok['barcode'])
+                    ? $this->qrCodeBase64($dok['barcode'], 150)
+                    : null;
                 $barcodes[] = $dok;
             }
         }
 
-        // Tampilkan view khusus dept dengan hanya dokumen yang memiliki barcode
         return view('barcode/dept_index', [
             'barcodes' => $barcodes
         ]);
@@ -98,11 +97,7 @@ class BarcodeController extends Controller
         if (!$dok) return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
 
         $url = base_url('scan/detail/' . $dok['id']);
-
-        $this->iso->update($id, [
-            'barcode' => $url,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        $this->iso->update($id, ['barcode' => $url, 'updated_at' => date('Y-m-d H:i:s')]);
 
         return redirect()->back()->with('msg', 'QR Code berhasil digenerate!');
     }
@@ -116,10 +111,7 @@ class BarcodeController extends Controller
             $dok = $this->iso->find($id);
             if ($dok) {
                 $url = base_url('scan/detail/' . $dok['id']);
-                $this->iso->update($id, [
-                    'barcode' => $url,
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
+                $this->iso->update($id, ['barcode' => $url, 'updated_at' => date('Y-m-d H:i:s')]);
             }
         }
 
@@ -131,10 +123,7 @@ class BarcodeController extends Controller
         $dok = $this->iso->find($id);
         if (!$dok) return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
 
-        $this->iso->update($id, [
-            'barcode' => null,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        $this->iso->update($id, ['barcode' => null, 'updated_at' => date('Y-m-d H:i:s')]);
 
         return redirect()->back()->with('msg', 'QR Code berhasil dihapus!');
     }
@@ -147,7 +136,6 @@ class BarcodeController extends Controller
         $dok = $this->iso->find($id);
         if (!$dok || !$dok['barcode']) return redirect()->back()->with('error', 'QR Code tidak ditemukan!');
 
-        // cek akses dept
         if (!$this->checkDeptAccess($dok)) {
             return redirect()->back()->with('error', 'Akses ditolak!');
         }
@@ -159,9 +147,8 @@ class BarcodeController extends Controller
             ->size(200)
             ->build();
 
-        return $this->response
-            ->setHeader('Content-Type', 'image/png')
-            ->setBody($result->getString());
+        return $this->response->setHeader('Content-Type', 'image/png')
+                              ->setBody($result->getString());
     }
 
     // ============================================================
@@ -236,13 +223,16 @@ class BarcodeController extends Controller
     {
         $role = session()->get('role');
         if ($role === 'admin') return true;
-
         if ($role !== 'dept') return false;
 
         $userId = session()->get('user_id');
+
+        // join ke iso_access_users untuk cek akses
         $access = $this->holder
-            ->where('user_id', $userId)
-            ->where('dokumen_id', $dok['id'])
+            ->select('iso_access_holders.id')
+            ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_holders.id')
+            ->where('iso_access_users.user_id', $userId)
+            ->where('iso_access_holders.dokumen_id', $dok['id'])
             ->first();
 
         return $access && !empty($dok['barcode']);

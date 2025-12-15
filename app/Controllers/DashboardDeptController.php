@@ -2,49 +2,59 @@
 
 namespace App\Controllers;
 
-use App\Models\Iso00Model;
-use App\Models\IsoAccessHolderModel;
+use App\Controllers\BaseController;
+use App\Models\IsoAccessUserModel;
 use App\Models\ActivityLogModel;
 
 class DashboardDeptController extends BaseController
 {
-    protected $iso00;
-    protected $holder;
+    protected $accessUser;
     protected $log;
 
     public function __construct()
     {
-        $this->iso00  = new Iso00Model();
-        $this->holder = new IsoAccessHolderModel();
-        $this->log    = new ActivityLogModel();
+        $this->accessUser = new IsoAccessUserModel();
+        $this->log        = new ActivityLogModel();
     }
 
     public function index()
     {
-        $deptID = session()->get('user_id');
+        // Ambil user_id dari session
+        $userId = session()->get('user_id');
 
-        // Ambil dokumen yang dept punya akses
-        $access = $this->holder->where('user_id', $deptID)->findAll();
-        $docIds = array_column($access, 'dokumen_id');
-
-        $dokumen_saya = [];
-        if (!empty($docIds)) {
-            $dokumen_saya = $this->iso00
-                ->whereIn('id', $docIds)
-                ->orderBy('id', 'DESC')
-                ->findAll();
+        if (!$userId) {
+            // Jika session user_id tidak ada, redirect ke login
+            return redirect()->to('/login');
         }
 
-        // Ambil log terbaru
+        // Ambil dokumen yang bisa diakses user
+        $dokumen_saya = $this->accessUser->getDocumentsByUser($userId);
+
+        // Ambil 10 log terbaru user
         $log_saya = $this->log
-            ->where('user_id', $deptID)
+            ->where('user_id', $userId)
             ->orderBy('id', 'DESC')
             ->limit(10)
             ->findAll();
 
+        // Kirim data ke view
         return view('dashboard/dept', [
             'dokumen_saya' => $dokumen_saya,
             'log_saya'     => $log_saya,
         ]);
+    }
+
+    /**
+     * Contoh method untuk cek akses dokumen tertentu
+     */
+    public function cekAksesDokumen(int $dokumenId)
+    {
+        $userId = session()->get('user_id');
+
+        if ($this->accessUser->userHasAccess($userId, $dokumenId)) {
+            return "User memiliki akses ke dokumen ID: {$dokumenId}";
+        }
+
+        return "User TIDAK memiliki akses ke dokumen ID: {$dokumenId}";
     }
 }

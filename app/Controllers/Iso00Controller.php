@@ -6,6 +6,7 @@ use App\Models\Iso00Model;
 use App\Models\Iso001Model;
 use App\Models\UserModel;
 use App\Models\IsoAccessHolderModel;
+use App\Models\IsoAccessUserModel;
 
 class Iso00Controller extends BaseController
 {
@@ -13,33 +14,35 @@ class Iso00Controller extends BaseController
     protected $iso001;
     protected $user;
     protected $holder;
+    protected $accessUser;
 
     public function __construct()
     {
-        $this->iso00  = new Iso00Model();
-        $this->iso001 = new Iso001Model();
-        $this->user   = new UserModel();
-        $this->holder = new IsoAccessHolderModel();
+        $this->iso00      = new Iso00Model();
+        $this->iso001     = new Iso001Model();
+        $this->user       = new UserModel();
+        $this->holder     = new IsoAccessHolderModel();
+        $this->accessUser = new IsoAccessUserModel();
     }
 
     // ============================================================
-    // CEK AKSES HOLDER
+    // CEK AKSES USER
     // ============================================================
     private function checkAccess($docId)
     {
         $role   = session()->get('role');
         $userId = session()->get('user_id');
 
-        if ($role === 'admin') {
-            return true; // admin bebas akses
-        }
+        if ($role === 'admin') return true;
 
-        $check = $this->holder
-            ->where('user_id', $userId)
-            ->where('dokumen_id', $docId)
+        $access = $this->accessUser
+            ->select('iso_access_users.id')
+            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
+            ->where('iso_access_users.user_id', $userId)
+            ->where('iso_access_holders.dokumen_id', $docId)
             ->first();
 
-        return $check ? true : false;
+        return $access ? true : false;
     }
 
     // ============================================================
@@ -57,8 +60,13 @@ class Iso00Controller extends BaseController
                 ->orderBy('iso_00.id', 'DESC')
                 ->findAll();
         } else {
-            // dept hanya lihat dokumen yang memiliki akses
-            $allowedDocs = $this->holder->where('user_id', $userId)->findAll();
+            // Ambil dokumen yang di-assign via holder
+            $allowedDocs = $this->accessUser
+                ->select('iso_access_holders.dokumen_id')
+                ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
+                ->where('iso_access_users.user_id', $userId)
+                ->findAll();
+
             $docIds = array_column($allowedDocs, 'dokumen_id');
 
             if (empty($docIds)) {
@@ -75,20 +83,16 @@ class Iso00Controller extends BaseController
     }
 
     // ============================================================
-    // CREATE
+    // CREATE & STORE
     // ============================================================
     public function create()
     {
         return view('iso00/create');
     }
 
-    // ============================================================
-    // STORE
-    // ============================================================
     public function store()
     {
         $file = $this->request->getFile('upload_dokumen');
-
         if (!$file || !$file->isValid()) {
             return redirect()->back()->with('error', 'File tidak valid!');
         }
@@ -118,36 +122,26 @@ class Iso00Controller extends BaseController
     }
 
     // ============================================================
-    // EDIT
+    // EDIT & UPDATE
     // ============================================================
     public function edit($id)
     {
         $dokumen = $this->iso00->find($id);
+        if (!$dokumen) return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
 
-        if (!$dokumen) {
-            return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
-        }
-
-        // dept hanya bisa edit dokumen yang mereka upload
-        if(session()->get('role') !== 'admin' && $dokumen['uploaded_by'] != session()->get('user_id')) {
+        if (session()->get('role') !== 'admin' && $dokumen['uploaded_by'] != session()->get('user_id')) {
             return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses mengedit dokumen ini!');
         }
 
         return view('iso00/edit', ['dokumen' => $dokumen]);
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
     public function update($id)
     {
         $dokumen = $this->iso00->find($id);
+        if (!$dokumen) return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
 
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
-        }
-
-        if(session()->get('role') !== 'admin' && $dokumen['uploaded_by'] != session()->get('user_id')) {
+        if (session()->get('role') !== 'admin' && $dokumen['uploaded_by'] != session()->get('user_id')) {
             return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses mengubah dokumen ini!');
         }
 
@@ -197,7 +191,7 @@ class Iso00Controller extends BaseController
     }
 
     // ============================================================
-    // SHOW
+    // SHOW & VIEW PDF
     // ============================================================
     public function show($id)
     {
@@ -215,9 +209,6 @@ class Iso00Controller extends BaseController
         return view('iso00/show', $data);
     }
 
-    // ============================================================
-    // VIEW PDF
-    // ============================================================
     public function viewFile($id)
     {
         if (!$this->checkAccess($id)) {
@@ -251,9 +242,7 @@ class Iso00Controller extends BaseController
 
     public function allHistory()
     {
-        $role = session()->get('role');
-
-        if ($role !== 'admin') {
+        if (session()->get('role') !== 'admin') {
             return redirect()->to('/iso00')->with('error', 'Akses ditolak!');
         }
 

@@ -87,42 +87,42 @@
                         <tbody>
                             <?php $no = 1; ?>
                             <?php foreach ($dokumen_saya as $doc): ?>
-                            <tr>
-                                <td class="ps-3"><?= $no++ ?></td>
-                                <td>
-                                    <div>
-                                        <i class="fas fa-file-pdf text-danger me-1"></i>
-                                        <?= $doc['kode_dokumen'] ?>
-                                    </div>
-                                    <div class="text-muted small d-block d-sm-none">
-                                        <?= $doc['departement'] ?? '-' ?>
-                                        <span class="mx-1">•</span>
+                                <?php $status = $doc['status'] ?? 'pending'; ?>
+                                <tr>
+                                    <td class="ps-3"><?= $no++ ?></td>
+                                    <td>
+                                        <div>
+                                            <i class="fas fa-file-pdf text-danger me-1"></i>
+                                            <?= $doc['kode_dokumen'] ?? '-' ?>
+                                        </div>
+                                        <div class="text-muted small d-block d-sm-none">
+                                            <?= $doc['departement'] ?? '-' ?>
+                                            <span class="mx-1">•</span>
+                                            <span class="badge bg-<?= 
+                                                $status == 'approved' ? 'success' : 
+                                                ($status == 'pending' ? 'warning' : 'info') ?>">
+                                                <?= $status == 'approved' ? '✓' : 
+                                                   ($status == 'pending' ? '⏳' : '📄') ?>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-sm-table-cell">
                                         <span class="badge bg-<?= 
-                                            $doc['status'] == 'approved' ? 'success' : 
-                                            ($doc['status'] == 'pending' ? 'warning' : 'info') ?>">
-                                            <?= $doc['status'] == 'approved' ? '✓' : 
-                                               ($doc['status'] == 'pending' ? '⏳' : '📄') ?>
+                                            $status == 'approved' ? 'success' : 
+                                            ($status == 'pending' ? 'warning' : 'info') ?>">
+                                            <?= ucfirst($status) ?>
                                         </span>
-                                    </div>
-                                </td>
-                                <td class="d-none d-sm-table-cell">
-                                    <span class="badge bg-<?= 
-                                        $doc['status'] == 'approved' ? 'success' : 
-                                        ($doc['status'] == 'pending' ? 'warning' : 'info') ?>">
-                                        <?= ucfirst($doc['status']) ?>
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <!-- Aksi Dept: Hanya lihat detail barcode -->
-                                        <a href="/barcode/detail/<?= $doc['id'] ?>" 
-                                           class="btn btn-outline-info"
-                                           title="Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="/barcode/detail/<?= $doc['dokumen_id'] ?? 0 ?>" 
+                                               class="btn btn-outline-info"
+                                               title="Detail">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -144,35 +144,35 @@
             <?php else: ?>
                 <div class="list-group list-group-flush">
                     <?php foreach ($log_saya as $log): ?>
-                    <div class="list-group-item border-0 px-3 py-2">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <?php
-                                $activity = strtolower($log['activity']);
-                                if (str_contains($activity, 'login')) {
-                                    $icon = 'sign-in-alt';
-                                    $color = 'text-success';
-                                } elseif (str_contains($activity, 'upload')) {
-                                    $icon = 'upload';
-                                    $color = 'text-primary';
-                                } elseif (str_contains($activity, 'scan')) {
-                                    $icon = 'qrcode';
-                                    $color = 'text-info';
-                                } else {
-                                    $icon = 'edit';
-                                    $color = 'text-warning';
-                                }
-                                ?>
-                                <i class="fas fa-<?= $icon ?> <?= $color ?>"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <div class="small"><?= $log['activity'] ?></div>
-                                <div class="text-muted smaller">
-                                    <?= date('d/m/y H:i', strtotime($log['created_at'])) ?>
+                        <div class="list-group-item border-0 px-3 py-2">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <?php
+                                    $activity = strtolower($log['activity']);
+                                    if (str_contains($activity, 'login')) {
+                                        $icon = 'sign-in-alt';
+                                        $color = 'text-success';
+                                    } elseif (str_contains($activity, 'upload')) {
+                                        $icon = 'upload';
+                                        $color = 'text-primary';
+                                    } elseif (str_contains($activity, 'scan')) {
+                                        $icon = 'qrcode';
+                                        $color = 'text-info';
+                                    } else {
+                                        $icon = 'edit';
+                                        $color = 'text-warning';
+                                    }
+                                    ?>
+                                    <i class="fas fa-<?= $icon ?> <?= $color ?>"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small"><?= $log['activity'] ?></div>
+                                    <div class="text-muted smaller">
+                                        <?= date('d/m/y H:i', strtotime($log['created_at'])) ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
