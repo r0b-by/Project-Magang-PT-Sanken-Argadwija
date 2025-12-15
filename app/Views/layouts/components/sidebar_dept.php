@@ -1,54 +1,103 @@
 <?php
 $session = \Config\Services::session();
-$role = $session->get('role'); // 'admin' atau 'dept'
+$role = $session->get('role');
 ?>
-
 <?php if($role === 'dept'): ?>
-<!-- ============================ -->
-<!-- SIDEBAR DEPARTEMEN -->
-<!-- ============================ -->
-<div class="sidebar d-flex flex-column">
-
-    <!-- Header -->
-    <div class="p-2 text-center border-bottom">
-        <h5 class="mb-0"><i class="fas fa-folder-tree me-2 text-primary"></i> DMS</h5>
-        <small class="text-muted d-none d-lg-block small">Departemen</small>
+<div class="sidebar d-flex flex-column bg-white shadow-sm">
+    <!-- HEADER -->
+    <div class="p-4 text-center border-bottom">
+        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+            <i class="fas fa-folder-tree fa-lg text-success"></i>
+        </div>
+        <h5 class="mb-1 fw-bold text-dark">DMS</h5>
+        <span class="badge bg-light text-success border small">Departemen</span>
     </div>
 
-    <!-- Menu -->
-    <div class="flex-grow-1 p-2">
-        <ul class="nav flex-column">
-
+    <!-- MENU -->
+    <div class="flex-grow-1 p-3 overflow-auto">
+        <ul class="nav flex-column gap-1">
+            <!-- DASHBOARD -->
             <li class="nav-item">
-                <a class="nav-link py-2 <?= current_url() == base_url('dashboard/dept') ? 'active' : '' ?>" 
+                <a class="nav-link py-2 px-3 rounded-3 <?= current_url() == base_url('dashboard/dept') ? 'active bg-success text-white' : 'text-dark' ?>" 
                    href="<?= base_url('dashboard/dept') ?>">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
             </li>
 
-            <li class="nav-item mt-2">
-                <div class="small text-muted px-3 mb-1">Dokumen</div>
+            <!-- DOKUMEN -->
+            <li class="nav-item mt-3 mb-2">
+                <div class="small text-uppercase text-muted px-3 fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Dokumen</div>
             </li>
-
             <li class="nav-item">
-                <a class="nav-link py-2 <?= strpos(current_url(), base_url('iso00')) !== false ? 'active' : '' ?>" 
+                <a class="nav-link py-2 px-3 rounded-3 <?= strpos(current_url(), base_url('iso00')) !== false ? 'active bg-success text-white' : 'text-dark' ?>" 
                    href="<?= base_url('iso00') ?>">
-                    <i class="fas fa-file-alt me-2"></i> Dokumen Saya
+                    <i class="fas fa-file-alt me-2"></i>Dokumen Saya
                 </a>
             </li>
 
             <!-- BARCODE -->
+            <li class="nav-item mt-3 mb-2">
+                <div class="small text-uppercase text-muted px-3 fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Barcode</div>
+            </li>
             <li class="nav-item">
-                <a class="nav-link py-2 <?= strpos(current_url(), base_url('barcode')) !== false ? 'active' : '' ?>" 
+                <a class="nav-link py-2 px-3 rounded-3 <?= strpos(current_url(), base_url('barcode')) !== false ? 'active bg-success text-white' : 'text-dark' ?>" 
                    href="<?= base_url('barcode') ?>">
-                    <i class="fas fa-qrcode me-2"></i> Barcode
+                    <i class="fas fa-qrcode me-2"></i>Barcode Dokumen
                 </a>
             </li>
-            
         </ul>
     </div>
 
-    <div class="p-2 border-top text-center small text-muted">v1.0</div>
+    <!-- FOOTER -->
+    <div class="p-3 border-top text-center bg-light">
+        <small class="text-muted d-flex align-items-center justify-content-center">
+            <i class="fas fa-shield-alt me-2 text-success"></i>DMS v1.0
+        </small>
+    </div>
 </div>
 
+<style>
+.sidebar {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar .nav-link {
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.sidebar .nav-link:not(.active):hover {
+    background-color: #f8f9fa;
+    transform: translateX(4px);
+}
+
+.sidebar .nav-link.active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
+</style>
 <?php endif; ?>

@@ -1,206 +1,181 @@
+
+<!-- ========================================== -->
+<!-- 2. HALAMAN DETAIL DOKUMEN ISO -->
+<!-- ========================================== -->
 <?= $this->extend('layouts/main') ?>
-
 <?= $this->section('title') ?>Detail Dokumen ISO<?= $this->endSection() ?>
-
 <?= $this->section('content') ?>
-<div class="container-fluid px-2 px-md-3">
-    <!-- Page Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <h1 class="h3 mb-3 mb-md-0 text-gray-800">
-            <i class="fas fa-file-alt me-2"></i>Detail Dokumen
-        </h1>
+<div class="container-fluid px-3 px-md-4 py-3">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="/iso00" class="btn btn-secondary btn-sm btn-md">
-                <i class="fas fa-arrow-left me-1"></i>Kembali
-            </a>
+            <h1 class="h4 mb-1 fw-bold text-dark">Detail Dokumen</h1>
+            <p class="text-muted small mb-0">Informasi lengkap dokumen ISO</p>
         </div>
     </div>
 
-    <div class="row g-3 g-md-4">
-        <div class="col-lg-8 order-2 order-lg-1">
-
-            <!-- Informasi Dokumen -->
-            <div class="card shadow-sm mb-3 mb-md-4">
-                <div class="card-header bg-primary text-white py-2 py-md-3">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-info-circle me-2 d-none d-md-inline"></i>
-                        <span class="fs-5 fs-md-4">Informasi Dokumen</span>
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <!-- Info Dokumen -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Informasi Dokumen
                     </h5>
                 </div>
-
-                <div class="card-body p-3 p-md-4">
+                <div class="card-body p-4">
                     <div class="row g-3">
-
-                        <!-- Kode Dokumen -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-muted small fw-bold mb-1">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-semibold mb-2">
                                 <i class="fas fa-hashtag me-1"></i>Kode Dokumen
                             </label>
-                            <div class="h5 fw-bold text-primary"><?= esc($dokumen['kode_dokumen']) ?></div>
-
+                            <div class="h5 fw-bold text-primary mb-2"><?= esc($dokumen['kode_dokumen']) ?></div>
                             <?php if ($dokumen['barcode']): ?>
-                                <small class="text-muted d-block mt-1">
+                                <small class="text-muted">
                                     <i class="fas fa-barcode me-1"></i><?= esc($dokumen['barcode']) ?>
                                 </small>
                             <?php endif; ?>
-
-                            <!-- ⭐ Tambahan: Nama Dokumen Internal -->
                             <?php if (!empty($dokumen['nama_dokumen_internal'])): ?>
                                 <div class="mt-2">
-                                    <small class="text-primary fw-bold">
-                                        <i class="fas fa-tag me-1"></i>
-                                        <?= esc($dokumen['nama_dokumen_internal']) ?>
-                                    </small>
+                                    <span class="badge bg-primary bg-gradient">
+                                        <i class="fas fa-tag me-1"></i><?= esc($dokumen['nama_dokumen_internal']) ?>
+                                    </span>
                                 </div>
                             <?php endif; ?>
                         </div>
 
-                        <!-- Halaman & Ruang Lingkup -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-muted small fw-bold mb-1">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-semibold mb-2">
                                 <i class="fas fa-file-alt me-1"></i>Halaman / Ruang Lingkup
                             </label>
-                            <div class="mt-2">
-                                <span class="fw-bold"><?= esc($dokumen['halaman_dokumen'] ?? '-') ?></span> | 
+                            <div>
+                                <span class="fw-semibold"><?= esc($dokumen['halaman_dokumen'] ?? '-') ?></span>
+                                <span class="text-muted mx-2">|</span>
                                 <span><?= esc($dokumen['ruang_lingkup'] ?? '-') ?></span>
                             </div>
                         </div>
 
-                        <!-- Tujuan -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-muted small fw-bold mb-1">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-semibold mb-2">
                                 <i class="fas fa-bullseye me-1"></i>Tujuan
                             </label>
-                            <div class="mt-2"><?= esc($dokumen['tujuan'] ?? '-') ?></div>
+                            <div><?= esc($dokumen['tujuan'] ?? '-') ?></div>
                         </div>
 
-                        <!-- Status -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-muted small fw-bold mb-1">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-semibold mb-2">
                                 <i class="fas fa-circle me-1"></i>Status
                             </label>
-                            <div class="mt-2">
-                                <span class="badge bg-<?= 
+                            <div>
+                                <span class="badge rounded-pill bg-<?= 
                                     $dokumen['status'] == 'approved' ? 'success' : 
-                                    ($dokumen['status'] == 'save' ? 'info' : 'warning') ?> fs-6">
+                                    ($dokumen['status'] == 'save' ? 'info' : 'warning') ?> px-3 py-2">
                                     <?= ucfirst($dokumen['status']) ?>
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Tanggal Efektif -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-muted small fw-bold mb-1">
+                        <div class="col-md-6">
+                            <label class="text-muted small fw-semibold mb-2">
                                 <i class="fas fa-calendar-alt me-1"></i>Tanggal Efektif
                             </label>
-                            <div class="mt-2"><?= $dokumen['tanggal_efektif'] ? date('d/m/Y', strtotime($dokumen['tanggal_efektif'])) : '-' ?></div>
+                            <div><?= $dokumen['tanggal_efektif'] ? date('d/m/Y', strtotime($dokumen['tanggal_efektif'])) : '-' ?></div>
                         </div>
 
-                        <!-- Nama File -->
                         <div class="col-12">
-                            <label class="form-label text-muted small fw-bold mb-1">
+                            <label class="text-muted small fw-semibold mb-2">
                                 <i class="fas fa-file-pdf me-1"></i>File Dokumen
                             </label>
-                            <div class="d-flex align-items-center mt-2">
-                                <i class="fas fa-file-pdf text-danger me-2 fs-4"></i>
-                                <div class="text-break"><?= esc($dokumen['nama_file']) ?></div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-pdf text-danger me-2 fs-3"></i>
+                                <div>
+                                    <div><?= esc($dokumen['nama_file']) ?></div>
+                                    <?php 
+                                    $filePath = WRITEPATH . 'uploads/' . $dokumen['nama_file'];
+                                    if (file_exists($filePath)) {
+                                        echo "<small class='text-muted'>Ukuran: " 
+                                             . round(filesize($filePath) / 1024, 2) . " KB</small>";
+                                    }
+                                    ?>
+                                </div>
                             </div>
-
-                            <?php 
-                            $filePath = WRITEPATH . 'uploads/' . $dokumen['nama_file'];
-                            if (file_exists($filePath)) {
-                                echo "<small class='text-muted d-block mt-1'><i class='fas fa-hdd me-1'></i>Ukuran: " 
-                                     . round(filesize($filePath) / 1024, 2) . " KB</small>";
-                            }
-                            ?>
                         </div>
-
                     </div>
                 </div>
             </div>
 
             <!-- File Actions -->
-            <div class="card shadow-sm mb-3 mb-md-4">
-                <div class="card-header bg-info text-white py-2 py-md-3">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-file-pdf me-2 d-none d-md-inline"></i>
-                        <span class="fs-5 fs-md-4">File Dokumen</span>
-                    </h5>
-                </div>
-
-                <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-                    <div class="d-flex align-items-center w-100 w-md-auto">
-                        <i class="fas fa-file-pdf text-danger me-3" style="font-size: 3rem;"></i>
-                        <div>
-                            <h5 class="mb-1 text-break"><?= esc($dokumen['nama_file']) ?></h5>
-                        </div>
-                    </div>
-
-                    <?php if (session()->get('role') == 'admin'): ?>
-                    <div class="d-grid d-md-flex gap-2 w-100 w-md-auto">
-                        <a href="/iso00/view/<?= $dokumen['id'] ?>" class="btn btn-primary btn-lg btn-md" target="_blank">
-                            <i class="fas fa-eye me-1"></i>Lihat PDF
+            <?php if (session()->get('role') == 'admin'): ?>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <a href="/iso00/view/<?= $dokumen['id'] ?>" class="btn btn-primary flex-fill" target="_blank">
+                            <i class="fas fa-eye me-2"></i>Lihat PDF
                         </a>
-                        <a href="/iso00/download/<?= $dokumen['id'] ?>" class="btn btn-success btn-lg btn-md">
-                            <i class="fas fa-download me-1"></i>Download
+                        <a href="/iso00/download/<?= $dokumen['id'] ?>" class="btn btn-success flex-fill">
+                            <i class="fas fa-download me-2"></i>Download
                         </a>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
 
         <!-- Sidebar -->
-        <div class="col-lg-4 order-1 order-lg-2">
-
+        <div class="col-lg-4">
             <!-- Uploader -->
-            <div class="card shadow-sm mb-3 mb-md-4">
-                <div class="card-header bg-success text-white py-2 py-md-3">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-upload me-2 d-none d-md-inline"></i>
-                        <span class="fs-5 fs-md-4">Uploader</span>
-                    </h5>
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-upload text-success me-2"></i>Uploader
+                    </h6>
                 </div>
-
-                <div class="card-body p-3 p-md-4 text-center">
+                <div class="card-body p-4 text-center">
                     <?php if (!empty($dokumen['uploader_foto'])): ?>
                         <img src="/uploads/foto_user/<?= esc($dokumen['uploader_foto']) ?>" 
-                             class="rounded-circle mb-2" width="90" height="90" style="object-fit: cover;">
+                             class="rounded-circle mb-3" width="80" height="80" 
+                             style="object-fit: cover; border: 3px solid #f0f0f0;">
                     <?php else: ?>
-                        <div class="rounded-circle bg-secondary mb-2 d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
+                        <div class="rounded-circle bg-primary bg-gradient mb-3 d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
                             <i class="fas fa-user text-white fs-3"></i>
                         </div>
                     <?php endif; ?>
-
-                    <h5 class="mt-2 mb-1"><?= esc($dokumen['uploader_name']) ?></h5>
-                    <p class="text-muted mb-2"><?= ucfirst($dokumen['uploader_role']) ?></p>
-                    <small class="text-muted d-block">Tanggal Upload: <?= date('d/m/Y H:i', strtotime($dokumen['uploaded_at'])) ?></small>
+                    <h6 class="fw-bold"><?= esc($dokumen['uploader_name']) ?></h6>
+                    <p class="text-muted small mb-2"><?= ucfirst($dokumen['uploader_role']) ?></p>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        <?= date('d/m/Y H:i', strtotime($dokumen['uploaded_at'])) ?>
+                    </small>
                 </div>
             </div>
 
             <!-- Updater -->
             <?php if (!empty($dokumen['updated_by'])): ?>
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark py-2 py-md-3">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-edit me-2 d-none d-md-inline"></i>
-                        <span class="fs-5 fs-md-4">Terakhir Diupdate</span>
-                    </h5>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-edit text-warning me-2"></i>Terakhir Diupdate
+                    </h6>
                 </div>
-
-                <div class="card-body p-3 p-md-4 text-center">
+                <div class="card-body p-4 text-center">
                     <?php if (!empty($dokumen['updater_foto'])): ?>
                         <img src="/uploads/foto_user/<?= esc($dokumen['updater_foto']) ?>" 
-                             class="rounded-circle mb-2" width="70" height="70" style="object-fit: cover;">
+                             class="rounded-circle mb-3" width="60" height="60" 
+                             style="object-fit: cover; border: 3px solid #f0f0f0;">
                     <?php else: ?>
-                        <div class="rounded-circle bg-secondary mb-2 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                            <i class="fas fa-user text-white fs-4"></i>
+                        <div class="rounded-circle bg-warning bg-gradient mb-3 d-inline-flex align-items-center justify-content-center" 
+                             style="width: 60px; height: 60px;">
+                            <i class="fas fa-user text-white fs-5"></i>
                         </div>
                     <?php endif; ?>
-
-                    <h6 class="mt-2 mb-1"><?= esc($dokumen['updater_name']) ?></h6>
-                    <p class="text-muted mb-2 small"><?= ucfirst($dokumen['updater_role']) ?></p>
-                    <small class="text-muted d-block">Tanggal Update: <?= date('d/m/Y H:i', strtotime($dokumen['updated_at'])) ?></small>
+                    <h6 class="fw-semibold small"><?= esc($dokumen['updater_name']) ?></h6>
+                    <p class="text-muted small mb-2"><?= ucfirst($dokumen['updater_role']) ?></p>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        <?= date('d/m/Y H:i', strtotime($dokumen['updated_at'])) ?>
+                    </small>
                 </div>
             </div>
             <?php endif; ?>
@@ -208,26 +183,25 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="card shadow-sm mt-3 mt-md-4">
-        <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
-            <a href="/iso00" class="btn btn-secondary btn-lg btn-md flex-fill flex-md-grow-0">
-                <i class="fas fa-arrow-left me-1"></i>Kembali ke Daftar
-            </a>
-
-            <?php if (session()->get('user_id') == $dokumen['uploaded_by'] || session()->get('role') == 'admin'): ?>
-            <a href="/iso00/edit/<?= $dokumen['id'] ?>" class="btn btn-warning btn-lg btn-md flex-fill flex-md-grow-0">
-                <i class="fas fa-edit me-1"></i>Edit Dokumen
-            </a>
-            <?php endif; ?>
-
-            <?php if (session()->get('role') == 'admin'): ?>
-            <a href="/iso00/delete/<?= $dokumen['id'] ?>" class="btn btn-danger btn-lg btn-md flex-fill flex-md-grow-0"
-               onclick="return confirm('Yakin menghapus dokumen ini?')">
-                <i class="fas fa-trash me-1"></i>Hapus Dokumen
-            </a>
-            <?php endif; ?>
+    <div class="card border-0 shadow-sm mt-3">
+        <div class="card-body p-3">
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                <a href="/iso00" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Kembali
+                </a>
+                <?php if (session()->get('user_id') == $dokumen['uploaded_by'] || session()->get('role') == 'admin'): ?>
+                <a href="/iso00/edit/<?= $dokumen['id'] ?>" class="btn btn-warning">
+                    <i class="fas fa-pen me-2"></i>Edit
+                </a>
+                <?php endif; ?>
+                <?php if (session()->get('role') == 'admin'): ?>
+                <a href="/iso00/delete/<?= $dokumen['id'] ?>" class="btn btn-danger"
+                   onclick="return confirm('Yakin ingin menghapus dokumen ini?')">
+                    <i class="fas fa-trash-alt me-2"></i>Hapus
+                </a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-
 </div>
 <?= $this->endSection() ?>

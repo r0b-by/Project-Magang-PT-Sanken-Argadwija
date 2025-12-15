@@ -255,4 +255,24 @@ class Iso00Controller extends BaseController
 
         return view('iso00/all_history', $data);
     }
+    
+    public function delete($id)
+    {
+        // hanya admin
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/iso00')->with('error', 'Akses ditolak!');
+        }
+
+        $dokumen = $this->iso00->find($id);
+
+        if (!$dokumen) {
+            return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
+        }
+
+        // hapus file PDF dari DB
+        $this->iso00->delete($id);
+
+        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil dihapus!');
+    }
+
 }
