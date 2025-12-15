@@ -10,9 +10,6 @@
         <h1 class="h4 mb-0 text-gray-800">
             <i class="fas fa-building me-2"></i>Dashboard
         </h1>
-        <a href="/iso00/create" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus me-1"></i>Upload
-        </a>
     </div>
     
     <!-- Welcome -->
@@ -68,16 +65,13 @@
     <!-- My Documents -->
     <div class="card mb-3">
         <div class="card-header py-2">
-            <h6 class="mb-0 fw-bold">Dokumen Saya</h6>
+            <h6 class="mb-0 fw-bold">Dokumen yang Bisa Diakses</h6>
         </div>
         <div class="card-body p-0">
             <?php if (empty($dokumen_saya)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-folder-open text-muted mb-2"></i>
-                    <p class="text-muted small mb-3">Belum ada dokumen</p>
-                    <a href="/iso00/create" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus me-1"></i>Upload Pertama
-                    </a>
+                    <p class="text-muted small mb-3">Belum ada dokumen dengan akses yang diberikan</p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
@@ -85,7 +79,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th width="50" class="ps-3">#</th>
-                                <th>Kode</th>
+                                <th>Kode Dokumen</th>
                                 <th class="d-none d-sm-table-cell">Status</th>
                                 <th width="100" class="text-center">Aksi</th>
                             </tr>
@@ -101,7 +95,7 @@
                                         <?= $doc['kode_dokumen'] ?>
                                     </div>
                                     <div class="text-muted small d-block d-sm-none">
-                                        <?= $doc['departement'] ?>
+                                        <?= $doc['departement'] ?? '-' ?>
                                         <span class="mx-1">•</span>
                                         <span class="badge bg-<?= 
                                             $doc['status'] == 'approved' ? 'success' : 
@@ -120,15 +114,11 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
+                                        <!-- Aksi Dept: Hanya lihat detail barcode -->
                                         <a href="/barcode/detail/<?= $doc['id'] ?>" 
                                            class="btn btn-outline-info"
                                            title="Detail">
                                             <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="/iso00/edit/<?= $doc['id'] ?>" 
-                                           class="btn btn-outline-warning"
-                                           title="Edit">
-                                            <i class="fas fa-edit"></i>
                                         </a>
                                     </div>
                                 </td>

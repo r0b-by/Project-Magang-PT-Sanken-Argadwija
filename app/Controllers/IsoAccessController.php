@@ -25,6 +25,7 @@ class IsoAccessController extends BaseController
     // --------------------------------------------------------
     public function index()
     {
+        
         $data['akses'] = $this->accessModel
             ->select('iso_access_holders.*, users.fullname, users.username, iso_00.kode_dokumen, iso_00.nama_dokumen_internal')
             ->join('users', 'users.id = iso_access_holders.user_id')
@@ -42,39 +43,44 @@ class IsoAccessController extends BaseController
     {
         $data['users']   = $this->userModel->where('status_akun', 'aktif')->findAll();
         $data['dokumen'] = $this->dokumenModel->findAll();
+        $data['access']  = $this->accessModel->findAll(); // semua akses existing
 
         return view('access/create', $data);
     }
 
     // --------------------------------------------------------
-    // SIMPAN
+    // SIMPAN (Bisa multiple)
     // --------------------------------------------------------
     public function store()
     {
-        $userId     = $this->request->getPost('user_id');
-        $dokumenId  = $this->request->getPost('dokumen_id');
-        $holderCode = strtoupper($this->request->getPost('holder_code'));
+        $userIds     = $this->request->getPost('user_id');      // array
+        $dokumenIds  = $this->request->getPost('dokumen_id');   // array
+        $holderCodes = $this->request->getPost('holder_code');  // array
 
-        // Validasi
-        if (!$this->validate([
-            'user_id'     => 'required|numeric',
-            'dokumen_id'  => 'required|numeric',
-            'holder_code' => 'required|min_length[1]|max_length[10]',
-        ])) {
-            return redirect()->back()->with('error', 'Form tidak valid.');
+        if (!$userIds || !is_array($userIds)) {
+            return redirect()->back()->with('error', 'Pilih minimal satu user.');
         }
 
-        // Cek duplikasi
-        if ($this->accessModel->exists($userId, $dokumenId)) {
-            return redirect()->back()->with('error', 'User sudah memiliki akses ke dokumen ini.');
-        }
+        foreach ($userIds as $i => $userId) {
+            $dokumenId  = $dokumenIds[$i] ?? null;
+            $holderCode = strtoupper($holderCodes[$i] ?? null);
 
-        // Simpan
-        $this->accessModel->insert([
-            'user_id'     => $userId,
-            'dokumen_id'  => $dokumenId,
-            'holder_code' => $holderCode,
-        ]);
+            if (!$dokumenId || !$holderCode) continue;
+
+            // Cek duplikasi: user + dokumen
+            $exists = $this->accessModel
+                ->where('user_id', $userId)
+                ->where('dokumen_id', $dokumenId)
+                ->first();
+
+            if (!$exists) {
+                $this->accessModel->insert([
+                    'user_id'     => $userId,
+                    'dokumen_id'  => $dokumenId,
+                    'holder_code' => $holderCode
+                ]);
+            }
+        }
 
         return redirect()->to('/access')->with('success', 'Hak akses berhasil ditambahkan!');
     }
@@ -93,17 +99,8 @@ class IsoAccessController extends BaseController
     // --------------------------------------------------------
     public function search()
     {
-        // Hindari error LIKE null
         $keyword = trim($this->request->getGet('q') ?? '');
-
-        if ($keyword === '') {
-            return view('access/search', [
-                'results' => [],
-                'keyword' => ''
-            ]);
-        }
-
-        $data['results'] = $this->accessModel->searchByHolder($keyword);
+        $data['results'] = $keyword ? $this->accessModel->searchByHolder($keyword) : [];
         $data['keyword'] = $keyword;
 
         return view('access/search', $data);
@@ -115,7 +112,6 @@ class IsoAccessController extends BaseController
     public function userDocuments($userId)
     {
         $data['dokumen'] = $this->accessModel->getByUser($userId);
-
         return view('user/documents', $data);
     }
 }

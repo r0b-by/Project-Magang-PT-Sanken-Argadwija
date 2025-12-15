@@ -37,6 +37,14 @@ $role = $session->get('role'); // 'admin' atau 'dept'
                 </a>
             </li>
 
+            <!-- BARCODE -->
+            <li class="nav-item">
+                <a class="nav-link py-2 <?= strpos(current_url(), base_url('barcode')) !== false ? 'active' : '' ?>" 
+                   href="<?= base_url('barcode') ?>">
+                    <i class="fas fa-qrcode me-2"></i> Barcode
+                </a>
+            </li>
+            
         </ul>
     </div>
 

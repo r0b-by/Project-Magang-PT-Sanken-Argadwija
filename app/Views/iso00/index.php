@@ -10,7 +10,7 @@
             <i class="fas fa-file-alt me-2"></i>Dokumen ISO
         </h1>
         <div>
-            <?php if (in_array(session()->get('role'), ['admin', 'dept'])): ?>
+            <?php if (in_array(session()->get('role'), ['admin'])): ?>
             <a href="/iso00/create" class="btn btn-primary btn-sm btn-md">
                 <i class="fas fa-plus me-1"></i><span class="d-none d-md-inline">Upload</span><span class="d-md-none">Upload Dokumen</span>
             </a>
@@ -147,12 +147,16 @@
                                     <a href="/iso00/show/<?= $doc['id'] ?>" class="btn btn-info" title="Detail">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <?php if (session()->get('role') == 'admin'): ?>
                                     <a href="/iso00/view/<?= $doc['id'] ?>" class="btn btn-primary" target="_blank" title="PDF">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
+                                    <?php endif; ?>
+                                    <?php if (session()->get('role') == 'admin'): ?>
                                     <a href="/iso00/download/<?= $doc['id'] ?>" class="btn btn-success" title="Download">
                                         <i class="fas fa-download"></i>
                                     </a>
+                                    <?php endif; ?>
                                     <?php if (session()->get('user_id') == $doc['uploaded_by'] || session()->get('role') == 'admin'): ?>
                                     <a href="/iso00/edit/<?= $doc['id'] ?>" class="btn btn-warning" title="Edit">
                                         <i class="fas fa-edit"></i>

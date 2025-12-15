@@ -136,6 +136,7 @@
                         </div>
                     </div>
 
+                    <?php if (session()->get('role') == 'admin'): ?>
                     <div class="d-grid d-md-flex gap-2 w-100 w-md-auto">
                         <a href="/iso00/view/<?= $dokumen['id'] ?>" class="btn btn-primary btn-lg btn-md" target="_blank">
                             <i class="fas fa-eye me-1"></i>Lihat PDF
@@ -144,6 +145,7 @@
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

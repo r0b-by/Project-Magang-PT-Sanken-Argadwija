@@ -101,6 +101,8 @@ $routes->group('barcode', ['filter' => 'auth'], function($routes) {
     $routes->get('print/(:num)', 'BarcodeController::print/$1');
     $routes->get('file/(:num)', 'BarcodeController::file/$1');
 });
+$routes->get('barcode/dept', 'BarcodeController::deptIndex', ['filter' => 'role:dept']);
+$routes->get('barcode/print/(:num)', 'BarcodeController::print/$1', ['filter' => 'role:dept']);
 
 /*
 |--------------------------------------------------------------------------
