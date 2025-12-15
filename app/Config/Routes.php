@@ -41,7 +41,6 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->post('store', 'Iso00Controller::store');
     $routes->get('edit/(:num)', 'Iso00Controller::edit/$1');
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
-    $routes->get('delete/(:num)', 'Iso00Controller::delete/$1');
 
     $routes->get('show/(:num)', 'Iso00Controller::show/$1');
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
@@ -51,6 +50,7 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->get('allHistory', 'Iso00Controller::allHistory');
     $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');
     $routes->get('history/download/(:num)', 'Iso00Controller::downloadHistoryFile/$1');
+    $routes->get('history/delete/(:num)', 'Iso00Controller::deleteHistory/$1');
 });
 
 /*

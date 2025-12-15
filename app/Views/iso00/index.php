@@ -134,12 +134,6 @@
                                         <i class="fas fa-pen"></i>
                                     </a>
                                     <?php endif; ?>
-                                    <?php if (session()->get('role') == 'admin'): ?>
-                                    <a href="/iso00/delete/<?= $doc['id'] ?>" class="btn btn-outline-danger" title="Hapus"
-                                       onclick="return confirm('Yakin ingin menghapus dokumen ini?')">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </a>
-                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

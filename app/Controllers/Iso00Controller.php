@@ -139,37 +139,53 @@ class Iso00Controller extends BaseController
     public function update($id)
     {
         $dokumen = $this->iso00->find($id);
-        if (!$dokumen) return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
-
-        if (session()->get('role') !== 'admin' && $dokumen['uploaded_by'] != session()->get('user_id')) {
-            return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses mengubah dokumen ini!');
+        if (!$dokumen) {
+            return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
         }
 
-        $file = $this->request->getFile('upload_dokumen');
+        // ================================
+        // 1. CEK AKSES
+        // ================================
+        if (
+            session()->get('role') !== 'admin' &&
+            $dokumen['uploaded_by'] != session()->get('user_id')
+        ) {
+            return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses!');
+        }
 
-        // Simpan versi lama ke iso_001
+        // ================================
+        // 2. SIMPAN VERSI LAMA KE ISO_001
+        // ================================
+
+        // hitung versi revisi berikutnya
+        $lastRev = $this->iso001
+            ->where('iso00_id', $dokumen['id'])
+            ->countAllResults();
+
+        $versi = 'Rev-' . ($lastRev + 1);
+
         $this->iso001->insert([
-            'iso00_id'              => $dokumen['id'],
-            'kode_dokumen'          => $dokumen['kode_dokumen'],
-            'nama_dokumen_internal' => $dokumen['nama_dokumen_internal'],
-            'nama_file'             => $dokumen['nama_file'],
-            'upload_dokumen'        => $dokumen['upload_dokumen'],
-            'keterangan'            => $dokumen['keterangan'],
-            'status'                => 'revisi',
-            'tanggal_efektif'       => $dokumen['tanggal_efektif'],
-            'halaman_dokumen'       => $dokumen['halaman_dokumen'],
-            'ruang_lingkup'         => $dokumen['ruang_lingkup'],
-            'tujuan'                => $dokumen['tujuan'],
-            'uploaded_by'           => $dokumen['uploaded_by'],
-            'uploader_name'         => $dokumen['uploader_name'],
-            'uploaded_at'           => $dokumen['uploaded_at'],
-            'barcode'               => $dokumen['barcode']
+            'iso00_id'      => $dokumen['id'],
+            'versi'         => $versi,
+            'nama_file'     => $dokumen['nama_file'],
+            'upload_dokumen'=> $dokumen['upload_dokumen'],
+            'status'        => 'draft',
+            'uploaded_by'   => session()->get('user_id'),
+            'uploader_name' => session()->get('fullname'),
+            'uploader_role' => session()->get('role'),
+            'uploaded_at'   => date('Y-m-d H:i:s'),
+            'barcode'       => $dokumen['barcode'],
         ]);
+
+        // ================================
+        // 3. UPDATE DOKUMEN UTAMA (ISO_00)
+        // ================================
+
+        $file = $this->request->getFile('upload_dokumen');
 
         $update = [
             'kode_dokumen'          => $this->request->getPost('kode_dokumen'),
             'nama_dokumen_internal' => $this->request->getPost('nama_dokumen_internal'),
-            'keterangan'            => $this->request->getPost('keterangan'),
             'status'                => 'revisi',
             'tanggal_efektif'       => $this->request->getPost('tanggal_efektif'),
             'halaman_dokumen'       => $this->request->getPost('halaman_dokumen'),
@@ -226,53 +242,96 @@ class Iso00Controller extends BaseController
     // ============================================================
     // HISTORY
     // ============================================================
-    public function history($id)
+    public function history($iso00_id)
     {
-        if (!$this->checkAccess($id)) {
+        if (!$this->checkAccess($iso00_id)) {
             return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses!');
         }
 
-        $data['history'] = $this->iso001
-            ->where('iso00_id', $id)
-            ->orderBy('id', 'DESC')
+        $dokumen = $this->iso00->find($iso00_id);
+        if (!$dokumen) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Dokumen tidak ditemukan');
+        }
+
+        $history = $this->iso001
+            ->where('iso00_id', $iso00_id)
+            ->orderBy('uploaded_at', 'DESC')
             ->findAll();
 
-        return view('iso00/history', $data);
+        return view('iso00/history', [
+            'dokumen' => $dokumen,
+            'history' => $history,
+        ]);
     }
 
     public function allHistory()
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak!');
-        }
+        $iso001Model = new Iso001Model();
 
-        $data['history'] = $this->iso001
-            ->select('iso_001.*, users.fullname, iso_00.nama_dokumen_internal')
-            ->join('users', 'users.id = iso_001.uploaded_by')
-            ->join('iso_00', 'iso_00.id = iso_001.iso00_id')
-            ->orderBy('iso_001.id', 'DESC')
-            ->findAll();
+        $all_history = $iso001Model
+            ->select('
+                iso_001.id,
+                iso_001.versi,
+                iso_001.nama_file,
+                iso_001.status,
+                iso_001.uploaded_at,
 
-        return view('iso00/all_history', $data);
+                iso_00.kode_dokumen,
+                iso_00.nama_dokumen_internal,
+                iso_00.ruang_lingkup,
+                iso_00.tujuan,
+
+                users.fullname AS uploader_name
+                ')
+                ->join('iso_00', 'iso_00.id = iso_001.iso00_id')
+                ->join('users', 'users.id = iso_001.uploaded_by')
+                ->orderBy('iso_001.uploaded_at', 'DESC')
+                ->findAll();
+
+            return view('iso00/all_history', [
+                'all_history' => $all_history
+            ]);
     }
-    
-    public function delete($id)
+
+    public function viewHistoryFile($id)
     {
-        // hanya admin
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak!');
+        $history = $this->iso001->find($id);
+
+        if (!$history) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File history tidak ditemukan');
         }
 
-        $dokumen = $this->iso00->find($id);
-
-        if (!$dokumen) {
-            return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
-        }
-
-        // hapus file PDF dari DB
-        $this->iso00->delete($id);
-
-        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil dihapus!');
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="'.$history['nama_file'].'"')
+            ->setBody($history['upload_dokumen']);
     }
 
+    public function downloadHistoryFile($id)
+    {
+        $history = $this->iso001->find($id);
+
+        if (!$history) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File history tidak ditemukan');
+        }
+
+        return $this->response
+            ->download($history['nama_file'], $history['upload_dokumen']);
+    }
+
+    public function deleteHistory($id)
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->back()->with('error', 'Akses ditolak');
+        }
+
+        $history = $this->iso001->find($id);
+        if (!$history) {
+            return redirect()->back()->with('error', 'History tidak ditemukan');
+        }
+
+        $this->iso001->delete($id);
+
+        return redirect()->back()->with('success', 'History revisi berhasil dihapus');
+    }
 }
