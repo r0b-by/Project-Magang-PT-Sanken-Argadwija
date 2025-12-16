@@ -2,6 +2,8 @@
 <?= $this->section('title') ?>Daftar QR Code Dokumen<?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
+<?php $role = session()->get('role'); ?>
+
 <div class="container-fluid px-3 px-md-4 py-3">
 
     <!-- HEADER -->
@@ -39,29 +41,55 @@
                                 <strong><?= esc($dok['kode_dokumen']) ?></strong><br>
                                 <small class="text-muted"><?= esc($dok['nama_dokumen_internal']) ?></small>
                             </td>
+
                             <td class="d-none d-md-table-cell">
                                 <img src="data:image/png;base64,<?= $dok['barcodeBase64'] ?>" width="80">
                             </td>
+
                             <td class="d-none d-lg-table-cell">
                                 <small class="text-muted"><?= esc($dok['barcode']) ?></small>
                             </td>
+
                             <td>
                                 <span class="badge bg-success">Generated</span>
                             </td>
+
                             <td class="pe-4 text-center">
                                 <div class="btn-group btn-group-sm">
-                                    <a href="/barcode/print/<?= $dok['id'] ?>" target="_blank" class="btn btn-outline-success">
+
+                                    <!-- ✅ DOWNLOAD (ADMIN & DEPT) -->
+                                    <a href="/barcode/print/<?= $dok['id'] ?>" 
+                                       target="_blank" 
+                                       class="btn btn-outline-success"
+                                       title="Download QR Code">
                                         <i class="fas fa-download"></i>
                                     </a>
-                                    <a href="/barcode/generate/<?= $dok['id'] ?>" class="btn btn-outline-warning">
-                                        <i class="fas fa-redo"></i>
-                                    </a>
-                                    <a href="/barcode/delete/<?= $dok['id'] ?>" 
-                                       class="btn btn-outline-danger"
-                                       onclick="return confirm('Hapus QR Code ini?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+
+                                    <?php if ($role === 'admin'): ?>
+                                        <!-- 🔁 GENERATE ULANG (ADMIN ONLY) -->
+                                        <a href="/barcode/generate/<?= $dok['id'] ?>" 
+                                           class="btn btn-outline-warning"
+                                           title="Generate Ulang">
+                                            <i class="fas fa-redo"></i>
+                                        </a>
+
+                                        <!-- 🗑 DELETE (ADMIN ONLY) -->
+                                        <a href="/barcode/delete/<?= $dok['id'] ?>" 
+                                           class="btn btn-outline-danger"
+                                           title="Hapus QR Code"
+                                           onclick="return confirm('Hapus QR Code ini?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    <?php endif; ?>
+
                                 </div>
+
+                                <?php if ($role === 'dept'): ?>
+                                    <div class="small text-muted mt-1">
+                                        <i class="fas fa-lock me-1"></i>Hanya admin dapat mengubah QR
+                                    </div>
+                                <?php endif; ?>
+
                             </td>
                         </tr>
                         <?php endforeach; ?>

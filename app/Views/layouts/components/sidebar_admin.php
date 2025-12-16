@@ -50,18 +50,29 @@ $role = $session->get('role');
                 </a>
                 <div class="collapse <?= $isIsoActive ? 'show' : '' ?>" id="dokumenIsoMenu">
                     <ul class="nav flex-column ms-3 mt-1">
+
+                        <!-- ================= DAFTAR DOKUMEN ================= -->
                         <li class="nav-item">
-                            <a class="nav-link py-2 px-3 rounded-3 <?= strpos(current_url(), base_url('iso00')) !== false && strpos(current_url(), 'allHistory') === false ? 'active bg-primary text-white' : 'text-dark' ?>"
-                               href="<?= base_url('iso00') ?>">
+                            <a class="nav-link py-2 px-3 rounded-3 
+                                <?= preg_match('#/iso00($|/)#', current_url()) && strpos(current_url(), 'history') === false
+                                    ? 'active bg-primary text-white'
+                                    : 'text-dark' ?>"
+                            href="<?= base_url('iso00') ?>">
                                 <i class="fas fa-file me-2"></i>Daftar Dokumen
                             </a>
                         </li>
+
+                        <!-- ================= HISTORY DOKUMEN ================= -->
                         <li class="nav-item">
-                            <a class="nav-link py-2 px-3 rounded-3 <?= strpos(current_url(), base_url('iso00/allHistory')) !== false ? 'active bg-primary text-white' : 'text-dark' ?>"
-                               href="<?= base_url('iso00/allHistory') ?>">
+                            <a class="nav-link py-2 px-3 rounded-3 
+                                <?= strpos(current_url(), base_url('iso00/history')) !== false
+                                    ? 'active bg-primary text-white'
+                                    : 'text-dark' ?>"
+                            href="<?= base_url('iso00/history/all') ?>">
                                 <i class="fas fa-history me-2"></i>History Dokumen
                             </a>
                         </li>
+
                     </ul>
                 </div>
             </li>

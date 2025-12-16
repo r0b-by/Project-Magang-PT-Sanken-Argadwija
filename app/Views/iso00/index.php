@@ -8,7 +8,7 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h4 mb-1 fw-bold text-dark">Dokumen ISO</h1>
+            <h1 class="h4 mb-1 fw-bold text-dark">Dokumen ISO</h1> 
             <p class="text-muted small mb-0">Kelola dokumen sistem manajemen</p>
         </div>
         <?php if (in_array(session()->get('role'), ['admin'])): ?>
@@ -145,21 +145,50 @@
                             </td>
                             <td class="pe-4 text-center">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="/iso00/show/<?= $doc['id'] ?>" class="btn btn-outline-info" title="Detail">
+
+                                    <!-- 👁 DETAIL -->
+                                    <a href="/iso00/show/<?= $doc['id'] ?>" 
+                                    class="btn btn-outline-info" 
+                                    title="Detail Dokumen">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <?php if (session()->get('role') == 'admin'): ?>
-                                    <a href="/iso00/view/<?= $doc['id'] ?>" class="btn btn-outline-primary" target="_blank" title="PDF">
-                                        <i class="fas fa-file-pdf"></i>
-                                    </a>
-                                    <a href="/iso00/download/<?= $doc['id'] ?>" class="btn btn-outline-success" title="Download">
-                                        <i class="fas fa-download"></i>
-                                    </a>
+
+                                    <?php if (session()->get('role') === 'admin'): ?>
+                                        <!-- 📄 PDF -->
+                                        <a href="/iso00/view/<?= $doc['id'] ?>" 
+                                        class="btn btn-outline-primary" 
+                                        target="_blank" 
+                                        title="Lihat PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+
+                                        <!-- ⬇️ DOWNLOAD -->
+                                        <a href="/iso00/download/<?= $doc['id'] ?>" 
+                                        class="btn btn-outline-success" 
+                                        title="Download Dokumen">
+                                            <i class="fas fa-download"></i>
+                                        </a>
                                     <?php endif; ?>
-                                    <?php if (session()->get('user_id') == $doc['uploaded_by'] || session()->get('role') == 'admin'): ?>
-                                    <a href="/iso00/edit/<?= $doc['id'] ?>" class="btn btn-outline-warning" title="Edit">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
+
+                                    <?php if (
+                                        session()->get('user_id') == $doc['uploaded_by'] ||
+                                        session()->get('role') === 'admin'
+                                    ): ?>
+                                        <!-- ✏️ EDIT -->
+                                        <a href="/iso00/edit/<?= $doc['id'] ?>" 
+                                        class="btn btn-outline-warning" 
+                                        title="Edit Dokumen">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                    <?php endif; ?>
+
+                                    <?php if (session()->get('role') === 'dept'): ?>
+                                        <!-- ⬇️ DOWNLOAD BARCODE PNG -->
+                                        <a href="<?= base_url('barcode/print/'.$doc['id']) ?>" 
+                                        class="btn btn-outline-dark"
+                                        title="Download QR Code (PNG)">
+                                            <i class="fas fa-qrcode me-1"></i>
+                                        </a>
                                     <?php endif; ?>
                                 </div>
                             </td>

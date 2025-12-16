@@ -41,21 +41,27 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->post('store', 'Iso00Controller::store');
     $routes->get('edit/(:num)', 'Iso00Controller::edit/$1');
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
+    $routes->get('show/(:num)', 'Iso00Controller::show/$1');
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
     $routes->get('download/(:num)', 'Iso00Controller::downloadFile/$1');
-    $routes->get('show/(:num)', 'Iso00Controller::show/$1');
-    $routes->get('history/(:num)', 'Iso00Controller::history/$1');
-    $routes->get('allHistory', 'Iso00Controller::allHistory');
-    $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');
-    $routes->get('history/download/(:num)', 'Iso00Controller::downloadHistoryFile/$1');
-    $routes->get('history/delete/(:num)', 'Iso00Controller::deleteHistory/$1');
 });
 
 /*
 |--------------------------------------------------------------------------
-| ISO ACCESS HOLDER
-| MASTER HOLDER & HAK AKSES DOKUMEN
-| ADMIN ONLY
+| ISO 00 — HISTORY (DIPISAH)
+|--------------------------------------------------------------------------
+*/
+$routes->group('iso00/history', ['filter' => 'auth'], function ($routes) {
+    $routes->get('(:num)', 'HistoryIso00Controller::index/$1');      // history per dokumen
+    $routes->get('all', 'HistoryIso00Controller::all');              // admin only
+    $routes->get('view/(:num)', 'HistoryIso00Controller::view/$1');
+    $routes->get('download/(:num)', 'HistoryIso00Controller::download/$1');
+    $routes->get('delete/(:num)', 'HistoryIso00Controller::delete/$1');
+});
+
+/*
+|--------------------------------------------------------------------------
+| ISO ACCESS HOLDER (ADMIN ONLY)
 |--------------------------------------------------------------------------
 */
 $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
@@ -82,7 +88,7 @@ $routes->get('my-documents', 'IsoAccessController::userDocuments', ['filter' => 
 
 /*
 |--------------------------------------------------------------------------
-| BARCODE (ADMIN & DEPT - LOGIN)
+| BARCODE / QR CODE (LOGIN)
 |--------------------------------------------------------------------------
 */
 $routes->group('barcode', ['filter' => 'auth'], function ($routes) {
@@ -90,8 +96,8 @@ $routes->group('barcode', ['filter' => 'auth'], function ($routes) {
     // ===============================
     // HALAMAN
     // ===============================
-    $routes->get('/', 'BarcodeController::list');           // daftar barcode
-    $routes->get('generate', 'BarcodeController::index');   // generate barcode
+    $routes->get('/', 'BarcodeController::list');           // admin & dept
+    $routes->get('generate', 'BarcodeController::index');   // admin only (UI)
 
     // ===============================
     // AKSI ADMIN
@@ -99,24 +105,22 @@ $routes->group('barcode', ['filter' => 'auth'], function ($routes) {
     $routes->get('generate/(:num)', 'BarcodeController::generate/$1');
     $routes->post('generate-bulk', 'BarcodeController::generateBulk');
     $routes->get('delete/(:num)', 'BarcodeController::delete/$1');
-    $routes->get('print/(:num)', 'BarcodeController::print/$1');
 
     // ===============================
-    // FILE PDF (LOGIN)
+    // DOWNLOAD PNG (ADMIN & DEPT)
     // ===============================
-    $routes->get('file/(:num)', 'BarcodeController::file/$1');
+    $routes->get('print/(:num)', 'BarcodeController::print/$1');
 });
 
 /*
 |--------------------------------------------------------------------------
-| SCAN QR / BARCODE (PUBLIK)
+| SCAN QR / BARCODE (PUBLIK - TANPA LOGIN)
 |--------------------------------------------------------------------------
 */
 $routes->get('scan', 'ScanController::form');
 $routes->post('scan/process', 'ScanController::process');
 $routes->get('scan/detail/(:num)', 'BarcodeController::detail/$1');
 $routes->get('scan/file/(:num)', 'ScanController::file/$1');
-
 
 /*
 |--------------------------------------------------------------------------

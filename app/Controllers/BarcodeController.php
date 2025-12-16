@@ -162,12 +162,15 @@ class BarcodeController extends Controller
     public function print($id)
     {
         $dok = $this->iso->find($id);
+
         if (!$dok || empty($dok['barcode'])) {
             return redirect()->back()->with('error', 'QR Code tidak ditemukan');
         }
 
-        // ❗ PRINT tetap butuh login
-        if (!$this->checkDeptAccess($dok)) {
+        // 🔐 Wajib login & cek akses
+        $role = session()->get('role');
+
+        if ($role !== 'admin' && !$this->checkDeptAccess($dok)) {
             return redirect()->back()->with('error', 'Akses ditolak');
         }
 
@@ -175,11 +178,18 @@ class BarcodeController extends Controller
             ->writer(new PngWriter())
             ->data($dok['barcode'])
             ->encoding(new Encoding('UTF-8'))
-            ->size(200)
+            ->size(300)
+            ->margin(10)
             ->build();
+
+        $filename = 'QR-' . $dok['kode_dokumen'] . '.png';
 
         return $this->response
             ->setHeader('Content-Type', 'image/png')
+            ->setHeader(
+                'Content-Disposition',
+                'attachment; filename="' . $filename . '"'
+            )
             ->setBody($result->getString());
     }
 

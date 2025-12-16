@@ -35,16 +35,16 @@ $role = $session->get('role');
                 </a>
             </li>
 
-            <!-- BARCODE -->
+            <!-- BARCODE 
             <li class="nav-item mt-3 mb-2">
                 <div class="small text-uppercase text-muted px-3 fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Barcode</div>
-            </li>
-            <li class="nav-item">
+            </li>-->
+            <!--<li class="nav-item">
                 <a class="nav-link py-2 px-3 rounded-3 <?= strpos(current_url(), base_url('barcode')) !== false ? 'active bg-success text-white' : 'text-dark' ?>" 
                    href="<?= base_url('barcode') ?>">
                     <i class="fas fa-qrcode me-2"></i>Barcode Dokumen
                 </a>
-            </li>
+            </li>-->
         </ul>
     </div>
 
