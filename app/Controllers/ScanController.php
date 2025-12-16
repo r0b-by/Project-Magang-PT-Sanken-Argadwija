@@ -13,97 +13,78 @@ class ScanController extends BaseController
         $this->iso = new Iso00Model();
     }
 
-    // Halaman form scan
+    // ============================================================
+    // FORM SCAN
+    // ============================================================
     public function form()
     {
         return view('Home/scan/form');
     }
 
-    // Proses hasil scan
+    // ============================================================
+    // PROSES SCAN BARCODE / QR
+    // ============================================================
     public function process()
     {
-        $barcode = $this->request->getPost('barcode');
+        $barcode = trim($this->request->getPost('barcode'));
 
         if (!$barcode) {
-            return redirect()->back()->with('error', 'QR Code atau Barcode tidak boleh kosong.');
+            return redirect()->back()->with('error', 'QR Code / Barcode tidak boleh kosong.');
         }
 
-        // Cari dokumen berdasarkan barcode / kode dokumen
-        $item = $this->iso
+        $dok = $this->iso
             ->groupStart()
                 ->where('kode_dokumen', $barcode)
                 ->orWhere('barcode', $barcode)
             ->groupEnd()
             ->first();
 
-        if (!$item) {
+        if (!$dok) {
             return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
         }
 
-        // Arahkan ke halaman detail scan (bukan barcode/detail!)
-        return redirect()->to('/scan/detail/' . $item['id']);
+        return redirect()->to(site_url('scan/detail/' . $dok['id']));
     }
 
-    // Halaman detail setelah scan
+    // ============================================================
+    // DETAIL DOKUMEN (PDF VIEWER)
+    // ============================================================
     public function detail($id)
     {
         $dok = $this->iso->find($id);
 
         if (!$dok) {
-            return redirect()->back()->with('error', 'Data tidak ditemukan.');
+            return redirect()->to('/scan')->with('error', 'Dokumen tidak ditemukan.');
         }
 
-        // kirim ke view Home/scan/detail.php
         return view('Home/scan/detail', [
             'dok' => $dok
         ]);
     }
 
+    // ============================================================
+    // STREAM FILE PDF (PDF.JS)
+    // ============================================================
     public function file($id)
-    {
-        $dok = $this->iso->find($id);
-
-        if (!$dok) {
-            return $this->response
-                ->setStatusCode(404)
-                ->setBody("Dokumen tidak ditemukan");
-        }
-
-        // =============================
-        // 1. Jika file fisik tersedia
-        // =============================
-        $path = FCPATH . 'uploads/' . $dok['nama_file'];
-
-        if (!empty($dok['nama_file']) && file_exists($path)) {
-
-            return $this->response
-                ->setHeader('Content-Type', 'application/pdf')
-                ->setHeader('Content-Disposition', 'inline; filename="' . $dok['nama_file'] . '"')
-                ->setHeader('Content-Length', filesize($path))
-                ->setHeader('Accept-Ranges', 'bytes')
-                ->setBody(file_get_contents($path));
-        }
-
-        // =====================================
-        // 2. Jika file disimpan sebagai BLOB
-        // =====================================
-        if (!empty($dok['upload_dokumen'])) {
-
-            $binaryPDF = $dok['upload_dokumen'];
-            $size = strlen($binaryPDF);
-
-            return $this->response
-                ->setHeader('Content-Type', 'application/pdf')
-                ->setHeader('Content-Disposition', 'inline; filename="dokumen.pdf"')
-                ->setHeader('Content-Length', $size)
-                ->setHeader('Accept-Ranges', 'bytes')
-                ->setBody($binaryPDF);
-        }
-
-        // Jika kedua opsi tidak tersedia
-        return $this->response
-            ->setStatusCode(404)
-            ->setBody("File PDF tidak ditemukan dalam database maupun folder upload.");
+{
+    $dok = $this->iso->find($id);
+    if (!$dok || empty($dok['file_path'])) {
+        show_404(); // Simpler
     }
+
+    $fullPath = WRITEPATH . $dok['file_path'];
+    if (!file_exists($fullPath)) {
+        show_404();
+    }
+
+    // 💯 PERFECT untuk PDF.js
+    header('Content-Type: application/pdf');
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Disposition: inline');
+    header('Content-Length: ' . filesize($fullPath));
+    readfile($fullPath);
+    exit;
+}
+
 
 }

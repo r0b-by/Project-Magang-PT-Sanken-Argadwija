@@ -14,35 +14,60 @@ class CreateActivityLogsTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true
             ],
+
             'user_id' => [
-                'type' => 'INT',
+                'type'     => 'INT',
                 'unsigned' => true,
-                'null' => true
+                'null'     => true
             ],
+
+            'username' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50
+            ],
+
+            'fullname' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 100,
+                'null'       => true
+            ],
+
+            'role' => [
+                'type'       => 'ENUM',
+                'constraint' => ['admin', 'dept']
+            ],
+
             'activity' => [
-                'type' => 'TEXT'
+                'type'       => 'ENUM',
+                'constraint' => ['login', 'logout']
             ],
+
             'ip_address' => [
-                'type' => 'VARCHAR',
+                'type'       => 'VARCHAR',
                 'constraint' => 50,
-                'null' => true
+                'null'       => true
             ],
+
             'created_at' => [
-                'type' => 'DATETIME',
-                'null' => true
-            ],
-            'updated_at' => [
-                'type' => 'DATETIME',
-                'null' => true
+                'type' => 'DATETIME'
             ]
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->createTable('activity_logs');
+
+        $this->forge->addForeignKey(
+            'user_id',
+            'users',
+            'id',
+            'SET NULL',
+            'SET NULL'
+        );
+
+        $this->forge->createTable('activity_logs', true);
     }
 
     public function down()
     {
-        $this->forge->dropTable('activity_logs');
+        $this->forge->dropTable('activity_logs', true);
     }
 }

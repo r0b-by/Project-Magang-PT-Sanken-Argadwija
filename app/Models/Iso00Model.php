@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Models;
+<?php namespace App\Models;
 
 use CodeIgniter\Model;
 
@@ -8,21 +6,20 @@ class Iso00Model extends Model
 {
     protected $table      = 'iso_00';
     protected $primaryKey = 'id';
-    protected $useAutoIncrement = true;
-
-    protected $returnType    = 'array';
-    protected $useTimestamps = false; // kita pakai uploaded_at & updated_at manual
-
+    protected $returnType = 'array';
+    protected $useTimestamps = false; // karena sudah ada uploaded_at & updated_at manual
     protected $allowedFields = [
         'kode_dokumen',
         'nama_dokumen_internal',
         'nama_file',
-        'upload_dokumen',
-        'status',
+        'file_path',
+        'file_size',
+        'mime_type',
         'tanggal_efektif',
         'halaman_dokumen',
         'ruang_lingkup',
         'tujuan',
+        'status',
         'uploaded_by',
         'uploader_name',
         'uploader_role',
@@ -33,30 +30,40 @@ class Iso00Model extends Model
         'barcode'
     ];
 
-    // Fungsi tambahan: cari dokumen berdasarkan kode/barcode
-    public function findByKode($kode)
+    // --- RELASI ---
+    public function revisions()
     {
-        return $this->where('kode_dokumen', $kode)->first();
+        return $this->hasMany(Iso001Model::class, 'iso00_id', 'id');
     }
 
-    // Fungsi tambahan: dokumen terbaru
-    public function getRecentDocuments($limit = 50)
+    public function uploader()
     {
-        return $this->orderBy('uploaded_at', 'DESC')->findAll($limit);
+        return $this->belongsTo(UserModel::class, 'uploaded_by', 'id');
     }
 
-    // Optional: update status dokumen
-    public function updateStatus($id, $status)
+    public function updater()
     {
-        return $this->update($id, [
-            'status' => $status,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        return $this->belongsTo(UserModel::class, 'updated_by', 'id');
     }
 
-    // Fungsi tambahan: dokumen efektif pada tanggal tertentu
-    public function findByTanggalEfektif($tanggal)
+    // --- LOGIKA BISNIS ---
+    public function addDocument(array $data)
     {
-        return $this->where('tanggal_efektif', $tanggal)->findAll();
+        // Tambahkan dokumen baru
+        return $this->insert($data);
+    }
+
+    public function updateDocument(int $id, array $data)
+    {
+        // Update metadata / file master
+        return $this->update($id, $data);
+    }
+
+    public function getLatestRevision(int $id)
+    {
+        return model('Iso001Model')
+            ->where('iso00_id', $id)
+            ->orderBy('id', 'DESC')
+            ->first();
     }
 }

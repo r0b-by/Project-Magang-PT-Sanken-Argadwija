@@ -110,10 +110,14 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="d-flex flex-column flex-sm-row gap-2">
-                        <a href="/iso00/view/<?= $dokumen['id'] ?>" class="btn btn-primary flex-fill" target="_blank">
+                        <a href="<?= base_url('iso00/view/' . $dokumen['id']) ?>"
+                        class="btn btn-primary flex-fill"
+                        target="_blank">
                             <i class="fas fa-eye me-2"></i>Lihat PDF
                         </a>
-                        <a href="/iso00/download/<?= $dokumen['id'] ?>" class="btn btn-success flex-fill">
+
+                        <a href="<?= base_url('iso00/download/' . $dokumen['id']) ?>"
+                        class="btn btn-success flex-fill">
                             <i class="fas fa-download me-2"></i>Download
                         </a>
                     </div>
@@ -151,7 +155,7 @@
                 </div>
             </div>
 
-            <!-- Updater -->
+            <!-- Uploader -->
             <?php if (!empty($dokumen['updated_by'])): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-3">
@@ -160,8 +164,8 @@
                     </h6>
                 </div>
                 <div class="card-body p-4 text-center">
-                    <?php if (!empty($dokumen['updater_foto'])): ?>
-                        <img src="/uploads/foto_user/<?= esc($dokumen['updater_foto']) ?>" 
+                    <?php if (!empty($dokumen['uploader_foto'])): ?>
+                        <img src="/uploads/foto_user/<?= esc($dokumen['uploader_foto']) ?>" 
                              class="rounded-circle mb-3" width="60" height="60" 
                              style="object-fit: cover; border: 3px solid #f0f0f0;">
                     <?php else: ?>
@@ -170,8 +174,8 @@
                             <i class="fas fa-user text-white fs-5"></i>
                         </div>
                     <?php endif; ?>
-                    <h6 class="fw-semibold small"><?= esc($dokumen['updater_name']) ?></h6>
-                    <p class="text-muted small mb-2"><?= ucfirst($dokumen['updater_role']) ?></p>
+                    <h6 class="fw-semibold small"><?= esc($dokumen['uploader_name']) ?></h6>
+                    <p class="text-muted small mb-2"><?= ucfirst($dokumen['uploader_role']) ?></p>
                     <small class="text-muted">
                         <i class="fas fa-clock me-1"></i>
                         <?= date('d/m/Y H:i', strtotime($dokumen['updated_at'])) ?>

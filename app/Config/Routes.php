@@ -42,10 +42,11 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->get('edit/(:num)', 'Iso00Controller::edit/$1');
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
 
-    $routes->get('show/(:num)', 'Iso00Controller::show/$1');
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
-    $routes->get('download/(:num)', 'Iso00Controller::download/$1');
+    $routes->get('download/(:num)', 'Iso00Controller::downloadFile/$1');
 
+    $routes->get('show/(:num)', 'Iso00Controller::show/$1');
+    
     $routes->get('history/(:num)', 'Iso00Controller::history/$1');
     $routes->get('allHistory', 'Iso00Controller::allHistory');
     $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');
@@ -110,6 +111,11 @@ $routes->get('my-documents', 'IsoAccessController::userDocuments', ['filter' => 
 | BARCODE
 |--------------------------------------------------------------------------
 */
+/*
+|--------------------------------------------------------------------------
+| BARCODE (ADMIN & DEPT - LOGIN)
+|--------------------------------------------------------------------------
+*/
 $routes->group('barcode', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'BarcodeController::index');
     $routes->get('generate/(:num)', 'BarcodeController::generate/$1');
@@ -119,12 +125,9 @@ $routes->group('barcode', ['filter' => 'auth'], function ($routes) {
     $routes->get('file/(:num)', 'BarcodeController::file/$1');
 });
 
-$routes->get('barcode/dept', 'BarcodeController::deptIndex', ['filter' => 'role:dept']);
-$routes->get('barcode/print/(:num)', 'BarcodeController::print/$1', ['filter' => 'role:dept']);
-
 /*
 |--------------------------------------------------------------------------
-| SCAN QR / BARCODE
+| SCAN QR / BARCODE (PUBLIK)
 |--------------------------------------------------------------------------
 */
 $routes->get('scan', 'ScanController::form');

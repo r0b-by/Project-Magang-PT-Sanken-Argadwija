@@ -21,7 +21,7 @@ class BarcodeController extends Controller
     }
 
     // ============================================================
-    // Halaman Barcode Admin / Dept
+    // INDEX — Admin & Dept
     // ============================================================
     public function index()
     {
@@ -31,113 +31,121 @@ class BarcodeController extends Controller
             return $this->deptIndex();
         }
 
-        // Admin view
+        // ================= ADMIN =================
         $belumBarcode = $this->iso->where('barcode', null)->findAll();
-        $sudahBarcodeRaw = $this->iso->where('barcode !=', null)->findAll();
+        $sudahBarcodeRaw = $this->iso->where('barcode IS NOT NULL')->findAll();
 
         $sudahBarcode = [];
         foreach ($sudahBarcodeRaw as $dok) {
-            $dok['barcodeBase64'] = $dok['barcode']
-                ? $this->qrCodeBase64($dok['barcode'], 100)
-                : null;
+            $dok['barcodeBase64'] = $this->qrCodeBase64($dok['barcode'], 100);
             $sudahBarcode[] = $dok;
         }
 
-        return view('barcode/index', [
-            'belumBarcode' => $belumBarcode,
-            'sudahBarcode' => $sudahBarcode
-        ]);
+        return view('barcode/index', compact('belumBarcode', 'sudahBarcode'));
     }
 
     // ============================================================
-    // Halaman Dept — hanya lihat dokumen yang punya akses & sudah barcode
+    // DEPT INDEX — hanya dokumen yang punya akses
     // ============================================================
-    private function deptIndex()
+    public function deptIndex()
     {
         $userId = session()->get('user_id');
 
-        // Ambil semua holder user (join iso_access_users)
         $allowedDocs = $this->holder
-            ->select('iso_access_holders.*')
+            ->select('iso_access_holders.dokumen_id')
             ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_holders.id')
             ->where('iso_access_users.user_id', $userId)
             ->findAll();
 
         $docIds = array_column($allowedDocs, 'dokumen_id');
 
-        if (empty($docIds)) {
-            $barcodes = [];
-        } else {
-            $barcodesRaw = $this->iso
+        $barcodes = [];
+        if (!empty($docIds)) {
+            $docs = $this->iso
                 ->whereIn('id', $docIds)
                 ->where('barcode IS NOT NULL')
                 ->orderBy('id', 'DESC')
                 ->findAll();
 
-            $barcodes = [];
-            foreach ($barcodesRaw as $dok) {
-                $dok['barcodeBase64'] = !empty($dok['barcode'])
-                    ? $this->qrCodeBase64($dok['barcode'], 150)
-                    : null;
+            foreach ($docs as $dok) {
+                $dok['barcodeBase64'] = $this->qrCodeBase64($dok['barcode'], 150);
                 $barcodes[] = $dok;
             }
         }
 
-        return view('barcode/dept_index', [
-            'barcodes' => $barcodes
-        ]);
+        return view('barcode/dept_index', compact('barcodes'));
     }
 
     // ============================================================
-    // Generate QR Code (Admin)
+    // GENERATE QR (ADMIN)
     // ============================================================
     public function generate($id)
     {
         $dok = $this->iso->find($id);
-        if (!$dok) return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
+        if (!$dok) {
+            return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
+        }
 
         $url = base_url('scan/detail/' . $dok['id']);
-        $this->iso->update($id, ['barcode' => $url, 'updated_at' => date('Y-m-d H:i:s')]);
 
-        return redirect()->back()->with('msg', 'QR Code berhasil digenerate!');
+        $this->iso->update($id, [
+            'barcode'    => $url,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->back()->with('msg', 'QR Code berhasil digenerate');
     }
 
     public function generateBulk()
     {
         $ids = $this->request->getPost('dokumen');
-        if (!$ids) return redirect()->back()->with('error', 'Tidak ada dokumen yang dipilih!');
+        if (!$ids) {
+            return redirect()->back()->with('error', 'Tidak ada dokumen dipilih');
+        }
 
         foreach ($ids as $id) {
             $dok = $this->iso->find($id);
             if ($dok) {
-                $url = base_url('scan/detail/' . $dok['id']);
-                $this->iso->update($id, ['barcode' => $url, 'updated_at' => date('Y-m-d H:i:s')]);
+                $this->iso->update($id, [
+                    'barcode'    => base_url('scan/detail/' . $dok['id']),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
             }
         }
 
-        return redirect()->back()->with('msg', 'QR Code massal berhasil digenerate!');
-    }
-
-    public function delete($id)
-    {
-        $dok = $this->iso->find($id);
-        if (!$dok) return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
-
-        $this->iso->update($id, ['barcode' => null, 'updated_at' => date('Y-m-d H:i:s')]);
-
-        return redirect()->back()->with('msg', 'QR Code berhasil dihapus!');
+        return redirect()->back()->with('msg', 'QR Code massal berhasil digenerate');
     }
 
     // ============================================================
-    // Print QR Code
+    // DELETE QR
+    // ============================================================
+    public function delete($id)
+    {
+        $dok = $this->iso->find($id);
+        if (!$dok) {
+            return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
+        }
+
+        $this->iso->update($id, [
+            'barcode'    => null,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->back()->with('msg', 'QR Code berhasil dihapus');
+    }
+
+    // ============================================================
+    // PRINT QR
     // ============================================================
     public function print($id)
     {
         $dok = $this->iso->find($id);
-        if (!$dok || !$dok['barcode']) return redirect()->back()->with('error', 'QR Code tidak ditemukan!');
+        if (!$dok || empty($dok['barcode'])) {
+            return redirect()->back()->with('error', 'QR Code tidak ditemukan');
+        }
 
         if (!$this->checkDeptAccess($dok)) {
-            return redirect()->back()->with('error', 'Akses ditolak!');
+            return redirect()->back()->with('error', 'Akses ditolak');
         }
 
         $result = Builder::create()
@@ -147,62 +155,52 @@ class BarcodeController extends Controller
             ->size(200)
             ->build();
 
-        return $this->response->setHeader('Content-Type', 'image/png')
-                              ->setBody($result->getString());
+        return $this->response
+            ->setHeader('Content-Type', 'image/png')
+            ->setBody($result->getString());
     }
 
     // ============================================================
-    // Detail barcode
+    // DETAIL HASIL SCAN (PUBLIK)
     // ============================================================
     public function detail($id)
     {
         $dok = $this->iso->find($id);
-        if (!$dok) return view('Home/scan/detail', ['error' => 'Dokumen tidak ditemukan']);
+        if (!$dok) {
+            return view('Home/scan/detail', ['error' => 'Dokumen tidak ditemukan']);
+        }
 
         if (!$this->checkDeptAccess($dok)) {
             return view('Home/scan/detail', ['error' => 'Akses ditolak']);
         }
 
-        $barcodeBase64 = null;
-        if (!empty($dok['barcode'])) {
-            $result = Builder::create()
-                ->writer(new PngWriter())
-                ->data($dok['barcode'])
-                ->encoding(new Encoding('UTF-8'))
-                ->size(150)
-                ->build();
-
-            $barcodeBase64 = base64_encode($result->getString());
-        }
-
         return view('Home/scan/detail', [
-            'dok' => $dok,
-            'barcodeBase64' => $barcodeBase64
+            'dok' => $dok
         ]);
     }
 
     // ============================================================
-    // File PDF
+    // FILE PDF (LOGIN)
     // ============================================================
     public function file($id)
     {
         $dok = $this->iso->find($id);
-        if (!$dok || empty($dok['upload_dokumen'])) {
+        if (!$dok || empty($dok['file_path'])) {
             return $this->response->setStatusCode(404)->setBody('File tidak ditemukan');
         }
 
         if (!$this->checkDeptAccess($dok)) {
-            return $this->response->setStatusCode(403)->setBody('Akses ditolak!');
+            return $this->response->setStatusCode(403)->setBody('Akses ditolak');
         }
 
         return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="'.$dok['nama_file'].'"')
-            ->setBody($dok['upload_dokumen']);
+            ->setHeader('Content-Type', $dok['mime_type'])
+            ->setHeader('Content-Disposition', 'inline; filename="' . $dok['nama_file'] . '"')
+            ->file($dok['file_path']);
     }
 
     // ============================================================
-    // Helper: generate QR Code base64
+    // HELPER — QR BASE64
     // ============================================================
     private function qrCodeBase64($data, $size = 150)
     {
@@ -217,24 +215,23 @@ class BarcodeController extends Controller
     }
 
     // ============================================================
-    // Helper: cek akses dept
+    // HELPER — CEK AKSES
     // ============================================================
     private function checkDeptAccess($dok)
     {
         $role = session()->get('role');
+
         if ($role === 'admin') return true;
         if ($role !== 'dept') return false;
 
         $userId = session()->get('user_id');
 
-        // join ke iso_access_users untuk cek akses
         $access = $this->holder
-            ->select('iso_access_holders.id')
             ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_holders.id')
             ->where('iso_access_users.user_id', $userId)
             ->where('iso_access_holders.dokumen_id', $dok['id'])
             ->first();
 
-        return $access && !empty($dok['barcode']);
+        return (bool) $access && !empty($dok['barcode']);
     }
 }

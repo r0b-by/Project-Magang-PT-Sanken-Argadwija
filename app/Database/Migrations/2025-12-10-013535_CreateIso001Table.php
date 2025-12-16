@@ -14,7 +14,7 @@ class CreateIso001Table extends Migration
                 'auto_increment' => true
             ],
 
-            // Relasi ke iso_00
+            // Relasi ke iso_00 (master)
             'iso00_id' => [
                 'type'     => 'INT',
                 'unsigned' => true,
@@ -39,14 +39,35 @@ class CreateIso001Table extends Migration
                 'null'       => true,
             ],
 
+            // Nama file fisik
             'nama_file' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
             ],
 
+            // ❌ DEPRECATED (jangan digunakan lagi)
             'upload_dokumen' => [
-                'type' => 'LONGBLOB',
-                'null' => true,
+                'type'    => 'LONGBLOB',
+                'null'    => true,
+                'comment' => 'DEPRECATED - jangan digunakan'
+            ],
+
+            // ✅ FILE STORAGE (PRIVATE)
+            'file_path' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'comment' => 'writable/uploads/iso/revisions'
+            ],
+
+            'file_size' => [
+                'type'    => 'INT',
+                'comment' => 'Ukuran file (byte)'
+            ],
+
+            'mime_type' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 100,
+                'default'    => 'application/pdf'
             ],
 
             'tanggal_efektif' => [
@@ -69,7 +90,7 @@ class CreateIso001Table extends Migration
                 'null' => true,
             ],
 
-            // Status dokumen SAAT itu
+            // Status dokumen SAAT revisi
             'status' => [
                 'type'       => 'ENUM',
                 'constraint' => ['save','non-save','revisi'],
@@ -105,7 +126,7 @@ class CreateIso001Table extends Migration
 
         $this->forge->addKey('id', true);
 
-        // FK
+        // Foreign Key
         $this->forge->addForeignKey('iso00_id', 'iso_00', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('uploaded_by', 'users', 'id', 'CASCADE', 'CASCADE');
 

@@ -1,105 +1,68 @@
-<?php
-
-namespace App\Models;
+<?php namespace App\Models;
 
 use CodeIgniter\Model;
 
 class Iso001Model extends Model
 {
-    protected $table            = 'iso_001';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
-
-    protected $returnType    = 'array';
-    protected $useTimestamps = false; // pakai uploaded_at manual
-
+    protected $table      = 'iso_001';
+    protected $primaryKey = 'id';
+    protected $returnType = 'array';
+    protected $useTimestamps = false;
     protected $allowedFields = [
         'iso00_id',
         'versi',
+        'kode_dokumen',
+        'nama_dokumen_internal',
         'nama_file',
-        'upload_dokumen',
-        'keterangan',
+        'file_path',
+        'file_size',
+        'mime_type',
+        'tanggal_efektif',
+        'halaman_dokumen',
+        'ruang_lingkup',
+        'tujuan',
         'status',
         'uploaded_by',
         'uploader_name',
         'uploader_role',
         'uploaded_at',
-        'barcode',
+        'barcode'
     ];
 
-    /* =========================================================
-     * RELASI & QUERY TAMBAHAN
-     * ========================================================= */
-
-    /**
-     * Ambil satu data revisi + data dokumen master (iso_00)
-     */
-    public function getDetailWithMaster($id)
+    // --- RELASI ---
+    public function master()
     {
-        return $this->select('
-                iso_001.*,
-                iso_00.kode_dokumen,
-                iso_00.nama_dokumen_internal,
-                iso_00.tanggal_efektif,
-                iso_00.status AS status_master
-            ')
-            ->join('iso_00', 'iso_00.id = iso_001.iso00_id')
-            ->where('iso_001.id', $id)
-            ->first();
+        return $this->belongsTo(Iso00Model::class, 'iso00_id', 'id');
     }
 
-    /**
-     * Ambil histori revisi berdasarkan dokumen master
-     */
-    public function getHistoryByIso00($iso00_id)
+    public function uploader()
     {
-        return $this->where('iso00_id', $iso00_id)
-                    ->orderBy('uploaded_at', 'DESC')
-                    ->findAll();
+        return $this->belongsTo(UserModel::class, 'uploaded_by', 'id');
     }
 
-    /**
-     * Ambil revisi terbaru dari satu dokumen
-     */
-    public function getLatestRevision($iso00_id)
+    // --- LOGIKA BISNIS ---
+    public function addRevision(array $data)
     {
-        return $this->where('iso00_id', $iso00_id)
-                    ->orderBy('uploaded_at', 'DESC')
-                    ->first();
-    }
+        // Hitung versi terakhir
+        $lastRevision = $this->where('iso00_id', $data['iso00_id'])
+                             ->orderBy('id', 'DESC')
+                             ->first();
 
-    /**
-     * Ambil data revisi + info uploader (users)
-     */
-    public function getWithUploader($id)
-    {
-        return $this->select('
-                iso_001.*,
-                users.fullname,
-                users.role,
-                users.foto
-            ')
-            ->join('users', 'users.id = iso_001.uploaded_by')
-            ->where('iso_001.id', $id)
-            ->first();
-    }
+        $newVersion = 'Rev-1';
+        if ($lastRevision) {
+            $num = (int) str_replace('Rev-', '', $lastRevision['versi']);
+            $newVersion = 'Rev-' . ($num + 1);
+        }
 
-    /**
-     * Ambil semua revisi berdasarkan status (draft/approved/rejected)
-     */
-    public function getByStatus($status)
-    {
-        return $this->where('status', $status)
-                    ->orderBy('uploaded_at', 'DESC')
-                    ->findAll();
-    }
+        $data['versi'] = $newVersion;
 
-    /**
-     * Simpan revisi baru (helper)
-     */
-    public function saveRevision(array $data)
-    {
-        $data['uploaded_at'] = $data['uploaded_at'] ?? date('Y-m-d H:i:s');
         return $this->insert($data);
+    }
+
+    public function getAllRevisions(int $iso00_id)
+    {
+        return $this->where('iso00_id', $iso00_id)
+                    ->orderBy('id', 'ASC')
+                    ->findAll();
     }
 }

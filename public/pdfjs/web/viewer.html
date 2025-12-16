@@ -1133,5 +1133,28 @@ See https://github.com/adobe-type-tools/cmap-resources
     </div>
     <!-- outerContainer -->
     <div id="printContainer"></div>
+
+    <script>
+      document.addEventListener( 'DOMContentLoaded', () => {
+        const hideBtn = id => { const el = document.getElementById( id ); if ( el ) el.style.display = 'none'; }
+
+        hideBtn( 'print' );        // tombol print
+        hideBtn( 'download' );     // tombol download
+        hideBtn( 'openFile' );     // tombol open
+        hideBtn( 'presentationMode' );
+        hideBtn( 'viewBookmark' );
+
+        // Cegah klik kanan di canvas PDF
+        document.querySelector( '#viewerContainer' ).addEventListener( 'contextmenu', e => e.preventDefault() );
+
+        // Blokir shortcut Ctrl+S / Ctrl+P
+        document.addEventListener( 'keydown', function ( e ) {
+          if ( ( e.ctrlKey || e.metaKey ) && ['s', 'p'].includes( e.key.toLowerCase() ) ) {
+            e.preventDefault();
+          }
+        } );
+      } );
+    </script>
+
   </body>
 </html>

@@ -12,40 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* MATIKAN SELURUH SECONDARY TOOLBAR & ISINYA */
-#secondaryToolbar,
-#secondaryToolbarButtonContainer,
-#secondaryToolbarToggle,
-#secondaryOpenFile,
-#secondaryPrint,
-#secondaryDownload,
-#secondaryPresentationMode,
-#secondaryViewBookmark,
-#viewBookmark,
-#secondaryFind,
-#findbar,
-.splitToolbarButton,
-.secondaryToolbarButton {
-  display: none !important;
-}
-
-/* MATIKAN PANEL ANNOTASI (kadang munculkan print/download juga) */
-#editorToolbar,
-.annotationEditorModeToolbar,
-#annotationEditorModeToolbar {
-  display: none !important;
-}
-
-/* MATIKAN TOMBOL KANAN (>>) */
-#toolbarViewerRight .toolbarButton,
-#toolbarViewerRight>.toolbarButton {
-  display: none !important;
-}
-
-/* TUTUP RUANG KOSONG AGAR TIDAK MUNCUL PANEL POPUP */
-#toolbarContainer {
-  overflow: hidden !important;
-}
 
 .messageBar{
   --closing-button-icon:url(images/messageBar_closingButton.svg);
