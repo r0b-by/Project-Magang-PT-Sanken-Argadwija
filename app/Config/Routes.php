@@ -41,12 +41,9 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->post('store', 'Iso00Controller::store');
     $routes->get('edit/(:num)', 'Iso00Controller::edit/$1');
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
-
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
     $routes->get('download/(:num)', 'Iso00Controller::downloadFile/$1');
-
     $routes->get('show/(:num)', 'Iso00Controller::show/$1');
-    
     $routes->get('history/(:num)', 'Iso00Controller::history/$1');
     $routes->get('allHistory', 'Iso00Controller::allHistory');
     $routes->get('history/view/(:num)', 'Iso00Controller::viewHistoryFile/$1');
@@ -62,7 +59,6 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
 |--------------------------------------------------------------------------
 */
 $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
-
     $routes->get('/', 'IsoAccessController::index');
     $routes->get('create', 'IsoAccessController::create');
     $routes->post('store-holder', 'IsoAccessController::storeHolder');
@@ -77,7 +73,6 @@ $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('user-fullname/(:num)', 'IsoAccessController::getUserFullname/$1');
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD DOKUMEN USER (BERDASARKAN HOLDER)
@@ -87,20 +82,28 @@ $routes->get('my-documents', 'IsoAccessController::userDocuments', ['filter' => 
 
 /*
 |--------------------------------------------------------------------------
-| BARCODE
-|--------------------------------------------------------------------------
-*/
-/*
-|--------------------------------------------------------------------------
 | BARCODE (ADMIN & DEPT - LOGIN)
 |--------------------------------------------------------------------------
 */
 $routes->group('barcode', ['filter' => 'auth'], function ($routes) {
-    $routes->get('/', 'BarcodeController::index');
+
+    // ===============================
+    // HALAMAN
+    // ===============================
+    $routes->get('/', 'BarcodeController::list');           // daftar barcode
+    $routes->get('generate', 'BarcodeController::index');   // generate barcode
+
+    // ===============================
+    // AKSI ADMIN
+    // ===============================
     $routes->get('generate/(:num)', 'BarcodeController::generate/$1');
     $routes->post('generate-bulk', 'BarcodeController::generateBulk');
     $routes->get('delete/(:num)', 'BarcodeController::delete/$1');
     $routes->get('print/(:num)', 'BarcodeController::print/$1');
+
+    // ===============================
+    // FILE PDF (LOGIN)
+    // ===============================
     $routes->get('file/(:num)', 'BarcodeController::file/$1');
 });
 
@@ -113,6 +116,7 @@ $routes->get('scan', 'ScanController::form');
 $routes->post('scan/process', 'ScanController::process');
 $routes->get('scan/detail/(:num)', 'BarcodeController::detail/$1');
 $routes->get('scan/file/(:num)', 'ScanController::file/$1');
+
 
 /*
 |--------------------------------------------------------------------------

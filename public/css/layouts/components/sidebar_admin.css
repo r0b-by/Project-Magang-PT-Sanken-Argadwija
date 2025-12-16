@@ -40,3 +40,15 @@
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: #adb5bd;
 }
+
+.collapse .nav-link {
+    font-size: 0.85rem;
+}
+
+.nav-link .fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+.nav-link[aria-expanded="true"] .fa-chevron-down {
+    transform: rotate(180deg);
+}

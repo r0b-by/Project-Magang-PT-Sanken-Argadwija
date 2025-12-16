@@ -85,7 +85,7 @@
                             </td>
                             <td>
                                 <?php if ($doc['holder_code']): ?>
-                                    <span class="badge bg-info">
+                                    <span class="badge bg-primary fs-6 px-2 py-1">
                                         <?= esc($doc['holder_code']) ?>
                                     </span>
                                 <?php else: ?>
@@ -96,7 +96,7 @@
                             <td>
                                 <?php if (!empty($doc['holder_users'])): ?>
                                     <?php foreach ($doc['holder_users'] as $user): ?>
-                                        <span class="badge bg-secondary mb-1">
+                                        <span class="badge bg-secondary mb-1 fs-6 px-2 py-1">
                                             <?= esc($user) ?>
                                         </span>
                                     <?php endforeach; ?>
@@ -132,7 +132,7 @@
                                 </div>
                             </td>
                             <td class="d-none d-md-table-cell">
-                                <span class="badge rounded-pill bg-<?= 
+                                <span class="badge rounded-pill fs-6 px-2 py-1 text-dark bg-<?= 
                                     $doc['status'] == 'approved' ? 'success' : 
                                     ($doc['status'] == 'save' ? 'info' : 'warning') ?>">
                                     <?= ucfirst($doc['status']) ?>

@@ -108,5 +108,6 @@
     <script src=<?= base_url('js/iso00/create.js')?>></script>
     <script src=<?= base_url('js/iso00/edit.js')?>></script>
     <script src=<?= base_url('js/layouts/main.js')?>></script>
+    <script src=<?= base_url('js/layouts/components/sidebar_admin.js')?>></script>
 </body>
 </html>

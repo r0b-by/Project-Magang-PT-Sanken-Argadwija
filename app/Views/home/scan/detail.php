@@ -136,17 +136,20 @@
     </div>
 </div>
 <script src="<?= base_url('js/home/scan/detail-pdfjs-viewer.js')?>"></script>
+<?php if (!empty($dok)): ?>
 <script>
 let pdfUrl = '<?= base_url('scan/file/'.$dok['id']) ?>';
+
 // Konfigurasi PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-document.addEventListener( 'DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     loadPDF();
     setupSecurity();
-} );
+});
 </script>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

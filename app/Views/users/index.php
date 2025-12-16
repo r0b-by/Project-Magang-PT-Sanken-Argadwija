@@ -68,12 +68,12 @@
                                 <span class="text-dark"><?= $user['fullname'] ?></span>
                             </td>
                             <td class="d-none d-lg-table-cell">
-                                <span class="badge rounded-pill bg-<?= $user['role'] == 'admin' ? 'danger' : ($user['role'] == 'dept' ? 'primary' : 'info') ?>">
+                                <span class="badge rounded-pill fs-6 px-2 py-1 bg-<?= $user['role'] == 'admin' ? 'danger' : ($user['role'] == 'dept' ? 'primary' : 'info') ?>">
                                     <?= ucfirst($user['role']) ?>
                                 </span>
                             </td>
                             <td class="d-none d-lg-table-cell">
-                                <span class="badge rounded-pill bg-<?= $user['status_akun'] == 'aktif' ? 'success' : 'secondary' ?>">
+                                <span class="badge rounded-pill fs-6 px-2 py-1 bg-<?= $user['status_akun'] == 'aktif' ? 'success' : 'secondary' ?>">
                                     <?= $user['status_akun'] == 'aktif' ? 'Aktif' : 'Nonaktif' ?>
                                 </span>
                             </td>
