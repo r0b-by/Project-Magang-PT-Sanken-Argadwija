@@ -50,8 +50,4 @@
     <?php endif; ?>
 </div>
 
-<style>
-    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .card img { max-width: 150px; height: auto; margin: 0 auto; }
-</style>
 <?= $this->endSection() ?>

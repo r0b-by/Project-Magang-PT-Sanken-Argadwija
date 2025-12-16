@@ -1,0 +1,131 @@
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+    /* Proteksi */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.detail-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1.5rem;
+    border: none;
+}
+
+.card-header-custom h4 {
+    margin: 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+}
+
+.card-header-custom h4 i {
+    margin-right: 0.75rem;
+}
+
+.section-title {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.section-title i {
+    margin-right: 0.75rem;
+}
+
+.pdf-viewer-container {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: white;
+    position: relative;
+    height: 80vh;
+}
+
+.pdf-viewer-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Responsive untuk mobile */
+@media (max-width: 768px) {
+    body {
+        padding: 0.5rem 0;
+    }
+
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    .card-header-custom {
+        padding: 1rem;
+    }
+
+    .card-header-custom h4 {
+        font-size: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    .section-title {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .pdf-viewer-container {
+        height: 70vh;
+        border-radius: 10px;
+    }
+
+    .detail-card {
+        border-radius: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .card-header-custom h4 i,
+    .section-title i {
+        font-size: 1rem;
+        margin-right: 0.5rem;
+    }
+
+    .pdf-viewer-container {
+        height: 65vh;
+    }
+}
+
+/* Proteksi dari screenshot dan copy */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

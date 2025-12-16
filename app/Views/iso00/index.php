@@ -28,6 +28,8 @@
                             <th class="ps-4 py-3 text-muted fw-semibold small" width="60">No</th>
                             <th class="py-3 text-muted fw-semibold small">Dokumen</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">File</th>
+                            <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Holder</th>
+                            <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Hak Akses</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Uploader</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-md-table-cell" width="110">Status</th>
                             <th class="pe-4 py-3 text-center text-muted fw-semibold small" width="140">Aksi</th>
@@ -81,10 +83,31 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>
+                                <?php if ($doc['holder_code']): ?>
+                                    <span class="badge bg-info">
+                                        <?= esc($doc['holder_code']) ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+
+                            <td>
+                                <?php if (!empty($doc['holder_users'])): ?>
+                                    <?php foreach ($doc['holder_users'] as $user): ?>
+                                        <span class="badge bg-secondary mb-1">
+                                            <?= esc($user) ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="text-muted">Belum ada</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="d-none d-lg-table-cell">
                                 <div class="d-flex align-items-center">
-                                    <?php if (isset($doc['foto'])): ?>
-                                        <img src="/uploads/foto_user/<?= $doc['foto'] ?>" 
+                                    <?php if (!empty($doc['uploader_foto'])): ?>
+                                        <img src="/uploads/foto_user/<?= esc($doc['uploader_foto']) ?>" 
                                             class="rounded-circle me-2" 
                                             width="32" 
                                             height="32"
@@ -92,15 +115,19 @@
                                             style="object-fit: cover; border: 2px solid #f0f0f0;">
                                     <?php else: ?>
                                         <div class="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                             style="width: 32px; height: 32px; min-width: 32px;">
+                                            style="width: 32px; height: 32px; min-width: 32px;">
                                             <i class="fas fa-user" style="font-size: 14px;"></i>
                                         </div>
                                     <?php endif; ?>
+
                                     <div>
-                                        <div class="text-truncate" style="max-width: 120px;" title="<?= $doc['fullname'] ?? 'Unknown' ?>">
-                                            <?= $doc['fullname'] ?? 'Unknown' ?>
+                                        <div class="text-truncate" style="max-width: 120px;"
+                                            title="<?= esc($doc['uploader_name'] ?? 'Unknown') ?>">
+                                            <?= esc($doc['uploader_name'] ?? 'Unknown') ?>
                                         </div>
-                                        <small class="text-muted"><?= $doc['role'] ?? '-' ?></small>
+                                        <small class="text-muted">
+                                            <?= esc($doc['uploader_role'] ?? '-') ?>
+                                        </small>
                                     </div>
                                 </div>
                             </td>

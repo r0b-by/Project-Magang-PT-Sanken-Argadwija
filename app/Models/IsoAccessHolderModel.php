@@ -61,4 +61,20 @@ class IsoAccessHolderModel extends Model
 
         return $builder->countAllResults() > 0;
     }
+    
+    public function getHolderWithUsersByDokumen(int $dokumenId)
+    {
+        return $this->select('
+                iso_access_holders.id AS holder_id,
+                iso_access_holders.holder_code,
+                users.id AS user_id,
+                users.fullname
+            ')
+            ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_holders.id', 'left')
+            ->join('users', 'users.id = iso_access_users.user_id', 'left')
+            ->where('iso_access_holders.dokumen_id', $dokumenId)
+            ->orderBy('users.fullname', 'ASC')
+            ->findAll();
+    }
+
 }

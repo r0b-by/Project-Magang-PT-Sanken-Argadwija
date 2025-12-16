@@ -115,7 +115,7 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
-                                            <a href="/barcode/detail/<?= $doc['dokumen_id'] ?? 0 ?>" 
+                                            <a href="/scan/detail/<?= $doc['dokumen_id'] ?? 0 ?>" 
                                                class="btn btn-outline-info"
                                                title="Detail">
                                                 <i class="fas fa-eye"></i>

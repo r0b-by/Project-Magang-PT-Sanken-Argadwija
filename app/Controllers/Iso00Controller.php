@@ -29,6 +29,16 @@ class Iso00Controller extends BaseController
         $this->revisionPath = WRITEPATH . 'uploads/iso/revisions/';
     }
 
+    private function currentUser(): array
+    {
+        return [
+            'id'       => session()->get('user_id'),
+            'name'     => session()->get('fullname') ?? 'Administrator Sistem',
+            'role'     => session()->get('role') ?? 'admin',
+            'foto'     => session()->get('foto') ?? 'default.png',
+        ];
+    }
+
     // ============================================================
     // CEK AKSES USER
     // ============================================================
@@ -82,9 +92,9 @@ class Iso00Controller extends BaseController
         $userId = session()->get('user_id');
 
         if ($role === 'admin') {
-            $data['dokumen'] = $this->iso00
-                ->select('iso_00.*, users.fullname AS uploader_name, users.foto AS uploader_foto, users.role AS uploader_role')
-                ->join('users', 'users.id = iso_00.uploaded_by')
+            $dokumen = $this->iso00
+                ->select('iso_00.*, users.fullname AS uploader_name')
+                ->join('users', 'users.id = iso_00.uploaded_by', 'left')
                 ->orderBy('iso_00.id', 'DESC')
                 ->findAll();
         } else {
@@ -96,13 +106,29 @@ class Iso00Controller extends BaseController
 
             $docIds = array_column($allowedDocs, 'dokumen_id');
 
-            $data['dokumen'] = empty($docIds) ? [] : $this->iso00
+            $dokumen = empty($docIds) ? [] : $this->iso00
                 ->whereIn('id', $docIds)
                 ->orderBy('id', 'DESC')
                 ->findAll();
         }
 
-        return view('iso00/index', $data);
+        // 🔥 TAMBAHKAN HOLDER + USER KE TIAP DOKUMEN
+        foreach ($dokumen as &$doc) {
+            $holders = $this->holder->getHolderWithUsersByDokumen($doc['id']);
+
+            $doc['holder_code'] = $holders[0]['holder_code'] ?? null;
+            $doc['holder_users'] = [];
+
+            foreach ($holders as $h) {
+                if ($h['fullname']) {
+                    $doc['holder_users'][] = $h['fullname'];
+                }
+            }
+        }
+
+        return view('iso00/index', [
+            'dokumen' => $dokumen
+        ]);
     }
 
     // ============================================================
@@ -114,35 +140,42 @@ class Iso00Controller extends BaseController
     }
 
     public function store()
-{
-    $file = $this->request->getFile('upload_dokumen');
+    {
+        $file = $this->request->getFile('upload_dokumen');
+        if (!$file || !$file->isValid()) {
+            return back()->withInput()->with('error', 'File tidak valid');
+        }
 
-    if (!$file || !$file->isValid()) {
-        return redirect()->back()->with('error', 'File tidak valid!');
+        $user = $this->currentUser();
+
+        if (!is_dir($this->masterPath)) {
+            mkdir($this->masterPath, 0775, true);
+        }
+
+        $finalName = $this->generateSafeFileName($file, $this->masterPath);
+        $file->move($this->masterPath, $finalName);
+
+        $this->iso00->insert([
+            'kode_dokumen'          => $this->request->getPost('kode_dokumen'),
+            'nama_dokumen_internal' => $this->request->getPost('nama_dokumen_internal'),
+            'nama_file'             => $finalName,
+            'file_path'             => 'uploads/iso/masters/' . $finalName,
+            'file_size'             => $file->getSize(),
+            'mime_type'             => $file->getClientMimeType(),
+            'tanggal_efektif'       => $this->request->getPost('tanggal_efektif') ?: null,
+            'halaman_dokumen'       => $this->request->getPost('halaman_dokumen'),
+            'ruang_lingkup'         => $this->request->getPost('ruang_lingkup'),
+            'tujuan'                => $this->request->getPost('tujuan'),
+            'status'                => 'save',
+            'uploaded_by'           => $user['id'],
+            'uploader_name'         => $user['name'],
+            'uploader_role'         => $user['role'],
+            'uploader_foto'         => $user['foto'],
+            'uploaded_at'           => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil diupload');
     }
-
-    if (!is_dir($this->masterPath)) {
-        mkdir($this->masterPath, 0775, true);
-    }
-
-    // Nama file aman & tidak random
-    $finalName = $this->generateSafeFileName($file, $this->masterPath);
-    $file->move($this->masterPath, $finalName);
-
-    $this->iso00->save([
-        'kode_dokumen'          => $this->request->getPost('kode_dokumen'),
-        'nama_dokumen_internal' => $this->request->getPost('nama_dokumen_internal'),
-        'nama_file'             => $finalName,
-        'file_path'             => 'uploads/iso/masters/' . $finalName,
-        'file_size'             => $file->getSize(),
-        'mime_type'             => $file->getClientMimeType(),
-        'status'                => 'save',
-        'uploaded_by'           => session()->get('user_id'),
-        'uploaded_at'           => date('Y-m-d H:i:s'),
-    ]);
-
-    return redirect()->to('/iso00')->with('success', 'Dokumen berhasil diupload!');
-}
 
 
     // ============================================================
@@ -160,69 +193,64 @@ class Iso00Controller extends BaseController
     }
 
     public function update($id)
-{
-    $dokumen = $this->iso00->find($id);
-    if (!$dokumen) {
-        return redirect()->back()->with('error', 'Dokumen tidak ditemukan!');
-    }
-
-    /* ===============================
-       1. SIMPAN FILE LAMA KE REVISIONS
-       =============================== */
-    if (!is_dir($this->revisionPath)) {
-        mkdir($this->revisionPath, 0775, true);
-    }
-
-    $oldFileFullPath = WRITEPATH . $dokumen['file_path'];
-
-    if (file_exists($oldFileFullPath)) {
-        $revisionName = time() . '_' . basename($oldFileFullPath);
-
-        copy($oldFileFullPath, $this->revisionPath . $revisionName);
-
-        $this->iso001->insert([
-            'iso00_id'    => $dokumen['id'],
-            'nama_file'   => basename($revisionName),
-            'file_path'   => 'uploads/iso/revisions/' . $revisionName,
-            'file_size'   => $dokumen['file_size'],
-            'mime_type'   => $dokumen['mime_type'],
-            'status'      => 'revisi',
-            'uploaded_by' => session()->get('user_id'),
-            'uploaded_at' => date('Y-m-d H:i:s'),
-        ]);
-    }
-
-    /* ===============================
-       2. UPDATE DATA MASTER
-       =============================== */
-    $update = [
-        'kode_dokumen'          => $this->request->getPost('kode_dokumen'),
-        'nama_dokumen_internal' => $this->request->getPost('nama_dokumen_internal'),
-        'status'                => 'revisi',
-        'updated_by'            => session()->get('user_id'),
-        'updated_at'            => date('Y-m-d H:i:s'),
-    ];
-
-    $file = $this->request->getFile('upload_dokumen');
-    if ($file && $file->isValid()) {
-
-        if (!is_dir($this->masterPath)) {
-            mkdir($this->masterPath, 0775, true);
+    {
+        $dokumen = $this->iso00->find($id);
+        if (!$dokumen) {
+            return back()->with('error', 'Dokumen tidak ditemukan');
         }
 
-        $finalName = $this->generateSafeFileName($file, $this->masterPath);
-        $file->move($this->masterPath, $finalName);
+        $user = $this->currentUser();
+        $oldFile = WRITEPATH . $dokumen['file_path'];
 
-        $update['nama_file'] = $finalName;
-        $update['file_path'] = 'uploads/iso/masters/' . $finalName;
-        $update['file_size'] = $file->getSize();
-        $update['mime_type'] = $file->getClientMimeType();
+        // Simpan ke revisi
+        if (is_file($oldFile)) {
+            if (!is_dir($this->revisionPath)) {
+                mkdir($this->revisionPath, 0775, true);
+            }
+
+            $revName = time() . '_' . $dokumen['nama_file'];
+            copy($oldFile, $this->revisionPath . $revName);
+
+            $this->iso001->insert([
+                'iso00_id'    => $id,
+                'nama_file'   => $revName,
+                'file_path'   => 'uploads/iso/revisions/' . $revName,
+                'file_size'   => $dokumen['file_size'],
+                'mime_type'   => $dokumen['mime_type'],
+                'status'      => 'revisi',
+                'uploaded_by' => $user['id'],
+                'uploaded_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $update = [
+            'kode_dokumen'          => $this->request->getPost('kode_dokumen'),
+            'nama_dokumen_internal' => $this->request->getPost('nama_dokumen_internal'),
+            'tanggal_efektif'       => $this->request->getPost('tanggal_efektif') ?: null,
+            'halaman_dokumen'       => $this->request->getPost('halaman_dokumen'),
+            'ruang_lingkup'         => $this->request->getPost('ruang_lingkup'),
+            'tujuan'                => $this->request->getPost('tujuan'),
+            'status'                => 'revisi',
+            'updated_by'            => $user['id'],
+            'updated_at'            => date('Y-m-d H:i:s'),
+        ];
+
+        $file = $this->request->getFile('upload_dokumen');
+        if ($file && $file->isValid()) {
+            $newName = $this->generateSafeFileName($file, $this->masterPath);
+            $file->move($this->masterPath, $newName);
+            if (is_file($oldFile)) unlink($oldFile);
+
+            $update['nama_file'] = $newName;
+            $update['file_path'] = 'uploads/iso/masters/' . $newName;
+            $update['file_size'] = $file->getSize();
+            $update['mime_type'] = $file->getClientMimeType();
+        }
+
+        $this->iso00->update($id, $update);
+
+        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil direvisi');
     }
-
-    $this->iso00->update($id, $update);
-
-    return redirect()->to('/iso00')->with('success', 'Dokumen berhasil direvisi');
-}
 
     // ============================================================
     // SHOW DOKUMEN MASTER
@@ -357,12 +385,17 @@ class Iso00Controller extends BaseController
     {
         $history = $this->iso001->find($id);
 
-        if (!$history) {
+        if (! $history) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('File history tidak ditemukan');
         }
 
-        return $this->response
-            ->download($history['nama_file'], $history['upload_dokumen']);
+        $path = FCPATH . 'uploads/iso/revisions/' . $history['nama_file'];
+
+        if (! file_exists($path)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan di server');
+        }
+
+        return $this->response->download($path, null);
     }
 
     public function deleteHistory($id)
@@ -372,12 +405,22 @@ class Iso00Controller extends BaseController
         }
 
         $history = $this->iso001->find($id);
-        if (!$history) {
+        if (! $history) {
             return redirect()->back()->with('error', 'History tidak ditemukan');
         }
 
+        // 🔥 PATH FILE FISIK
+        $filePath = WRITEPATH . 'uploads/iso/revisions/' . $history['nama_file'];
+
+        // 🔥 HAPUS FILE DI FOLDER
+        if (is_file($filePath)) {
+            unlink($filePath);
+        }
+
+        // 🔥 HAPUS DATA DATABASE
         $this->iso001->delete($id);
 
-        return redirect()->back()->with('success', 'History revisi berhasil dihapus');
+        return redirect()->back()->with('success', 'History revisi & file berhasil dihapus permanen');
     }
+
 }

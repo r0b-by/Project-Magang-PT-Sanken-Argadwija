@@ -63,38 +63,17 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
 */
 $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
 
-    // ==========================
-    // MASTER HOLDER
-    // ==========================
     $routes->get('/', 'IsoAccessController::index');
     $routes->get('create', 'IsoAccessController::create');
     $routes->post('store-holder', 'IsoAccessController::storeHolder');
-
-    // ==========================
-    // DETAIL HOLDER
-    // ==========================
+    $routes->get('edit/(:num)', 'IsoAccessController::edit/$1');
+    $routes->post('update-holder/(:num)', 'IsoAccessController::updateHolder/$1');
     $routes->get('detail/(:segment)', 'IsoAccessController::detail/$1');
-
-    // ==========================
-    // ASSIGN USER & DOKUMEN
-    // ==========================
     $routes->get('assign/(:segment)', 'IsoAccessController::assign/$1');
     $routes->post('store-assignment', 'IsoAccessController::storeAssignment');
-
-    // ==========================
-    // DELETE
-    // ==========================
     $routes->get('remove-user/(:num)', 'IsoAccessController::removeUser/$1');
     $routes->get('delete-holder/(:num)', 'IsoAccessController::deleteHolder/$1');
-
-    // ==========================
-    // SEARCH
-    // ==========================
     $routes->get('search', 'IsoAccessController::search');
-
-    // ==========================
-    // API (OPTIONAL)
-    // ==========================
     $routes->get('user-fullname/(:num)', 'IsoAccessController::getUserFullname/$1');
 });
 

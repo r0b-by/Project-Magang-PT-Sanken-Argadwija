@@ -106,49 +106,4 @@ $role = $session->get('role');
         </small>
     </div>
 </div>
-
-<style>
-.sidebar {
-    height: 100vh;
-    position: sticky;
-    top: 0;
-}
-
-.sidebar .nav-link {
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    font-weight: 500;
-}
-
-.sidebar .nav-link:not(.active):hover {
-    background-color: #f8f9fa;
-    transform: translateX(4px);
-}
-
-.sidebar .nav-link.active {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar .nav-link i {
-    width: 20px;
-    text-align: center;
-}
-
-.sidebar::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-    background: #dee2e6;
-    border-radius: 3px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-    background: #adb5bd;
-}
-</style>
 <?php endif; ?>
