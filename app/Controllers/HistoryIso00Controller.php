@@ -20,25 +20,28 @@ class HistoryIso00Controller extends BaseController
         $this->accessUser = new IsoAccessUserModel();
     }
 
-    // ============================================================
-    // CEK AKSES DOKUMEN
-    // ============================================================
-    private function checkAccess($docId)
+    /* ============================================================
+     * CEK AKSES DOKUMEN
+     * ==========================================================*/
+    private function checkAccess($docId): bool
     {
         if (session()->get('role') === 'admin') {
             return true;
         }
 
         return (bool) $this->accessUser
-            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
+            ->join(
+                'iso_access_holders',
+                'iso_access_holders.id = iso_access_users.holder_id'
+            )
             ->where('iso_access_users.user_id', session()->get('user_id'))
             ->where('iso_access_holders.dokumen_id', $docId)
             ->first();
     }
 
-    // ============================================================
-    // HISTORY PER DOKUMEN
-    // ============================================================
+    /* ============================================================
+     * HISTORY PER DOKUMEN
+     * ==========================================================*/
     public function index($iso00_id)
     {
         if (!$this->checkAccess($iso00_id)) {
@@ -52,7 +55,7 @@ class HistoryIso00Controller extends BaseController
 
         $history = $this->iso001
             ->where('iso00_id', $iso00_id)
-            ->orderBy('uploaded_at', 'DESC')
+            ->orderBy('id', 'DESC') // urut revisi terbaru
             ->findAll();
 
         return view('iso00/history', [
@@ -61,11 +64,12 @@ class HistoryIso00Controller extends BaseController
         ]);
     }
 
-    // ============================================================
-    // SEMUA HISTORY (ADMIN)
-    // ============================================================
+    /* ============================================================
+     * SEMUA HISTORY (ADMIN)
+     * ==========================================================*/
     public function all()
     {
+        // Hanya admin
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/iso00')->with('error', 'Akses ditolak');
         }
@@ -73,12 +77,13 @@ class HistoryIso00Controller extends BaseController
         $all_history = $this->iso001
             ->select('
                 iso_001.*,
+                iso_001.uploaded_at,
                 iso_00.kode_dokumen,
                 iso_00.nama_dokumen_internal,
                 users.fullname AS uploader_name
             ')
-            ->join('iso_00', 'iso_00.id = iso_001.iso00_id')
-            ->join('users', 'users.id = iso_001.uploaded_by')
+            ->join('iso_00', 'iso_00.id = iso_001.iso00_id', 'left')
+            ->join('users', 'users.id = iso_001.uploaded_by', 'left')
             ->orderBy('iso_001.uploaded_at', 'DESC')
             ->findAll();
 
@@ -87,30 +92,33 @@ class HistoryIso00Controller extends BaseController
         ]);
     }
 
-    // ============================================================
-    // VIEW FILE HISTORY (PDF)
-    // ============================================================
+    /* ============================================================
+     * VIEW FILE HISTORY (PDF)
+     * ==========================================================*/
     public function view($id)
     {
         $history = $this->iso001->find($id);
         if (!$history) {
-            throw new PageNotFoundException();
+            throw new PageNotFoundException('History tidak ditemukan');
         }
 
         $fullPath = WRITEPATH . $history['file_path'];
         if (!file_exists($fullPath)) {
-            throw new PageNotFoundException();
+            throw new PageNotFoundException('File fisik tidak ditemukan');
         }
 
         return $this->response
             ->setHeader('Content-Type', $history['mime_type'])
-            ->setHeader('Content-Disposition', 'inline; filename="'.$history['nama_file'].'"')
+            ->setHeader(
+                'Content-Disposition',
+                'inline; filename="' . $history['nama_file'] . '"'
+            )
             ->setBody(file_get_contents($fullPath));
     }
 
-    // ============================================================
-    // DOWNLOAD FILE HISTORY
-    // ============================================================
+    /* ============================================================
+     * DOWNLOAD FILE HISTORY
+     * ==========================================================*/
     public function download($id)
     {
         $history = $this->iso001->find($id);
@@ -126,9 +134,9 @@ class HistoryIso00Controller extends BaseController
         return $this->response->download($path, null);
     }
 
-    // ============================================================
-    // DELETE HISTORY (ADMIN ONLY)
-    // ============================================================
+    /* ============================================================
+     * DELETE HISTORY (ADMIN ONLY)
+     * ==========================================================*/
     public function delete($id)
     {
         if (session()->get('role') !== 'admin') {

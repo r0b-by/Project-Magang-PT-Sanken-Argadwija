@@ -1,4 +1,5 @@
 <?= $this->extend('layouts/main') ?>
+<?= $this->section('title') ?>Edit Holder<?= $this->endSection() ?>
 <?= $this->section('content') ?>
 
 <div class="container">
@@ -14,26 +15,12 @@
 
                 <!-- KODE HOLDER -->
                 <div class="mb-3">
-                    <label class="form-label">Kode Holder</label>
+                    <label class="form-label fw-semibold">Kode Holder</label>
                     <input type="text"
                            name="holder_code"
                            class="form-control"
                            value="<?= esc($holder['holder_code']) ?>"
                            required>
-                </div>
-
-                <!-- PILIH DOKUMEN -->
-                <div class="mb-3">
-                    <label class="form-label">Dokumen</label>
-                    <select name="dokumen_id" class="form-select">
-                        <option value="">-- Tidak ada dokumen --</option>
-                        <?php foreach ($dokumen as $doc): ?>
-                            <option value="<?= $doc['id'] ?>"
-                                <?= $holder['dokumen_id'] == $doc['id'] ? 'selected' : '' ?>>
-                                <?= esc($doc['kode_dokumen']) ?> - <?= esc($doc['nama_dokumen_internal']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
                 </div>
 
             </div>
@@ -43,7 +30,7 @@
                     Batal
                 </a>
                 <button type="submit" class="btn btn-warning">
-                    Simpan Perubahan
+                    <i class="fas fa-save me-1"></i> Simpan Perubahan
                 </button>
             </div>
         </form>

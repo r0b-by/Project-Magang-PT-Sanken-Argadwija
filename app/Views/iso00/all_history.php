@@ -39,11 +39,11 @@
                                     </div>
 
                                     <div class="text-muted small">
-                                        Versi <?= esc($row['versi']) ?>
+                                        Versi <?= esc($row['versi'] ?? '-') ?>
                                         <span class="mx-1">•</span>
-                                        <?= esc($row['uploader_name']) ?>
+                                        <?= esc($row['uploader_name'] ?? 'Unknown') ?>
                                         <span class="mx-1">•</span>
-                                        <?= date('d M Y', strtotime($row['uploaded_at'])) ?>
+                                        <?= !empty($row['uploaded_at']) ? date('d M Y', strtotime($row['uploaded_at'])) : '-' ?>
                                     </div>
 
                                     <?php if (!empty($row['ruang_lingkup']) || !empty($row['tujuan'])) : ?>
@@ -59,24 +59,24 @@
 
                                     <!-- Mobile Status -->
                                     <div class="d-block d-md-none mt-1">
-                                        <?php if ($row['status'] === 'approved'): ?>
-                                            <span class="badge bg-success">Approved</span>
-                                        <?php elseif ($row['status'] === 'rejected'): ?>
-                                            <span class="badge bg-danger">Rejected</span>
+                                        <?php if ($row['status'] === 'save'): ?>
+                                            <span class="badge bg-success">Save</span>
+                                        <?php elseif ($row['status'] === 'non-save'): ?>
+                                            <span class="badge bg-secondary">Non-Save</span>
                                         <?php else: ?>
-                                            <span class="badge bg-warning text-dark">Draft</span>
+                                            <span class="badge bg-warning text-dark">Revisi</span>
                                         <?php endif ?>
                                     </div>
                                 </td>
 
                                 <!-- Desktop Status -->
                                 <td class="d-none d-md-table-cell text-center">
-                                    <?php if ($row['status'] === 'approved'): ?>
-                                        <span class="badge bg-success">Approved</span>
-                                    <?php elseif ($row['status'] === 'rejected'): ?>
-                                        <span class="badge bg-danger">Rejected</span>
+                                    <?php if ($row['status'] === 'save'): ?>
+                                        <span class="badge bg-success">Save</span>
+                                    <?php elseif ($row['status'] === 'non-save'): ?>
+                                        <span class="badge bg-secondary">Non-Save</span>
                                     <?php else: ?>
-                                        <span class="badge bg-warning text-dark">Draft</span>
+                                        <span class="badge bg-warning text-dark">Revisi</span>
                                     <?php endif ?>
                                 </td>
 

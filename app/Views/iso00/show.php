@@ -115,11 +115,6 @@
                         target="_blank">
                             <i class="fas fa-eye me-2"></i>Lihat PDF
                         </a>
-
-                        <a href="<?= base_url('iso00/download/' . $dokumen['id']) ?>"
-                        class="btn btn-success flex-fill">
-                            <i class="fas fa-download me-2"></i>Download
-                        </a>
                     </div>
                 </div>
             </div>
@@ -196,12 +191,6 @@
                 <?php if (session()->get('user_id') == $dokumen['uploaded_by'] || session()->get('role') == 'admin'): ?>
                 <a href="/iso00/edit/<?= $dokumen['id'] ?>" class="btn btn-warning">
                     <i class="fas fa-pen me-2"></i>Edit
-                </a>
-                <?php endif; ?>
-                <?php if (session()->get('role') == 'admin'): ?>
-                <a href="/iso00/delete/<?= $dokumen['id'] ?>" class="btn btn-danger"
-                   onclick="return confirm('Yakin ingin menghapus dokumen ini?')">
-                    <i class="fas fa-trash-alt me-2"></i>Hapus
                 </a>
                 <?php endif; ?>
             </div>

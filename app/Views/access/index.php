@@ -13,21 +13,6 @@
             <i class="fas fa-plus me-2"></i>Tambah Holder
         </a>
     </div>
-    
-    <!-- Flash Message -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i><?= session('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif ?>
-    
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i><?= session('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif ?>
 
     <!-- Table Card -->
     <div class="card border-0 shadow-sm">
@@ -40,7 +25,7 @@
                             <th class="py-3 text-muted fw-semibold small">Holder</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-md-table-cell">Dokumen</th>
                             <th class="py-3 text-muted fw-semibold small">Total User</th>
-                            <th class="pe-4 py-3 text-center text-muted fw-semibold small" width="180">Aksi</th>
+                            <th class="pe-4 py-3 text-center text-muted fw-semibold small" width="240">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,9 +48,7 @@
                                     <div>
                                         <div class="fw-semibold text-dark"><?= esc($h['holder_code']) ?></div>
                                         <?php if (!empty($h['description'])): ?>
-                                            <div class="text-muted small mt-1">
-                                                <?= esc($h['description']) ?>
-                                            </div>
+                                            <div class="text-muted small mt-1"><?= esc($h['description']) ?></div>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -77,28 +60,21 @@
                                                 <?= esc($h['kode_dokumen'] ?? '-') ?>
                                             </div>
                                             <?php if (!empty($h['nama_dokumen'])): ?>
-                                                <small class="text-muted">
-                                                    <?= esc($h['nama_dokumen']) ?>
-                                                </small>
+                                                <small class="text-muted"><?= esc($h['nama_dokumen']) ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                             style="width: 32px; height: 32px; min-width: 32px;">
-                                            <i class="fas fa-users" style="font-size: 14px;"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold"><?= esc($h['total_users']) ?> User</div>
-                                            <small class="text-muted">
-                                                <?php if (isset($h['last_updated'])): ?>
-                                                    Diperbarui: <?= date('d/m/Y', strtotime($h['last_updated'])) ?>
-                                                <?php endif; ?>
-                                            </small>
-                                        </div>
-                                    </div>
+                                    <?php if (!empty($h['users'])): ?>
+                                        <?php foreach ($h['users'] as $u): ?>
+                                            <span class="badge bg-secondary fs-6 px-2 py-1">
+                                                <?= esc($u['fullname']) ?> (<?= esc($u['username'] ?? '-') ?>)
+                                        </span><br>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger fs-6 px-2 py-1">Belum ada user</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="pe-4 text-center">
                                     <div class="btn-group btn-group-sm" role="group">
@@ -106,15 +82,19 @@
                                            class="btn btn-outline-info" title="Detail">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="<?= base_url('access/assign/'.esc($h['holder_code'])) ?>" 
-                                           class="btn btn-outline-warning" title="Edit User">
+                                        <a href="<?= base_url('access/edit-dokumen/'.esc($h['id'])) ?>" 
+                                           class="btn btn-outline-warning" title="Edit Dokumen">
+                                            <i class="fas fa-file-alt"></i>
+                                        </a>
+                                        <a href="<?= base_url('access/edit-users/'.esc($h['id'])) ?>" 
+                                           class="btn btn-outline-primary" title="Edit User">
                                             <i class="fas fa-user-edit"></i>
                                         </a>
-                                        <a href="<?= base_url('access/edit/'.esc($h['id'] ?? $h['holder_code'])) ?>" 
-                                           class="btn btn-outline-primary" title="Edit Holder">
+                                        <a href="<?= base_url('access/edit/'.esc($h['id'])) ?>" 
+                                           class="btn btn-outline-secondary" title="Edit Holder">
                                             <i class="fas fa-pen"></i>
                                         </a>
-                                        <a href="<?= base_url('access/delete-holder/'.esc($h['id'] ?? $h['holder_code'])) ?>" 
+                                        <a href="<?= base_url('access/delete-holder/'.esc($h['id'])) ?>" 
                                            class="btn btn-outline-danger" title="Hapus"
                                            onclick="return confirm('Yakin ingin menghapus holder ini? Semua user yang terhubung akan kehilangan akses.')">
                                             <i class="fas fa-trash-alt"></i>

@@ -17,13 +17,13 @@
         <div class="mb-3">
             <label class="form-label">Dokumen</label>
             <select name="dokumen_id" class="form-control" required>
-    <option value="">-- Pilih Dokumen --</option>
-    <?php foreach ($dokumen as $d): ?>
-        <option value="<?= $d['id'] ?>">
-            <?= esc($d['kode_dokumen']) ?> - <?= esc($d['nama_dokumen_internal']) ?>
-        </option>
-    <?php endforeach ?>
-</select>
+            <option value="">-- Pilih Dokumen --</option>
+            <?php foreach ($dokumen as $d): ?>
+                <option value="<?= $d['id'] ?>">
+                    <?= esc($d['kode_dokumen']) ?> - <?= esc($d['nama_dokumen_internal']) ?>
+                </option>
+            <?php endforeach ?>
+        </select>
         </div>
 
         <!-- ===================== -->

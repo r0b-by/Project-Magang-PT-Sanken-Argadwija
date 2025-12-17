@@ -57,12 +57,12 @@
 
                                         <div class="col-4 fw-bold">Status</div>
                                         <div class="col-8">
-                                            <?php if ($row['status'] === 'approved'): ?>
-                                                <span class="badge bg-success">Approved</span>
-                                            <?php elseif ($row['status'] === 'rejected'): ?>
-                                                <span class="badge bg-danger">Rejected</span>
+                                            <?php if ($row['status'] === 'save'): ?>
+                                                <span class="badge bg-success">Save</span>
+                                            <?php elseif ($row['status'] === 'non-save'): ?>
+                                                <span class="badge bg-secondary">Non-Save</span>
                                             <?php else: ?>
-                                                <span class="badge bg-warning text-dark">Draft</span>
+                                                <span class="badge bg-warning text-dark">Revisi</span>
                                             <?php endif ?>
                                         </div>
 
@@ -71,32 +71,27 @@
 
                                         <div class="col-4 fw-bold">Uploaded</div>
                                         <div class="col-8">
-                                            <?= date('d M Y H:i', strtotime($row['uploaded_at'])) ?>
+                                            <?= !empty($row['uploaded_at']) ? date('d M Y H:i', strtotime($row['uploaded_at'])) : '-' ?>
                                         </div>
                                     </div>
                                 </td>
 
                                 <!-- DESKTOP CONTINUE -->
-                                <td class="d-none d-md-table-cell">
-                                    <?= esc($row['ruang_lingkup'] ?? '-') ?>
-                                </td>
-                                <td class="d-none d-md-table-cell">
-                                    <?= esc($row['tujuan'] ?? '-') ?>
-                                </td>
-
+                                <td class="d-none d-md-table-cell"><?= esc($row['ruang_lingkup'] ?? '-') ?></td>
+                                <td class="d-none d-md-table-cell"><?= esc($row['tujuan'] ?? '-') ?></td>
                                 <td class="text-center d-none d-md-table-cell">
-                                    <?php if ($row['status'] === 'approved'): ?>
-                                        <span class="badge bg-success">Approved</span>
-                                    <?php elseif ($row['status'] === 'rejected'): ?>
-                                        <span class="badge bg-danger">Rejected</span>
+                                    <?php if ($row['status'] === 'save'): ?>
+                                        <span class="badge bg-success">Save</span>
+                                    <?php elseif ($row['status'] === 'non-save'): ?>
+                                        <span class="badge bg-secondary">Non-Save</span>
                                     <?php else: ?>
-                                        <span class="badge bg-warning text-dark">Draft</span>
+                                        <span class="badge bg-warning text-dark">Revisi</span>
                                     <?php endif ?>
                                 </td>
 
                                 <td class="d-none d-md-table-cell"><?= esc($row['uploader_name']) ?></td>
                                 <td class="d-none d-md-table-cell">
-                                    <?= date('d M Y H:i', strtotime($row['uploaded_at'])) ?>
+                                    <?= !empty($row['uploaded_at']) ? date('d M Y H:i', strtotime($row['uploaded_at'])) : '-' ?>
                                 </td>
 
                                 <!-- AKSI -->

@@ -11,9 +11,9 @@ class UserSeeder extends Seeder
         $data = [
             // Admin Default
             [
-                'username'       => 'admin',
+                'username'       => 'admin-1',
                 'password'       => password_hash('admin123', PASSWORD_DEFAULT),
-                'fullname'       => 'Administrator Sistem',
+                'fullname'       => 'admin hendrik',
                 'foto'           => 'default.png',
                 'role'           => 'admin',
                 'status_akun'    => 'aktif',
@@ -23,11 +23,25 @@ class UserSeeder extends Seeder
                 'updated_at'     => date('Y-m-d H:i:s'),
             ],
 
-            // Dept User
+            //admin defoult 2
             [
-                'username'       => 'dept1',
+                'username'       => 'admin-2',
+                'password'       => password_hash('admin123', PASSWORD_DEFAULT),
+                'fullname'       => 'admin robby',
+                'foto'           => 'default.png',
+                'role'           => 'admin',
+                'status_akun'    => 'aktif',
+                'is_online'      => 0,
+                'last_active_at' => null,
+                'created_at'     => date('Y-m-d H:i:s'),
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ],
+
+            // // Dept User
+            [
+                'username'       => 'dept IT',
                 'password'       => password_hash('dept123', PASSWORD_DEFAULT),
-                'fullname'       => 'Petugas Departemen LOGISTIK',
+                'fullname'       => 'taufik',
                 'foto'           => 'default.png',
                 'role'           => 'dept',
                 'status_akun'    => 'aktif',
@@ -36,11 +50,24 @@ class UserSeeder extends Seeder
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ],
-            // Dept User
+            // // Dept User
             [
-                'username'       => 'dept2',
+                'username'       => 'dept ISO',
                 'password'       => password_hash('dept123', PASSWORD_DEFAULT),
-                'fullname'       => 'Petugas Departemen IT',
+                'fullname'       => 'Hednrik',
+                'foto'           => 'default.png',
+                'role'           => 'dept',
+                'status_akun'    => 'aktif',
+                'is_online'      => 0,
+                'last_active_at' => null,
+                'created_at'     => date('Y-m-d H:i:s'),
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ],
+            // // Dept User
+            [
+                'username'       => 'dept PROD',
+                'password'       => password_hash('dept123', PASSWORD_DEFAULT),
+                'fullname'       => 'Sulaiman',
                 'foto'           => 'default.png',
                 'role'           => 'dept',
                 'status_akun'    => 'aktif',

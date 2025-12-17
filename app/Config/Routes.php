@@ -43,7 +43,6 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
     $routes->get('show/(:num)', 'Iso00Controller::show/$1');
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
-    $routes->get('download/(:num)', 'Iso00Controller::downloadFile/$1');
 });
 
 /*
@@ -65,16 +64,33 @@ $routes->group('iso00/history', ['filter' => 'auth'], function ($routes) {
 |--------------------------------------------------------------------------
 */
 $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
+    // MASTER HOLDER
     $routes->get('/', 'IsoAccessController::index');
     $routes->get('create', 'IsoAccessController::create');
     $routes->post('store-holder', 'IsoAccessController::storeHolder');
+
+    // EDIT HOLDER (kode holder saja)
     $routes->get('edit/(:num)', 'IsoAccessController::edit/$1');
     $routes->post('update-holder/(:num)', 'IsoAccessController::updateHolder/$1');
+
+    // EDIT DOKUMEN HOLDER
+    $routes->get('edit-dokumen/(:num)', 'IsoAccessController::editDokumen/$1');
+    $routes->post('update-dokumen/(:num)', 'IsoAccessController::updateDokumen/$1');
+
+    // EDIT USERS HOLDER
+    $routes->get('edit-users/(:num)', 'IsoAccessController::editUsers/$1');
+    $routes->post('update-users/(:num)', 'IsoAccessController::updateUsers/$1');
+
+    // DETAIL & ASSIGNMENT
     $routes->get('detail/(:segment)', 'IsoAccessController::detail/$1');
     $routes->get('assign/(:segment)', 'IsoAccessController::assign/$1');
     $routes->post('store-assignment', 'IsoAccessController::storeAssignment');
+
+    // REMOVE / DELETE
     $routes->get('remove-user/(:num)', 'IsoAccessController::removeUser/$1');
     $routes->get('delete-holder/(:num)', 'IsoAccessController::deleteHolder/$1');
+
+    // Tambahan (search / helper)
     $routes->get('search', 'IsoAccessController::search');
     $routes->get('user-fullname/(:num)', 'IsoAccessController::getUserFullname/$1');
 });

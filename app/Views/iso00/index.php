@@ -28,9 +28,13 @@
                             <th class="ps-4 py-3 text-muted fw-semibold small" width="60">No</th>
                             <th class="py-3 text-muted fw-semibold small">Dokumen</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">File</th>
+                            <th class="py-3 text-muted fw-semibold small">Barcode</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Holder</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Hak Akses</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Uploader</th>
+                            <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Uploaded</th>
+                            <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Updated</th>
+                            <th class="py-3 text-muted fw-semibold small d-none d-lg-table-cell">Updated By</th>
                             <th class="py-3 text-muted fw-semibold small d-none d-md-table-cell" width="110">Status</th>
                             <th class="pe-4 py-3 text-center text-muted fw-semibold small" width="140">Aksi</th>
                         </tr>
@@ -84,6 +88,13 @@
                                 </div>
                             </td>
                             <td>
+                                <?php if ($doc['barcode']): ?>
+                                    <span class="badge bg-success fs-6">Sudah</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger fs-6">Belum</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <?php if ($doc['holder_code']): ?>
                                     <span class="badge bg-primary fs-6 px-2 py-1">
                                         <?= esc($doc['holder_code']) ?>
@@ -131,6 +142,59 @@
                                     </div>
                                 </div>
                             </td>
+                            <td class="d-none d-lg-table-cell">
+                                <?php if (!empty($doc['uploaded_at'])): ?>
+                                    <div class="fw-semibold">
+                                        <?= date('d/m/Y', strtotime($doc['uploaded_at'])) ?>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?= date('H:i', strtotime($doc['uploaded_at'])) ?>
+                                    </small>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="d-none d-lg-table-cell">
+                                <?php if (!empty($doc['updated_at'])): ?>
+                                    <div class="fw-semibold">
+                                        <?= date('d/m/Y', strtotime($doc['updated_at'])) ?>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?= date('H:i', strtotime($doc['updated_at'])) ?>
+                                    </small>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="d-none d-lg-table-cell">
+                                <?php
+                                    $hasUpdate = !empty($doc['updated_by']);
+                                    $name  = $hasUpdate
+                                        ? ($doc['updater_name'] ?? 'Unknown')
+                                        : ($doc['uploader_name'] ?? 'Unknown');
+
+                                    $role  = $hasUpdate
+                                        ? ($doc['updater_role'] ?? '-')
+                                        : ($doc['uploader_role'] ?? '-');
+                                ?>
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <div class="text-truncate fw-semibold" style="max-width: 120px;"
+                                            title="<?= esc($name) ?>">
+                                            <?= esc($name) ?>
+                                        </div>
+                                        <small class="text-muted">
+                                            <?= esc($role) ?>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <?php if (!$hasUpdate): ?>
+                                    <div class="text-muted small mt-1">
+                                        <i class="fas fa-info-circle me-1"></i>Belum diperbarui
+                                    </div>
+                                <?php endif; ?>
+                            </td>
                             <td class="d-none d-md-table-cell">
                                 <span class="badge rounded-pill fs-6 px-2 py-1 text-dark bg-<?= 
                                     $doc['status'] == 'approved' ? 'success' : 
@@ -160,13 +224,6 @@
                                         target="_blank" 
                                         title="Lihat PDF">
                                             <i class="fas fa-file-pdf"></i>
-                                        </a>
-
-                                        <!-- ⬇️ DOWNLOAD -->
-                                        <a href="/iso00/download/<?= $doc['id'] ?>" 
-                                        class="btn btn-outline-success" 
-                                        title="Download Dokumen">
-                                            <i class="fas fa-download"></i>
                                         </a>
                                     <?php endif; ?>
 

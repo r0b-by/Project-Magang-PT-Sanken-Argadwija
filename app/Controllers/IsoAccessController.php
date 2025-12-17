@@ -27,11 +27,32 @@ class IsoAccessController extends BaseController
      * INDEX - MASTER HOLDER
      * ===================================================== */
     public function index()
-    {
-        return view('access/index', [
-            'holders' => $this->holderModel->getAllHolders()
-        ]);
+{
+    $holders = $this->holderModel->getAllHolders();
+
+    // Ambil user untuk masing-masing holder
+    foreach ($holders as &$h) {
+        $users = $this->accessUserModel->getUsersByHolder($h['id']);
+        $h['users'] = $users; // tambahkan ke array holder
     }
+
+    return view('access/index', ['holders' => $holders]);
+}
+
+public function getUsersByHolder(int $holderId)
+{
+    return $this->select('
+            iso_access_users.id AS access_id,
+            users.id AS user_id,
+            users.fullname,
+            users.username
+        ')
+        ->join('users', 'users.id = iso_access_users.user_id')
+        ->where('iso_access_users.holder_id', $holderId)
+        ->orderBy('users.fullname', 'ASC')
+        ->findAll();
+}
+
 
     /* =====================================================
      * CREATE HOLDER
@@ -46,7 +67,7 @@ class IsoAccessController extends BaseController
         $holderCode = strtoupper(trim($this->request->getPost('holder_code')));
 
         if (!$holderCode) {
-            return redirect()->back()->with('error', 'Kode holder wajib diisi!');
+            return redirect()->back()->withInput()->with('error', 'Kode holder wajib diisi!');
         }
 
         if ($this->holderModel->getByHolderCode($holderCode)) {
@@ -57,7 +78,7 @@ class IsoAccessController extends BaseController
             'holder_code' => $holderCode
         ]);
 
-        return redirect()->to("/access/assign/{$holderCode}")
+        return redirect()->to("/access")
             ->with('success', 'Holder berhasil dibuat, silakan assign user & dokumen.');
     }
 
@@ -125,15 +146,12 @@ class IsoAccessController extends BaseController
             return redirect()->back()->with('error', 'Holder tidak valid!');
         }
 
-        // Validasi dokumen
         if ($dokumenId && $this->holderModel->isDokumenUsed($dokumenId, $holderId)) {
             return redirect()->back()->with('error', 'Dokumen sudah digunakan holder lain!');
         }
 
-        // Update dokumen holder
         $this->holderModel->update($holderId, ['dokumen_id' => $dokumenId ?: null]);
 
-        // Assign user tanpa duplikat
         foreach ($userIds as $userId) {
             $this->accessUserModel->assignUserToHolder($holderId, $userId);
         }
@@ -143,12 +161,55 @@ class IsoAccessController extends BaseController
     }
 
     /* =====================================================
-    * EDIT HOLDER
-    * ===================================================== */
+     * EDIT HOLDER (KODE HOLDER SAJA)
+     * ===================================================== */
     public function edit($holderId)
     {
         $holder = $this->holderModel->find($holderId);
 
+        if (!$holder) {
+            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
+        }
+
+        return view('access/edit', ['holder' => $holder]);
+    }
+
+    public function updateHolder($holderId)
+    {
+        $holder = $this->holderModel->find($holderId);
+        if (!$holder) {
+            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
+        }
+
+        $holderCode = strtoupper(trim($this->request->getPost('holder_code')));
+        if (!$holderCode) {
+            return redirect()->back()->withInput()->with('error', 'Kode holder wajib diisi!');
+        }
+
+        $existing = $this->holderModel
+            ->where('holder_code', $holderCode)
+            ->where('id !=', $holderId)
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()->withInput()->with('error', 'Kode holder sudah digunakan!');
+        }
+
+        $this->holderModel->update($holderId, [
+            'holder_code' => $holderCode,
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to("/access/detail/{$holderCode}")
+            ->with('success', 'Holder berhasil diperbarui.');
+    }
+
+    /* =====================================================
+     * EDIT DOKUMEN HOLDER
+     * ===================================================== */
+    public function editDokumen($holderId)
+    {
+        $holder = $this->holderModel->find($holderId);
         if (!$holder) {
             return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
         }
@@ -163,50 +224,81 @@ class IsoAccessController extends BaseController
             ->orderBy('iso_00.kode_dokumen', 'ASC')
             ->findAll();
 
-        return view('access/edit', [
+        return view('access/edit_dokumen', [
             'holder'  => $holder,
             'dokumen' => $dokumen
         ]);
     }
 
-    public function updateHolder($holderId)
+    public function updateDokumen($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-
         if (!$holder) {
-            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
+            return redirect()->back()->with('error', 'Holder tidak ditemukan!');
         }
 
-        $holderCode = strtoupper(trim($this->request->getPost('holder_code')));
-        $dokumenId  = $this->request->getPost('dokumen_id');
+        $dokumenId = $this->request->getPost('dokumen_id');
 
-        if (!$holderCode) {
-            return redirect()->back()->withInput()->with('error', 'Kode holder wajib diisi!');
-        }
-
-        // ❗ Cegah duplikat kode holder
-        $existing = $this->holderModel
-            ->where('holder_code', $holderCode)
-            ->where('id !=', $holderId)
-            ->first();
-
-        if ($existing) {
-            return redirect()->back()->withInput()->with('error', 'Kode holder sudah digunakan!');
-        }
-
-        // ❗ Cegah dokumen dipakai holder lain
         if ($dokumenId && $this->holderModel->isDokumenUsed($dokumenId, $holderId)) {
             return redirect()->back()->with('error', 'Dokumen sudah digunakan holder lain!');
         }
 
         $this->holderModel->update($holderId, [
-            'holder_code' => $holderCode,
-            'dokumen_id'  => $dokumenId ?: null,
-            'updated_at'  => date('Y-m-d H:i:s'),
+            'dokumen_id' => $dokumenId ?: null,
+            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        return redirect()->to("/access/detail/{$holderCode}")
-            ->with('success', 'Holder berhasil diperbarui.');
+        return redirect()->to("/access/detail/{$holder['holder_code']}")
+            ->with('success', 'Dokumen holder berhasil diperbarui.');
+    }
+
+    /* =====================================================
+     * EDIT USER HOLDER
+     * ===================================================== */
+    public function editUsers($holderId)
+    {
+        $holder = $this->holderModel->find($holderId);
+        if (!$holder) {
+            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
+        }
+
+        // Ambil hanya user dengan role 'dept' dan status aktif
+        $users = $this->userModel
+            ->where('status_akun', 'aktif')
+            ->where('role', 'dept')
+            ->orderBy('fullname', 'ASC')
+            ->findAll();
+
+        $assignedUsers = $this->accessUserModel
+            ->where('holder_id', $holderId)
+            ->findAll();
+
+        return view('access/edit_users', [
+            'holder'        => $holder,
+            'users'         => $users,
+            'assignedUsers' => $assignedUsers,
+        ]);
+    }
+
+    public function updateUsers($holderId)
+    {
+        $holder = $this->holderModel->find($holderId);
+        if (!$holder) {
+            return redirect()->back()->with('error', 'Holder tidak ditemukan!');
+        }
+
+        $userIds = $this->request->getPost('user_ids') ?? [];
+
+        // Hapus semua user sebelumnya
+        $this->accessUserModel->where('holder_id', $holderId)->delete();
+
+        // Assign user baru
+        foreach ($userIds as $userId) {
+            $this->accessUserModel->assignUserToHolder($holderId, $userId);
+        }
+
+        return redirect()->to("/access/detail/{$holder['holder_code']}")
+            ->with('success', 'User holder berhasil diperbarui.');
     }
 
     /* =====================================================
@@ -215,7 +307,6 @@ class IsoAccessController extends BaseController
     public function detail($holderCode)
     {
         $holder = $this->holderModel->getByHolderCode($holderCode);
-
         if (!$holder) {
             return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
         }
