@@ -238,12 +238,15 @@ class IsoAccessController extends BaseController
             ->orderBy('iso_00.kode_dokumen', 'ASC')
             ->findAll();
 
+        // Ambil semua holder (untuk menampilkan kode holder lain)
+        $all_holders = $this->holderModel->findAll();
+
         return view('access/edit_dokumen', [
-            'holder'  => $holder,
-            'dokumen' => $dokumen
+            'holder'      => $holder,
+            'dokumen'     => $dokumen,
+            'all_holders' => $all_holders, // 🔹 kirim ke view
         ]);
     }
-
 
     public function updateDokumen($holderId)
     {

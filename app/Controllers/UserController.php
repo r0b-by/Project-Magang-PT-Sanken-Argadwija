@@ -44,9 +44,7 @@ class UserController extends BaseController
             'role'         => 'required|in_list[admin,dept]',
             'status_akun'  => 'required|in_list[aktif,nonaktif]',
             'nomor_holder' => 'permit_empty',
-
             'foto' => [
-                'uploaded[foto]',
                 'mime_in[foto,image/jpg,image/jpeg,image/png]',
                 'max_size[foto,2048]'
             ]
@@ -60,23 +58,23 @@ class UserController extends BaseController
 
         // Upload Foto (optional)
         $file = $this->request->getFile('foto');
-        $fotoName = null;
+        $fotoName = 'default-avatar.png'; // default avatar
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $fotoName = $file->getRandomName();
             $file->move('uploads/foto_user/', $fotoName);
         }
 
         $this->user->save([
-            'username'     => $this->request->getPost('username'),
-            'password'     => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-            'fullname'     => $this->request->getPost('fullname'),
-            'nomor_holder' => $this->request->getPost('nomor_holder'),
-            'role'         => $this->request->getPost('role'),
-            'status_akun'  => $this->request->getPost('status_akun'),
-            'foto'         => $fotoName,
-            'is_online'    => 0,
+            'username'       => $this->request->getPost('username'),
+            'password'       => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'fullname'       => $this->request->getPost('fullname'),
+            'nomor_holder'   => $this->request->getPost('nomor_holder'),
+            'role'           => $this->request->getPost('role'),
+            'status_akun'    => $this->request->getPost('status_akun'),
+            'foto'           => $fotoName,
+            'is_online'      => 0,
             'last_active_at' => null,
-            'created_at'   => date('Y-m-d H:i:s'),
+            'created_at'     => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()->to('/users')->with('success', 'User berhasil ditambahkan!');
@@ -151,11 +149,17 @@ class UserController extends BaseController
             $fotoName = $file->getRandomName();
             $file->move('uploads/foto_user/', $fotoName);
 
-            if ($dbUser['foto'] && file_exists('uploads/foto_user/' . $dbUser['foto'])) {
+            // Hapus foto lama jika bukan default
+            if ($dbUser['foto'] && $dbUser['foto'] !== 'default-avatar.png' && file_exists('uploads/foto_user/' . $dbUser['foto'])) {
                 unlink('uploads/foto_user/' . $dbUser['foto']);
             }
 
             $dataUpdate['foto'] = $fotoName;
+        } else {
+            // Jika tidak ada foto lama, set default avatar
+            if (empty($dbUser['foto'])) {
+                $dataUpdate['foto'] = 'default-avatar.png';
+            }
         }
 
         $this->user->update($id, $dataUpdate);
@@ -171,7 +175,7 @@ class UserController extends BaseController
         $user = $this->user->find($id);
 
         if ($user) {
-            if ($user['foto'] && file_exists('uploads/foto_user/' . $user['foto'])) {
+            if ($user['foto'] && $user['foto'] !== 'default-avatar.png' && file_exists('uploads/foto_user/' . $user['foto'])) {
                 unlink('uploads/foto_user/' . $user['foto']);
             }
 
