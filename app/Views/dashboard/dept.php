@@ -81,50 +81,35 @@
                                 <th width="50" class="ps-3">#</th>
                                 <th>Kode Dokumen</th>
                                 <th class="d-none d-sm-table-cell">Status</th>
-                                <th width="100" class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $no = 1; ?>
-                            <?php foreach ($dokumen_saya as $doc): ?>
-                                <?php $status = $doc['status'] ?? 'pending'; ?>
-                                <tr>
-                                    <td class="ps-3"><?= $no++ ?></td>
-                                    <td>
-                                        <div>
-                                            <i class="fas fa-file-pdf text-danger me-1"></i>
-                                            <?= $doc['kode_dokumen'] ?? '-' ?>
-                                        </div>
-                                        <div class="text-muted small d-block d-sm-none">
-                                            <?= $doc['departement'] ?? '-' ?>
-                                            <span class="mx-1">•</span>
-                                            <span class="badge bg-<?= 
-                                                $status == 'approved' ? 'success' : 
-                                                ($status == 'pending' ? 'warning' : 'info') ?>">
-                                                <?= $status == 'approved' ? '✓' : 
-                                                   ($status == 'pending' ? '⏳' : '📄') ?>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="d-none d-sm-table-cell">
-                                        <span class="badge bg-<?= 
-                                            $status == 'approved' ? 'success' : 
-                                            ($status == 'pending' ? 'warning' : 'info') ?>">
-                                            <?= ucfirst($status) ?>
+                        <?php $no = 1; ?>
+                        <?php foreach ($dokumen_saya as $doc): ?>
+                            <?php $status = $doc['status'] ?? 'pending'; ?>
+                            <tr>
+                                <td class="ps-3"><?= $no++ ?></td>
+                                <td>
+                                    <div class="fw-semibold fs-6">
+                                        <i class="fas fa-file-pdf text-danger me-1"></i>
+                                        <?= $doc['kode_dokumen'] ?? '-' ?>
+                                    </div>
+                                    <div class="text-muted fs-6 px-2 py-1 d-block d-sm-none">
+                                        <?= $doc['departement'] ?? '-' ?>
+                                        <span class="mx-1">•</span>
+                                        <span class="badge <?= $status == 'approved' ? 'bg-success fs-6' : 'bg-warning fs-6' ?> py-2 px-2">
+                                            <?= $status == 'approved' ? 'Barcode sudah tersedia' : 'Barcode belum di-generate' ?>
                                         </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="/scan/detail/<?= $doc['dokumen_id'] ?? 0 ?>" 
-                                               class="btn btn-outline-info"
-                                               title="Detail">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
+                                    </div>
+                                </td>
+                                <td class="d-none d-xl-table-cell">
+                                    <span class="badge <?= $status == 'approved' ? 'bg-success fs-6' : 'bg-warning fs-6' ?> py-2 px-2">
+                                        <?= $status == 'approved' ? 'Barcode sudah tersedia' : 'Barcode belum di-generate' ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
                     </table>
                 </div>
             <?php endif; ?>

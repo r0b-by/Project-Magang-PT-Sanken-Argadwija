@@ -132,11 +132,11 @@ class CreateIso00Table extends Migration
         $this->forge->addForeignKey('uploaded_by', 'users', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('updated_by', 'users', 'id', 'SET NULL', 'CASCADE');
 
-        $this->forge->createTable('iso_00');
+        $this->forge->createTable('iso_00', true, ['ENGINE' => 'InnoDB']);
     }
 
     public function down()
     {
-        $this->forge->dropTable('iso_00');
+        $this->forge->dropTable('iso_00', true);
     }
 }

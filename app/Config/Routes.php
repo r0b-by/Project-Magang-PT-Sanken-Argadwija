@@ -64,6 +64,7 @@ $routes->group('iso00/history', ['filter' => 'auth'], function ($routes) {
 |--------------------------------------------------------------------------
 */
 $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
+
     // MASTER HOLDER
     $routes->get('/', 'IsoAccessController::index');
     $routes->get('create', 'IsoAccessController::create');

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Database\Migrations;
 
@@ -17,15 +17,7 @@ class CreateIsoAccessHoldersTable extends Migration
             'holder_code' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 10,
-                'null'       => false,
-                'unique'     => true, // UNIQUE otomatis buat index
-                'comment'    => 'Kode holder, contoh: 1A, 2B',
-            ],
-            'dokumen_id' => [
-                'type'     => 'INT',
-                'unsigned' => true,
-                'null'     => true,
-                'comment'  => 'Relasi ke tabel iso_00',
+                'unique'     => true,
             ],
             'created_at' => [
                 'type' => 'DATETIME',
@@ -37,20 +29,7 @@ class CreateIsoAccessHoldersTable extends Migration
             ],
         ]);
 
-        // Primary key
         $this->forge->addKey('id', true);
-
-        // Index tambahan
-        $this->forge->addKey('dokumen_id');
-
-        // Foreign key
-        $this->forge->addForeignKey(
-            'dokumen_id',
-            'iso_00',
-            'id',
-            'SET NULL',
-            'CASCADE'
-        );
 
         $this->forge->createTable('iso_access_holders', true);
     }

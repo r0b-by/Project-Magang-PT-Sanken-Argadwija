@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\IsoAccessHolderModel;
 use App\Models\IsoAccessUserModel;
+use App\Models\IsoAccessDocumentModel;
 use App\Models\UserModel;
 use App\Models\Iso00Model;
 
@@ -21,38 +22,23 @@ class IsoAccessController extends BaseController
         $this->accessUserModel = new IsoAccessUserModel();
         $this->userModel       = new UserModel();
         $this->dokumenModel    = new Iso00Model();
+        $this->accessDocModel  = new IsoAccessDocumentModel();
     }
 
     /* =====================================================
      * INDEX - MASTER HOLDER
      * ===================================================== */
     public function index()
-{
-    $holders = $this->holderModel->getAllHolders();
+    {
+        $holders = $this->holderModel->getAllHolders();
 
-    // Ambil user untuk masing-masing holder
-    foreach ($holders as &$h) {
-        $users = $this->accessUserModel->getUsersByHolder($h['id']);
-        $h['users'] = $users; // tambahkan ke array holder
+        foreach ($holders as &$h) {
+            $users = $this->accessUserModel->getUsersByHolder($h['id']);
+            $h['users'] = $users;
+        }
+
+        return view('access/index', ['holders' => $holders]);
     }
-
-    return view('access/index', ['holders' => $holders]);
-}
-
-public function getUsersByHolder(int $holderId)
-{
-    return $this->select('
-            iso_access_users.id AS access_id,
-            users.id AS user_id,
-            users.fullname,
-            users.username
-        ')
-        ->join('users', 'users.id = iso_access_users.user_id')
-        ->where('iso_access_users.holder_id', $holderId)
-        ->orderBy('users.fullname', 'ASC')
-        ->findAll();
-}
-
 
     /* =====================================================
      * CREATE HOLDER
@@ -85,39 +71,19 @@ public function getUsersByHolder(int $holderId)
     /* =====================================================
      * ASSIGN USER & DOKUMEN
      * ===================================================== */
-    private function checkAccess($docId)
-    {
-        $role   = session()->get('role');
-        $userId = session()->get('user_id');
-
-        if ($role === 'admin') return true;
-
-        $access = $this->accessUserModel
-            ->select('iso_access_users.id')
-            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
-            ->where('iso_access_users.user_id', $userId)
-            ->where('iso_access_holders.dokumen_id', $docId)
-            ->first();
-
-        return $access ? true : false;
-    }
-
     public function assign($holderCode)
     {
-        $holder = $this->holderModel->where('holder_code', $holderCode)->first();
-
-        if (!$holder) {
-            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan');
-        }
+        $holder = $this->holderModel->getByHolderCode($holderCode);
+        if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan');
 
         $assignedUsers = $this->accessUserModel->where('holder_id', $holder['id'])->findAll();
 
         $dokumen = $this->dokumenModel
             ->select('iso_00.*')
-            ->join('iso_access_holders', 'iso_access_holders.dokumen_id = iso_00.id', 'left')
+            ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
             ->groupStart()
-                ->where('iso_access_holders.dokumen_id IS NULL')
-                ->orWhere('iso_access_holders.id', $holder['id'])
+                ->where('iso_access_documents.holder_id IS NULL')
+                ->orWhere('iso_access_documents.holder_id', $holder['id'])
             ->groupEnd()
             ->orderBy('iso_00.kode_dokumen', 'ASC')
             ->findAll();
@@ -138,38 +104,57 @@ public function getUsersByHolder(int $holderId)
     public function storeAssignment()
     {
         $holderId  = $this->request->getPost('holder_id');
-        $dokumenId = $this->request->getPost('dokumen_id');
+        $dokumenId = $this->request->getPost('dokumen_id') ?? [];
         $userIds   = $this->request->getPost('user_ids') ?? [];
 
-        $holder = $this->holderModel->find($holderId);
-        if (!$holder) {
+        if (!$this->holderModel->find($holderId)) {
             return redirect()->back()->with('error', 'Holder tidak valid!');
         }
 
-        if ($dokumenId && $this->holderModel->isDokumenUsed($dokumenId, $holderId)) {
-            return redirect()->back()->with('error', 'Dokumen sudah digunakan holder lain!');
+        /* ===========================
+        * DOKUMEN
+        * =========================== */
+        $this->accessDocModel
+            ->where('holder_id', $holderId)
+            ->delete();
+
+        if (!empty($dokumenId)) {
+            $data = [];
+            foreach ($dokumenId as $dId) {
+                $data[] = [
+                    'holder_id' => $holderId,
+                    'iso00_id'  => $dId,
+                ];
+            }
+
+            $this->accessDocModel->insertBatch($data);
         }
 
-        $this->holderModel->update($holderId, ['dokumen_id' => $dokumenId ?: null]);
+        /* ===========================
+        * USERS
+        * =========================== */
+        $this->accessUserModel
+            ->where('holder_id', $holderId)
+            ->delete();
 
         foreach ($userIds as $userId) {
-            $this->accessUserModel->assignUserToHolder($holderId, $userId);
+            if ($this->userModel->find($userId)) {
+                $this->accessUserModel->assignUserToHolder($holderId, $userId);
+            }
         }
 
-        return redirect()->to("/access/detail/{$holder['holder_code']}")
+        return redirect()->back()
             ->with('success', 'Hak akses berhasil diperbarui.');
     }
 
+
     /* =====================================================
-     * EDIT HOLDER (KODE HOLDER SAJA)
+     * EDIT HOLDER (kode holder saja)
      * ===================================================== */
     public function edit($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-
-        if (!$holder) {
-            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
-        }
+        if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
 
         return view('access/edit', ['holder' => $holder]);
     }
@@ -177,23 +162,17 @@ public function getUsersByHolder(int $holderId)
     public function updateHolder($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-        if (!$holder) {
-            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
-        }
+        if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
 
         $holderCode = strtoupper(trim($this->request->getPost('holder_code')));
-        if (!$holderCode) {
-            return redirect()->back()->withInput()->with('error', 'Kode holder wajib diisi!');
-        }
+        if (!$holderCode) return redirect()->back()->withInput()->with('error', 'Kode holder wajib diisi!');
 
         $existing = $this->holderModel
             ->where('holder_code', $holderCode)
             ->where('id !=', $holderId)
             ->first();
 
-        if ($existing) {
-            return redirect()->back()->withInput()->with('error', 'Kode holder sudah digunakan!');
-        }
+        if ($existing) return redirect()->back()->withInput()->with('error', 'Kode holder sudah digunakan!');
 
         $this->holderModel->update($holderId, [
             'holder_code' => $holderCode,
@@ -202,6 +181,21 @@ public function getUsersByHolder(int $holderId)
 
         return redirect()->to("/access/detail/{$holderCode}")
             ->with('success', 'Holder berhasil diperbarui.');
+    }
+
+    /* =====================================================
+     * DETAIL HOLDER
+     * ===================================================== */
+    public function detail($holderCode)
+    {
+        $holder = $this->holderModel->getByHolderCode($holderCode);
+        if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
+
+        return view('access/detail', [
+            'holder'  => $holder,
+            'users'   => $this->accessUserModel->getUsersByHolder($holder['id']),
+            'dokumen' => $this->holderModel->getDokumenByHolder($holder['id'])
+        ]);
     }
 
     /* =====================================================
@@ -214,13 +208,10 @@ public function getUsersByHolder(int $holderId)
             return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
         }
 
+        // Ambil semua dokumen + informasi holder yang sudah assign
         $dokumen = $this->dokumenModel
-            ->select('iso_00.*')
-            ->join('iso_access_holders', 'iso_access_holders.dokumen_id = iso_00.id', 'left')
-            ->groupStart()
-                ->where('iso_access_holders.dokumen_id IS NULL')
-                ->orWhere('iso_access_holders.id', $holderId)
-            ->groupEnd()
+            ->select('iso_00.*, iso_access_documents.holder_id AS assigned_holder_id')
+            ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
             ->orderBy('iso_00.kode_dokumen', 'ASC')
             ->findAll();
 
@@ -230,39 +221,40 @@ public function getUsersByHolder(int $holderId)
         ]);
     }
 
+
     public function updateDokumen($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-        if (!$holder) {
-            return redirect()->back()->with('error', 'Holder tidak ditemukan!');
-        }
+        if (!$holder) return redirect()->back()->with('error', 'Holder tidak ditemukan!');
 
         $dokumenId = $this->request->getPost('dokumen_id');
 
-        if ($dokumenId && $this->holderModel->isDokumenUsed($dokumenId, $holderId)) {
-            return redirect()->back()->with('error', 'Dokumen sudah digunakan holder lain!');
-        }
+        // Hapus dokumen lama
+        $this->accessUserModel->db->table('iso_access_documents')->where('holder_id', $holderId)->delete();
 
-        $this->holderModel->update($holderId, [
-            'dokumen_id' => $dokumenId ?: null,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        // Assign dokumen baru
+        if ($dokumenId) {
+            foreach ((array)$dokumenId as $dId) {
+                $this->accessUserModel->db->table('iso_access_documents')->insert([
+                    'holder_id' => $holderId,
+                    'iso00_id'  => $dId,
+                    'created_at'=> date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
 
         return redirect()->to("/access/detail/{$holder['holder_code']}")
             ->with('success', 'Dokumen holder berhasil diperbarui.');
     }
 
     /* =====================================================
-     * EDIT USER HOLDER
+     * EDIT USERS HOLDER
      * ===================================================== */
     public function editUsers($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-        if (!$holder) {
-            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
-        }
+        if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
 
-        // Ambil hanya user dengan role 'dept' dan status aktif
         $users = $this->userModel
             ->where('status_akun', 'aktif')
             ->where('role', 'dept')
@@ -283,13 +275,11 @@ public function getUsersByHolder(int $holderId)
     public function updateUsers($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-        if (!$holder) {
-            return redirect()->back()->with('error', 'Holder tidak ditemukan!');
-        }
+        if (!$holder) return redirect()->back()->with('error', 'Holder tidak ditemukan!');
 
         $userIds = $this->request->getPost('user_ids') ?? [];
 
-        // Hapus semua user sebelumnya
+        // Hapus user lama
         $this->accessUserModel->where('holder_id', $holderId)->delete();
 
         // Assign user baru
@@ -299,22 +289,6 @@ public function getUsersByHolder(int $holderId)
 
         return redirect()->to("/access/detail/{$holder['holder_code']}")
             ->with('success', 'User holder berhasil diperbarui.');
-    }
-
-    /* =====================================================
-     * DETAIL HOLDER
-     * ===================================================== */
-    public function detail($holderCode)
-    {
-        $holder = $this->holderModel->getByHolderCode($holderCode);
-        if (!$holder) {
-            return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
-        }
-
-        return view('access/detail', [
-            'holder' => $holder,
-            'users'  => $this->accessUserModel->getUsersByHolder($holder['id'])
-        ]);
     }
 
     /* =====================================================

@@ -18,9 +18,9 @@ class IsoAccessUserModel extends Model
 
     protected $useTimestamps = true;
 
-    /**
-     * Ambil dokumen user via join dengan iso_access_holders & iso_00
-     */
+    /* =====================================================
+     * AMBIL DOKUMEN YANG BISA DIAKSES USER
+     * ===================================================== */
     public function getDocumentsByUser(int $userId)
     {
         return $this->select('
@@ -30,37 +30,39 @@ class IsoAccessUserModel extends Model
                 iso_access_holders.holder_code
             ')
             ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
-            ->join('iso_00', 'iso_00.id = iso_access_holders.dokumen_id', 'left')
+            ->join('iso_access_documents', 'iso_access_documents.holder_id = iso_access_holders.id')
+            ->join('iso_00', 'iso_00.id = iso_access_documents.iso00_id')
             ->where('iso_access_users.user_id', $userId)
-            ->orderBy('iso_00.id', 'DESC')
+            ->groupBy('iso_00.id')
+            ->orderBy('iso_00.kode_dokumen', 'ASC')
             ->findAll();
     }
 
-    /**
-     * Cek apakah user punya akses ke dokumen tertentu
-     */
+    /* =====================================================
+     * CEK APAKAH USER PUNYA AKSES KE DOKUMEN
+     * ===================================================== */
     public function userHasAccessToDocument(int $userId, int $dokumenId): bool
     {
-        $access = $this->select('iso_access_users.id')
-            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
+        return $this->join(
+                'iso_access_documents',
+                'iso_access_documents.holder_id = iso_access_users.holder_id'
+            )
             ->where('iso_access_users.user_id', $userId)
-            ->where('iso_access_holders.dokumen_id', $dokumenId)
-            ->first();
-
-        return $access ? true : false;
+            ->where('iso_access_documents.iso00_id', $dokumenId)
+            ->countAllResults() > 0;
     }
 
-    /**
-     * Alias supaya bisa dipanggil dengan nama userHasAccess
-     */
+    /* =====================================================
+     * ALIAS
+     * ===================================================== */
     public function userHasAccess(int $userId, int $dokumenId): bool
     {
         return $this->userHasAccessToDocument($userId, $dokumenId);
     }
 
-    /**
-     * Ambil user berdasarkan holder (untuk detail holder)
-     */
+    /* =====================================================
+     * AMBIL USER DALAM HOLDER
+     * ===================================================== */
     public function getUsersByHolder(int $holderId)
     {
         return $this->select('
@@ -75,19 +77,18 @@ class IsoAccessUserModel extends Model
             ->findAll();
     }
 
-    /**
-     * Assign user ke holder tanpa duplikat
-     */
+    /* =====================================================
+     * ASSIGN USER KE HOLDER (ANTI DUPLIKAT)
+     * ===================================================== */
     public function assignUserToHolder(int $holderId, int $userId)
     {
         if (!$this->where('holder_id', $holderId)->where('user_id', $userId)->first()) {
             return $this->insert([
                 'holder_id' => $holderId,
-                'user_id'   => $userId
+                'user_id'   => $userId,
             ]);
         }
 
-        // Sudah ada akses, tidak perlu insert
         return false;
     }
 }

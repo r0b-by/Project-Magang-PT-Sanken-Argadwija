@@ -7,7 +7,10 @@ class Iso00Model extends Model
     protected $table      = 'iso_00';
     protected $primaryKey = 'id';
     protected $returnType = 'array';
-    protected $useTimestamps = false; // karena sudah ada uploaded_at & updated_at manual
+
+    // uploaded_at & updated_at manual
+    protected $useTimestamps = false;
+
     protected $allowedFields = [
         'kode_dokumen',
         'nama_dokumen_internal',
@@ -27,42 +30,97 @@ class Iso00Model extends Model
         'uploaded_at',
         'updated_by',
         'updated_at',
-        'barcode'
+        'barcode',
     ];
 
-    // --- RELASI ---
+    /* =======================
+     |        RELASI
+     ======================= */
+
     public function revisions()
     {
-        return $this->hasMany(Iso001Model::class, 'iso00_id', 'id');
+        return $this->hasMany(\App\Models\Iso001Model::class, 'iso00_id', 'id');
     }
 
     public function uploader()
     {
-        return $this->belongsTo(UserModel::class, 'uploaded_by', 'id');
+        return $this->belongsTo(\App\Models\UserModel::class, 'uploaded_by', 'id');
     }
 
     public function updater()
     {
-        return $this->belongsTo(UserModel::class, 'updated_by', 'id');
+        return $this->belongsTo(\App\Models\UserModel::class, 'updated_by', 'id');
     }
 
-    // --- LOGIKA BISNIS ---
+    /* =======================
+     |     QUERY SIAP PAKAI
+     ======================= */
+
+    /**
+     * Semua dokumen + holder (via pivot)
+     */
+    public function getWithHolder()
+    {
+        return $this->select([
+                'iso_00.*',
+                'iso_access_holders.id AS holder_id',
+                'iso_access_holders.holder_code AS holder_code'
+            ])
+            ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
+            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id', 'left')
+            ->groupBy('iso_00.id') // pastikan satu dokumen tampil sekali
+            ->orderBy('iso_00.kode_dokumen', 'ASC')
+            ->findAll();
+    }
+
+    /**
+     * Satu dokumen + holder
+     */
+    public function getByIdWithHolder(int $id)
+    {
+        return $this->select([
+                'iso_00.*',
+                'iso_access_holders.id AS holder_id',
+                'iso_access_holders.holder_code AS holder_code'
+            ])
+            ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
+            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id', 'left')
+            ->where('iso_00.id', $id)
+            ->first();
+    }
+
+    /**
+     * Dokumen yang boleh diakses user
+     */
+    public function getAccessibleByUser(int $userId)
+    {
+        return $this->select(['iso_00.*'])
+            ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id')
+            ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_documents.holder_id')
+            ->where('iso_access_users.user_id', $userId)
+            ->groupBy('iso_00.id')
+            ->orderBy('iso_00.kode_dokumen', 'ASC')
+            ->findAll();
+    }
+
+    /* =======================
+     |     LOGIKA BISNIS
+     ======================= */
+
     public function addDocument(array $data)
     {
-        // Tambahkan dokumen baru
         return $this->insert($data);
     }
 
     public function updateDocument(int $id, array $data)
     {
-        // Update metadata / file master
         return $this->update($id, $data);
     }
 
-    public function getLatestRevision(int $id)
+    public function getLatestRevision(int $iso00Id)
     {
         return model('Iso001Model')
-            ->where('iso00_id', $id)
+            ->where('iso00_id', $iso00Id)
             ->orderBy('id', 'DESC')
             ->first();
     }

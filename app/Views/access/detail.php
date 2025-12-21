@@ -4,11 +4,22 @@
 <div class="container-fluid">
     <h4 class="mb-3">Detail Holder: <?= esc($holder['holder_code']) ?></h4>
 
-    <p>
+    <div class="mb-3">
         <strong>Dokumen:</strong>
-        <?= esc($holder['kode_dokumen'] ?? '-') ?> -
-        <?= esc($holder['nama_dokumen_internal'] ?? '-') ?>
-    </p>
+
+        <?php if (!empty($dokumen)): ?>
+            <ul class="mt-2">
+                <?php foreach ($dokumen as $d): ?>
+                    <li>
+                        <?= esc($d['kode_dokumen']) ?> -
+                        <?= esc($d['nama_dokumen_internal']) ?>
+                    </li>
+                <?php endforeach ?>
+            </ul>
+        <?php else: ?>
+            <p class="text-muted mt-2">Belum ada dokumen yang di-assign</p>
+        <?php endif ?>
+    </div>
 
     <table class="table table-bordered">
         <thead class="table-light">

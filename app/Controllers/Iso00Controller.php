@@ -49,14 +49,14 @@ class Iso00Controller extends BaseController
 
         if ($role === 'admin') return true;
 
-        $access = $this->accessUser
-            ->select('iso_access_users.id')
-            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_users.holder_id')
+        return $this->accessUser
+            ->join(
+                'iso_access_documents',
+                'iso_access_documents.holder_id = iso_access_users.holder_id'
+            )
             ->where('iso_access_users.user_id', $userId)
-            ->where('iso_access_holders.dokumen_id', $docId)
-            ->first();
-
-        return $access ? true : false;
+            ->where('iso_access_documents.iso00_id', $docId)
+            ->countAllResults() > 0;
     }
 
     private function sanitizeFileName(string $filename): string
@@ -124,24 +124,24 @@ class Iso00Controller extends BaseController
         * =======================================================*/
         else {
 
-            $allowedDocs = $this->accessUser
-                ->select('iso_access_holders.dokumen_id')
-                ->join(
-                    'iso_access_holders',
-                    'iso_access_holders.id = iso_access_users.holder_id'
-                )
-                ->where('iso_access_users.user_id', $userId)
+        $allowedDocs = $this->accessUser
+            ->select('iso_access_documents.iso00_id')
+            ->join(
+                'iso_access_documents',
+                'iso_access_documents.holder_id = iso_access_users.holder_id'
+            )
+            ->where('iso_access_users.user_id', $userId)
+            ->findAll();
+
+        $docIds = array_column($allowedDocs, 'iso00_id');
+
+        $dokumen = empty($docIds)
+            ? []
+            : $baseQuery
+                ->whereIn('iso_00.id', $docIds)
+                ->orderBy('iso_00.id', 'DESC')
                 ->findAll();
-
-            $docIds = array_column($allowedDocs, 'dokumen_id');
-
-            $dokumen = empty($docIds)
-                ? []
-                : $baseQuery
-                    ->whereIn('iso_00.id', $docIds)
-                    ->orderBy('iso_00.id', 'DESC')
-                    ->findAll();
-        }
+    }
 
         /* =========================================================
         * TAMBAHKAN HOLDER & USER KE TIAP DOKUMEN
@@ -166,7 +166,7 @@ class Iso00Controller extends BaseController
     }
 
     // ============================================================
-    // CREATE & STORE DOKUMEN MASTER
+    // CREATE & STORE DOKUMEN MASTERa
     // ============================================================
     public function create()
     {
