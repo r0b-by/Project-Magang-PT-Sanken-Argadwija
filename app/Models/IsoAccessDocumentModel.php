@@ -15,59 +15,69 @@ class IsoAccessDocumentModel extends Model
         'created_at',
     ];
 
-    protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = null;
+    protected $useTimestamps = false;
+    protected $createdField = 'created_at';
+    protected $updatedField = null;
 
-    /* ===============================
+    /* =====================================
      * AMBIL DOKUMEN BERDASARKAN HOLDER
-     * =============================== */
-    public function getDokumenByHolder(int $holderId): array
+     * (PASTI SATU DATA)
+     * ===================================== */
+    public function getDokumenByHolder(int $holderId): ?array
     {
-        return $this->db->table('iso_access_documents AS iad')
-            ->select([
-                'i.id AS iso00_id',
-                'i.kode_dokumen',
-                'i.nama_dokumen_internal'
+        return $this->select([
+                'iso_00.id AS iso00_id',
+                'iso_00.kode_dokumen',
+                'iso_00.nama_dokumen_internal'
             ])
-            ->join('iso_00 AS i', 'i.id = iad.iso00_id')
-            ->where('iad.holder_id', $holderId)
-            ->orderBy('i.kode_dokumen', 'ASC')
-            ->get()
-            ->getResultArray();
+            ->join('iso_00', 'iso_00.id = iso_access_documents.iso00_id')
+            ->where('iso_access_documents.holder_id', $holderId)
+            ->first();
     }
 
-    /* ===============================
-     * AMBIL HOLDER DARI DOKUMEN
-     * =============================== */
-    public function getHolderByDokumen(int $iso00Id)
+    /* =====================================
+     * AMBIL HOLDER BERDASARKAN DOKUMEN
+     * ===================================== */
+    public function getHolderByDokumen(int $iso00Id): ?array
     {
         return $this->where('iso00_id', $iso00Id)->first();
     }
 
-    /* ===============================
-     * ASSIGN DOKUMEN KE HOLDER
-     * =============================== */
-    public function assignDocumentsToHolder(int $holderId, array $dokumenIds): bool
+    /* =====================================
+     * ASSIGN 1 DOKUMEN KE 1 HOLDER
+     * (REPLACE, AMAN UNIQUE)
+     * ===================================== */
+    public function assignDocumentToHolder(int $holderId, int $iso00Id): bool
     {
         $this->db->transStart();
 
-        // hapus lama
+        // hapus relasi lama (1 holder = 1 dokumen)
         $this->where('holder_id', $holderId)->delete();
 
-        if (!empty($dokumenIds)) {
-            $data = [];
-            foreach ($dokumenIds as $dokId) {
-                $data[] = [
-                    'holder_id' => $holderId,
-                    'iso00_id'  => $dokId,
-                ];
-            }
-            $this->insertBatch($data);
-        }
+        // insert baru
+        $this->insert([
+            'holder_id' => $holderId,
+            'iso00_id'  => $iso00Id,
+        ]);
 
         $this->db->transComplete();
 
         return $this->db->transStatus();
+    }
+
+    /* =====================================
+     * VALIDASI: CEK HOLDER SUDAH DIPAKAI?
+     * ===================================== */
+    public function holderAlreadyUsed(int $holderId): bool
+    {
+        return $this->where('holder_id', $holderId)->countAllResults() > 0;
+    }
+
+    /* =====================================
+     * VALIDASI: CEK DOKUMEN SUDAH ADA HOLDER?
+     * ===================================== */
+    public function dokumenAlreadyHasHolder(int $iso00Id): bool
+    {
+        return $this->where('iso00_id', $iso00Id)->countAllResults() > 0;
     }
 }

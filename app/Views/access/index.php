@@ -24,8 +24,8 @@
                         <tr>
                             <th class="ps-4 py-3 text-muted fw-semibold small" width="60">No</th>
                             <th class="py-3 text-muted fw-semibold small">Holder</th>
-                            <th class="py-3 text-muted fw-semibold small text-center">Total Dokumen</th>
-                            <th class="py-3 text-muted fw-semibold small text-center">Total User</th>
+                            <th class="py-3 text-muted fw-semibold small">Dokumen</th>
+                            <th class="py-3 text-muted fw-semibold small">Pengguna</th>
                             <th class="pe-4 py-3 text-center text-muted fw-semibold small" width="240">Aksi</th>
                         </tr>
                     </thead>
@@ -53,16 +53,29 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <span class="badge bg-info fs-6 px-3 py-2">
-                                            <?= (int) $h['total_dokumen'] ?>
-                                        </span>
-                                    </td>
+                                        <?php if (!empty($h['dokumen_list'])): ?>
+                                            <ul class="list-unstyled mb-0 small">
+                                                <?php foreach ($h['dokumen_list'] as $doc): ?>
+                                                    <li><i class="fas fa-file-alt text-danger me-1"></i> <?= esc($doc) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <span class="text-muted small">Belum ada</span>
+                                        <?php endif; ?>
+                                        </td>
 
-                                    <td class="text-center">
-                                        <span class="badge bg-secondary fs-6 px-3 py-2">
-                                            <?= (int) $h['total_users'] ?>
-                                        </span>
-                                    </td>
+                                        <td class="text-center">
+                                        <?php if (!empty($h['user_list'])): ?>
+                                            <ul class="list-unstyled mb-0 small">
+                                                <?php foreach ($h['user_list'] as $user): ?>
+                                                    <li><i class="fas fa-user text-primary me-1"></i> <?= esc($user) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <span class="text-muted small">Belum ada</span>
+                                        <?php endif; ?>
+                                        </td>
+
 
                                     <td class="pe-4 text-center">
                                         <div class="btn-group btn-group-sm" role="group">

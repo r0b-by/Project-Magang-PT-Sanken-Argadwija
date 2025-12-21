@@ -29,16 +29,32 @@ class IsoAccessController extends BaseController
      * INDEX - MASTER HOLDER
      * ===================================================== */
     public function index()
-    {
-        $holders = $this->holderModel->getAllHolders();
+{
+    $holders = $this->holderModel->findAll();
+    $db = \Config\Database::connect();
 
-        foreach ($holders as &$h) {
-            $users = $this->accessUserModel->getUsersByHolder($h['id']);
-            $h['users'] = $users;
-        }
+    foreach ($holders as &$h) {
+        // Ambil daftar dokumen holder ini
+        $docs = $db->table('iso_access_documents iad')
+            ->select('i.nama_dokumen_internal')
+            ->join('iso_00 i', 'i.id = iad.iso00_id')
+            ->where('iad.holder_id', $h['id'])
+            ->get()
+            ->getResultArray();
+        $h['dokumen_list'] = array_column($docs, 'nama_dokumen_internal');
 
-        return view('access/index', ['holders' => $holders]);
+        // Ambil daftar user holder ini
+        $users = $db->table('iso_access_users iau')
+            ->select('u.fullname')
+            ->join('users u', 'u.id = iau.user_id')
+            ->where('iau.holder_id', $h['id'])
+            ->get()
+            ->getResultArray();
+        $h['user_list'] = array_column($users, 'fullname');
     }
+
+    return view('access/index', compact('holders'));
+}
 
     /* =====================================================
      * CREATE HOLDER
@@ -114,25 +130,33 @@ class IsoAccessController extends BaseController
         /* ===========================
         * DOKUMEN
         * =========================== */
+
+        // Hapus semua dokumen milik holder ini
         $this->accessDocModel
             ->where('holder_id', $holderId)
             ->delete();
 
         if (!empty($dokumenId)) {
-            $data = [];
             foreach ($dokumenId as $dId) {
-                $data[] = [
+
+                // 🔴 PENTING: hapus dokumen ini dari holder lain
+                $this->accessDocModel
+                    ->where('iso00_id', $dId)
+                    ->delete();
+
+                // Assign ke holder sekarang
+                $this->accessDocModel->insert([
                     'holder_id' => $holderId,
                     'iso00_id'  => $dId,
-                ];
+                    'created_at'=> date('Y-m-d H:i:s'),
+                ]);
             }
-
-            $this->accessDocModel->insertBatch($data);
         }
 
         /* ===========================
         * USERS
         * =========================== */
+
         $this->accessUserModel
             ->where('holder_id', $holderId)
             ->delete();
@@ -146,7 +170,6 @@ class IsoAccessController extends BaseController
         return redirect()->back()
             ->with('success', 'Hak akses berhasil diperbarui.');
     }
-
 
     /* =====================================================
      * EDIT HOLDER (kode holder saja)
@@ -225,26 +248,36 @@ class IsoAccessController extends BaseController
     public function updateDokumen($holderId)
     {
         $holder = $this->holderModel->find($holderId);
-        if (!$holder) return redirect()->back()->with('error', 'Holder tidak ditemukan!');
-
-        $dokumenId = $this->request->getPost('dokumen_id');
-
-        // Hapus dokumen lama
-        $this->accessUserModel->db->table('iso_access_documents')->where('holder_id', $holderId)->delete();
-
-        // Assign dokumen baru
-        if ($dokumenId) {
-            foreach ((array)$dokumenId as $dId) {
-                $this->accessUserModel->db->table('iso_access_documents')->insert([
-                    'holder_id' => $holderId,
-                    'iso00_id'  => $dId,
-                    'created_at'=> date('Y-m-d H:i:s'),
-                ]);
-            }
+        if (!$holder) {
+            return redirect()->back()->with('error', 'Holder tidak ditemukan!');
         }
 
-        return redirect()->to("/access/detail/{$holder['holder_code']}")
-            ->with('success', 'Dokumen holder berhasil diperbarui.');
+        // ⬅️ STRING (radio), bukan array
+        $dokumenId = $this->request->getPost('dokumen_id');
+
+        // 1️⃣ Hapus dokumen lama milik holder ini
+        $this->accessDocModel
+            ->where('holder_id', $holderId)
+            ->delete();
+
+        // 2️⃣ Jika user memilih dokumen
+        if (!empty($dokumenId)) {
+
+            // ⛔ Lepaskan dokumen dari holder lain
+            $this->accessDocModel
+                ->where('iso00_id', $dokumenId)
+                ->delete();
+
+            // ✅ Assign ke holder ini
+            $this->accessDocModel->insert([
+                'holder_id'  => $holderId,
+                'iso00_id'   => $dokumenId,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return redirect()->back()
+        ->with('success', 'Hak akses dokumen berhasil diperbarui.');
     }
 
     /* =====================================================
@@ -321,4 +354,19 @@ class IsoAccessController extends BaseController
             'dokumen' => $this->accessUserModel->getHoldersByUser($userId)
         ]);
     }
+
+    public function removeDokumen()
+{
+    $holderId  = $this->request->getPost('holder_id');
+    $dokumenId = $this->request->getPost('dokumen_id');
+
+    $this->accessDocModel
+        ->where('holder_id', $holderId)
+        ->where('iso00_id', $dokumenId)
+        ->delete();
+
+    return redirect()->back()->with('success', 'Hak akses dokumen berhasil dihapus.');
+}
+
+
 }

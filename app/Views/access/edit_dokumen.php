@@ -3,19 +3,11 @@
 <?= $this->section('content') ?>
 
 <style>
-    .form-check-input-lg {
-        width: 1.5rem;
-        height: 1.5rem;
-        cursor: pointer;
-        accent-color: #0d6efd;
-    }
-
-    .form-check-label {
-        font-size: 0.95rem;
-        font-weight: 500;
-        margin-left: .35rem;
-        cursor: pointer;
-    }
+.form-check-input-lg {
+    width: 1.4rem;
+    height: 1.4rem;
+    cursor: pointer;
+}
 </style>
 
 <div class="container-fluid px-3 px-md-4 py-3">
@@ -23,79 +15,93 @@
         Edit Dokumen Holder: <strong><?= esc($holder['holder_code']) ?></strong>
     </h4>
 
-    <!-- Flash Message -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="fas fa-check-circle me-2"></i><?= session('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif ?>
-
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show">
-            <i class="fas fa-exclamation-circle me-2"></i><?= session('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif ?>
-
     <div class="card border-0 shadow-sm">
         <div class="card-body">
+
+            <!-- ================= FORM ASSIGN ================= -->
+            <!-- FORM ASSIGN -->
+            <!-- FORM ASSIGN -->
             <form action="<?= base_url('access/update-dokumen/' . $holder['id']) ?>" method="post">
                 <?= csrf_field() ?>
-                <input type="hidden" name="holder_id" value="<?= esc($holder['id']) ?>">
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold mb-2">
-                        Pilih Dokumen (boleh lebih dari satu)
-                    </label>
+                <label class="form-label fw-semibold mb-2">
+                    Pilih Dokumen (hanya satu)
+                </label>
 
-                    <div class="row g-2">
-                        <?php 
-                        // Buat array dokumen yang sudah diassign untuk holder ini
-                        $assignedDocIds = [];
-                        foreach ($dokumen as $d) {
-                            if (!empty($d['assigned_holder_id']) && $d['assigned_holder_id'] == $holder['id']) {
-                                $assignedDocIds[] = $d['id'];
-                            }
-                        }
+                <div class="row g-3">
+                    <?php foreach ($dokumen as $d): ?>
+                        <?php
+                            $ownedByThis  = $d['assigned_holder_id'] == $holder['id'];
+                            $ownedByOther = !empty($d['assigned_holder_id']) && !$ownedByThis;
                         ?>
-                        
-                        <?php foreach ($dokumen as $d): ?>
-                            <div class="col-md-4">
-                                <div class="form-check">
+
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <div class="form-check mb-2">
                                     <input
+                                        type="radio"
                                         class="form-check-input form-check-input-lg"
-                                        type="checkbox"
-                                        name="dokumen_id[]"
+                                        name="dokumen_id"
                                         value="<?= esc($d['id']) ?>"
-                                        <?= in_array($d['id'], $assignedDocIds) ? 'checked' : '' ?>
+                                        <?= $ownedByThis ? 'checked' : '' ?>
+                                        <?= $ownedByOther ? 'disabled' : '' ?>
                                     >
-                                    <label class="form-check-label">
-                                        <?= esc($d['kode_dokumen']) ?>
-                                        <br>
-                                        <small class="text-muted">
-                                            <?= esc($d['nama_dokumen_internal']) ?>
-                                        </small>
+                                    <label class="form-check-label <?= $ownedByOther ? 'text-muted' : '' ?>">
+                                        <strong><?= esc($d['kode_dokumen']) ?></strong><br>
+                                        <small><?= esc($d['nama_dokumen_internal']) ?></small>
                                     </label>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
 
-                    <small class="text-muted d-block mt-2">
-                        * Dokumen hanya boleh dimiliki oleh satu holder
-                    </small>
+                                <?php if ($ownedByOther): ?>
+                                    <span class="badge bg-secondary w-100 text-center">
+                                        Dimiliki holder lain
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
                 <div class="d-flex mt-4">
                     <button type="submit" class="btn btn-primary me-2">
                         <i class="fas fa-save me-1"></i> Simpan
                     </button>
-                    <a href="<?= base_url('access/detail/' . $holder['holder_code']) ?>" class="btn btn-secondary">
+                    <a href="<?= base_url('access') ?>" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Kembali
                     </a>
                 </div>
             </form>
+
+            <!-- ================= FORM HAPUS DOKUMEN ================= -->
+            <hr class="my-4">
+
+            <h6 class="fw-semibold mb-3">Dokumen yang Dimiliki Holder</h6>
+
+            <div class="row g-3">
+                <?php foreach ($dokumen as $d): ?>
+                    <?php if ($d['assigned_holder_id'] == $holder['id']): ?>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3">
+                                <strong><?= esc($d['kode_dokumen']) ?></strong><br>
+                                <small><?= esc($d['nama_dokumen_internal']) ?></small>
+
+                                <form action="<?= base_url('access/remove-dokumen') ?>" method="post" class="mt-2">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="holder_id" value="<?= $holder['id'] ?>">
+                                    <input type="hidden" name="dokumen_id" value="<?= $d['id'] ?>">
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger w-100"
+                                            onclick="return confirm('Hapus hak akses dokumen ini?')">
+                                        <i class="fas fa-trash me-1"></i> Hapus Hak Akses
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endif ?>
+                <?php endforeach ?>
+            </div>
+
         </div>
     </div>
 </div>

@@ -28,9 +28,13 @@ class CreateIsoAccessDocumentsTable extends Migration
             ],
         ]);
 
+        // Primary key
         $this->forge->addKey('id', true);
-        $this->forge->addUniqueKey(['holder_id', 'iso00_id']);
 
+        // ✅ BATASAN UTAMA: 1 HOLDER = 1 DOKUMEN
+        $this->forge->addUniqueKey('holder_id');
+
+        // Foreign key ke holder
         $this->forge->addForeignKey(
             'holder_id',
             'iso_access_holders',
@@ -39,6 +43,7 @@ class CreateIsoAccessDocumentsTable extends Migration
             'CASCADE'
         );
 
+        // Foreign key ke dokumen ISO
         $this->forge->addForeignKey(
             'iso00_id',
             'iso_00',

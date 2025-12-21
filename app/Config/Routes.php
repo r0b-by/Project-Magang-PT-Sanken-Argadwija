@@ -94,6 +94,8 @@ $routes->group('access', ['filter' => 'role:admin'], function ($routes) {
     // Tambahan (search / helper)
     $routes->get('search', 'IsoAccessController::search');
     $routes->get('user-fullname/(:num)', 'IsoAccessController::getUserFullname/$1');
+
+    $routes->post('remove-dokumen', 'IsoAccessController::removeDokumen');
 });
 
 /*
