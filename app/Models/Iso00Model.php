@@ -182,4 +182,41 @@ class Iso00Model extends Model
             ->orderBy('id', 'DESC')
             ->first();
     }
+
+    /**
+ * Search dokumen terbatas
+ * berdasarkan:
+ * - kode dokumen
+ * - holder code
+ * - uploader name
+ * - updated by
+ */
+public function searchLimited(string $keyword)
+{
+    return $this->select([
+            'iso_00.*',
+            'iso_access_holders.holder_code'
+        ])
+        ->join(
+            'iso_access_documents',
+            'iso_access_documents.iso00_id = iso_00.id',
+            'left'
+        )
+        ->join(
+            'iso_access_holders',
+            'iso_access_holders.id = iso_access_documents.holder_id',
+            'left'
+        )
+        ->groupStart()
+            ->like('iso_00.kode_dokumen', $keyword)
+            ->orLike('iso_access_holders.holder_code', $keyword)
+            ->orLike('iso_00.uploader_name', $keyword)
+            ->orLike('iso_00.updated_by', $keyword)
+        ->groupEnd()
+        ->groupBy('iso_00.id')
+        ->orderBy('iso_00.kode_dokumen', 'ASC')
+        ->findAll();
+}
+
+
 }

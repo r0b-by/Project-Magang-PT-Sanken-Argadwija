@@ -30,10 +30,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function index()
 {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
     $holders = $this->holderModel->findAll();
     $db = \Config\Database::connect();
 
@@ -65,19 +61,11 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function create()
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         return view('access/create');
     }
 
     public function storeHolder()
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holderCode = strtoupper(trim($this->request->getPost('holder_code')));
 
         if (!$holderCode) {
@@ -101,10 +89,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function assign($holderCode)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->getByHolderCode($holderCode);
         if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan');
 
@@ -135,10 +119,6 @@ class IsoAccessController extends BaseController
 
     public function storeAssignment()
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holderId  = $this->request->getPost('holder_id');
         $dokumenId = $this->request->getPost('dokumen_id') ?? [];
         $userIds   = $this->request->getPost('user_ids') ?? [];
@@ -196,10 +176,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function edit($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->find($holderId);
         if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
 
@@ -208,10 +184,6 @@ class IsoAccessController extends BaseController
 
     public function updateHolder($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->find($holderId);
         if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
 
@@ -254,10 +226,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function editDokumen($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->find($holderId);
         if (!$holder) {
             return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
@@ -282,10 +250,6 @@ class IsoAccessController extends BaseController
 
     public function updateDokumen($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->find($holderId);
         if (!$holder) {
             return redirect()->back()->with('error', 'Holder tidak ditemukan!');
@@ -324,10 +288,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function editUsers($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->find($holderId);
         if (!$holder) return redirect()->to('/access')->with('error', 'Holder tidak ditemukan!');
 
@@ -350,10 +310,6 @@ class IsoAccessController extends BaseController
 
     public function updateUsers($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $holder = $this->holderModel->find($holderId);
         if (!$holder) return redirect()->back()->with('error', 'Holder tidak ditemukan!');
 
@@ -376,10 +332,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function removeUser($accessId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $this->accessUserModel->delete($accessId);
         return redirect()->back()->with('success', 'User berhasil dihapus dari holder.');
     }
@@ -389,10 +341,6 @@ class IsoAccessController extends BaseController
      * ===================================================== */
     public function deleteHolder($holderId)
     {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/iso00')->with('error', 'Akses ditolak');
-        }
-
         $this->holderModel->delete($holderId);
         return redirect()->to('/access')->with('success', 'Holder berhasil dihapus.');
     }
@@ -411,21 +359,16 @@ class IsoAccessController extends BaseController
     }
 
     public function removeDokumen()
-{
-    if (session()->get('role') !== 'admin') {
-        return redirect()->to('/iso00')->with('error', 'Akses ditolak');
+    {
+        $holderId  = $this->request->getPost('holder_id');
+        $dokumenId = $this->request->getPost('dokumen_id');
+
+        $this->accessDocModel
+            ->where('holder_id', $holderId)
+            ->where('iso00_id', $dokumenId)
+            ->delete();
+
+        return redirect()->back()->with('success', 'Hak akses dokumen berhasil dihapus.');
     }
-
-    $holderId  = $this->request->getPost('holder_id');
-    $dokumenId = $this->request->getPost('dokumen_id');
-
-    $this->accessDocModel
-        ->where('holder_id', $holderId)
-        ->where('iso00_id', $dokumenId)
-        ->delete();
-
-    return redirect()->back()->with('success', 'Hak akses dokumen berhasil dihapus.');
-}
-
 
 }

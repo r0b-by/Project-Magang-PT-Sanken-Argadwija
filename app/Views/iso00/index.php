@@ -4,33 +4,115 @@
 <div class="container-fluid px-3 px-md-4 py-3" style="background: #F8FAFC; min-height: 100vh;">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h4 mb-1 fw-bold" style="color: #0F172A;">Dokumen ISO</h1> 
-            <p class="small mb-0" style="color: #64748B;">Kelola dokumen sistem manajemen</p>
-        </div>
+    <div>
+        <h1 class="h4 mb-1 fw-bold" style="color:#0F172A;">Dokumen ISO</h1>
+        <p class="small mb-0" style="color:#64748B;">Kelola dokumen sistem manajemen</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <!-- EXPAND EXPORT -->
+        <button id="btnExpandExport"
+                class="btn btn-outline-secondary"
+                style="border-radius:8px;">
+            <i class="fas fa-file-export me-2"></i>Export
+        </button>
+
         <?php if (in_array(session()->get('role'), ['admin'])): ?>
-        <a href="/iso00/create" class="btn" style="background: #2563EB; color: white; border: none; border-radius: 8px;">
+        <a href="/iso00/create"
+           class="btn"
+           style="background:#2563EB;color:white;border-radius:8px;">
             <i class="fas fa-plus me-2"></i>Upload Dokumen
         </a>
         <?php endif; ?>
     </div>
-    
+</div>
+
+<!-- COLLAPSE / EXPAND AREA -->
+<div id="expandWrapper" class="expand-wrapper">
+
+    <div class="expand-export">
+
+        <h6 class="fw-semibold mb-3">
+            <i class="fas fa-filter me-2"></i>Filter Export Dokumen
+        </h6>
+
+        <form action="/iso00/export" method="get" id="exportForm">
+
+            <!-- EXPORT FORMAT INFO -->
+            <div class="mb-3">
+                <span class="badge bg-success mb-2">
+                    <i class="fas fa-file-excel me-1"></i> Export Format
+                </span>
+                <div class="fw-semibold small text-success">
+                    Excel (.xlsx)
+                </div>
+            </div>
+
+            <!-- DEPARTEMENT -->
+            <div class="mb-3">
+                <label class="small fw-semibold mb-2">Departement</label>
+
+                <div class="border rounded p-2" style="background:#FFFFFF; max-height:160px; overflow:auto;">
+                    
+                    <?php foreach ($departments as $dept): ?>
+                        <div class="form-check mb-1">
+                            <input class="form-check-input"
+                                type="checkbox"
+                                name="departments[]"
+                                value="<?= esc($dept['kode_dept']) ?>"
+                                id="dept<?= esc($dept['kode_dept']) ?>">
+
+                            <label class="form-check-label small"
+                                for="dept<?= esc($dept['kode_dept']) ?>">
+                                <?= esc($dept['kode_dept']) ?>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
+
+                </div>
+            </div>
+
+            <!-- CONFIRM BUTTON -->
+            <div class="d-flex justify-content-end mt-3">
+                <button type="submit"
+                        class="btn"
+                        style="background:#2563EB;color:white;border-radius:8px; padding:6px 18px;">
+                    <i class="fas fa-file-export me-2"></i>Confirm Export
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
     <!-- Table Card -->
     <div class="card" style="border: 1px solid #E2E8F0; border-radius: 12px; background: white;">
-        <!-- Card Header dengan Search -->
-        <div class="card-header py-3" style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0;">
+        <!-- Card Header dengan Live Search -->
+        <div class="card-header py-3" style="background:#FFFFFF; border-bottom:1px solid #E2E8F0;">
             <div class="row align-items-center">
                 <div class="col-md-12">
-                    <div class="input-group" style="max-width: 400px;">
-                        <span class="input-group-text" style="background: #F8FAFC; border: 1px solid #E2E8F0; color: #64748B;">
+                    <div class="input-group" style="max-width:420px;">
+                        <span class="input-group-text"
+                            style="background:#F8FAFC; border:1px solid #E2E8F0; color:#64748B;">
                             <i class="fas fa-search"></i>
                         </span>
-                        <input type="text" class="form-control" placeholder="Cari dokumen berdasarkan kode atau nama..." 
-                               style="border: 1px solid #E2E8F0; border-left: none; color: #0F172A;">
+
+                        <input
+                            type="text"
+                            id="searchInput"
+                            class="form-control"
+                            placeholder="Cari: kode dokumen, holder, uploader, updated by..."
+                            autocomplete="off"
+                            style="border:1px solid #E2E8F0; border-left:none; color:#0F172A;"
+                        >
                     </div>
                 </div>
             </div>
         </div>
+
         
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -100,7 +182,7 @@
                         </th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableBody">
                         <?php $no = 1; ?>
                         <?php foreach ($dokumen as $doc): ?>
                         <tr class="table-row">
@@ -154,11 +236,11 @@
                                     } elseif ($doc['status'] === 'save' || $doc['status'] === 'revisi') {
                                         $badgeColor = '#2563EB'; // Biru lebih cerah
                                         $textColor = '#FFFFFF';
-                                        $statusText = 'Draft';
+                                        $statusText = 'save';
                                     } else { // unsave
                                         $badgeColor = '#6B7280'; // Abu-abu netral
                                         $textColor = '#FFFFFF';
-                                        $statusText = 'Unsaved';
+                                        $statusText = 'unsaved';
                                     }
                                 ?>
                                 <span class="badge rounded-pill px-2 py-1" style="background: <?= $badgeColor ?>; color: <?= $textColor ?>; font-size: 12px; font-weight: 500;">
@@ -172,15 +254,15 @@
                                     if ($doc['status'] === 'unsave') {
                                         $badgeColor = '#DC2626'; // Merah lebih lembut
                                         $textColor = '#FFFFFF';
-                                        $statusText = 'Belum Disimpan';
+                                        $statusText = 'belum disimpan';
                                     } elseif ($doc['status'] === 'save') {
                                         $badgeColor = '#F59E0B'; // Oranye/kuning
                                         $textColor = '#1F2937'; // Teks gelap untuk kontras
-                                        $statusText = 'Menunggu Revisi';
+                                        $statusText = 'menunggu revisi';
                                     } elseif ($doc['status'] === 'revisi' && isset($doc['revision_no'])) {
                                         $badgeColor = '#D97706'; // Oranye lebih gelap
                                         $textColor = '#FFFFFF';
-                                        $statusText = 'Revisi - ' . $doc['revision_no'];
+                                        $statusText = 'revisi - ' . $doc['revision_no'];
                                     } else { // approved
                                         $badgeColor = '#059669'; // Hijau konsisten
                                         $textColor = '#FFFFFF';
@@ -196,7 +278,7 @@
                                     <span class="badge rounded-pill fs- px-3 py-1"
                                         style="
                                             background:#E0E7FF;        /* blue-100 */
-                                            color:#1E40AF;             /* blue-800 */
+                                            color:#1E40AF;         s    /* blue-800 */
                                             font-size:13px;
                                             font-weight:600;
                                             letter-spacing:0.3px;
@@ -268,12 +350,6 @@
                                         </small>
                                     </div>
                                 </div>
-
-                                <?php if (!$hasUpdate): ?>
-                                    <div class="small mt-1" style="color: #64748B;">
-                                        <i class="fas fa-info-circle me-1"></i>Belum diperbarui
-                                    </div>
-                                <?php endif; ?>
                             </td>
                             <td class="d-none d-lg-table-cell py-3" style="border: 1px solid #E2E8F0;">
                                 <?php if (!empty($doc['updated_at'])): ?>
@@ -608,6 +684,26 @@
 .card-footer {
     padding: 1rem 1.5rem;
 }
+
+/* WRAPPER */
+.expand-wrapper {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .35s ease;
+}
+
+/* ACTIVE = EXPAND */
+.expand-wrapper.active {
+    max-height: 400px; /* aman untuk isi export */
+}
+
+/* EXPORT PANEL */
+.expand-export {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 20px;
+}
 </style>
 
 <script>
@@ -683,4 +779,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const tableBody   = document.getElementById('tableBody');
+
+    let debounce;
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(debounce);
+
+        debounce = setTimeout(() => {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="12" class="text-center py-4 text-muted">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Mencari dokumen...
+                    </td>
+                </tr>
+            `;
+
+            fetch(`<?= site_url('iso00/search') ?>?q=${encodeURIComponent(this.value)}`)
+                .then(res => res.text())
+                .then(html => {
+                    tableBody.innerHTML = html;
+                });
+
+        }, 300);
+    });
+});
+</script>
+
+<script>
+document.getElementById('btnExpandExport').addEventListener('click', function () {
+    const wrapper = document.getElementById('expandWrapper');
+
+    wrapper.classList.toggle('active');
+
+    // optional: rotate icon
+    this.querySelector('i').classList.toggle('fa-rotate-180');
+});
+</script>
+
 <?= $this->endSection() ?>
