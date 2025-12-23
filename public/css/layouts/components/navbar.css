@@ -1,13 +1,21 @@
+/* =========================
+   NAVBAR
+========================= */
 .navbar {
     height: 64px;
+    padding-left: 0;
+    z-index: 1020;
 }
 
+/* hover */
 .navbar .btn-light:hover {
     background-color: #f8f9fa;
     transform: translateY(-1px);
-    transition: all 0.2s ease;
 }
 
+/* =========================
+   DROPDOWN
+========================= */
 .dropdown-menu {
     animation: slideDown 0.2s ease;
 }
@@ -24,34 +32,10 @@
     }
 }
 
-.dropdown-item {
-    padding: 0.5rem 1rem;
-    transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background-color: #f8f9fa;
-    padding-left: 1.25rem;
-}
-
-.dropdown-item.text-danger:hover {
-    background-color: #fff5f5;
-}
-
-.offcanvas-header {
-    height: 80px;
-}
-
-.offcanvas {
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.btn-close:focus {
-    box-shadow: none;
-}
-
-/* Profile Image */
+/* =========================
+   PROFILE
+========================= */
 img[alt="Profile"] {
     border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
 }

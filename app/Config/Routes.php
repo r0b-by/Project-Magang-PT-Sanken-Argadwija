@@ -43,6 +43,7 @@ $routes->group('iso00', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'Iso00Controller::update/$1');
     $routes->get('show/(:num)', 'Iso00Controller::show/$1');
     $routes->get('view/(:num)', 'Iso00Controller::viewFile/$1');
+    $routes->post('save-status/(:num)', 'Iso00Controller::saveStatus/$1');
 });
 
 /*

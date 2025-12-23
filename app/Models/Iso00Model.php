@@ -8,28 +8,42 @@ class Iso00Model extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'array';
 
-    // uploaded_at & updated_at manual
+    // manual timestamp
     protected $useTimestamps = false;
 
     protected $allowedFields = [
         'kode_dokumen',
         'nama_dokumen_internal',
+
+        // file
         'nama_file',
         'file_path',
         'file_size',
         'mime_type',
+
+        // metadata
         'tanggal_efektif',
         'halaman_dokumen',
         'ruang_lingkup',
         'tujuan',
-        'status',
+
+        // 🔐 STATUS & REVISI
+        'status',        // unsave | save | revisi
+        'revision_no',   // 0,1,2,3...
+        'is_locked',     // 1 = terkunci (unsave)
+
+        // uploader
         'uploaded_by',
         'uploader_name',
         'uploader_role',
         'uploader_foto',
         'uploaded_at',
+
+        // updater
         'updated_by',
         'updated_at',
+
+        // tambahan
         'barcode',
     ];
 
@@ -39,17 +53,29 @@ class Iso00Model extends Model
 
     public function revisions()
     {
-        return $this->hasMany(\App\Models\Iso001Model::class, 'iso00_id', 'id');
+        return $this->hasMany(
+            \App\Models\Iso001Model::class,
+            'iso00_id',
+            'id'
+        );
     }
 
     public function uploader()
     {
-        return $this->belongsTo(\App\Models\UserModel::class, 'uploaded_by', 'id');
+        return $this->belongsTo(
+            \App\Models\UserModel::class,
+            'uploaded_by',
+            'id'
+        );
     }
 
     public function updater()
     {
-        return $this->belongsTo(\App\Models\UserModel::class, 'updated_by', 'id');
+        return $this->belongsTo(
+            \App\Models\UserModel::class,
+            'updated_by',
+            'id'
+        );
     }
 
     /* =======================
@@ -57,7 +83,7 @@ class Iso00Model extends Model
      ======================= */
 
     /**
-     * Semua dokumen + holder (via pivot)
+     * Semua dokumen + holder
      */
     public function getWithHolder()
     {
@@ -68,7 +94,7 @@ class Iso00Model extends Model
             ])
             ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
             ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id', 'left')
-            ->groupBy('iso_00.id') // pastikan satu dokumen tampil sekali
+            ->groupBy('iso_00.id')
             ->orderBy('iso_00.kode_dokumen', 'ASC')
             ->findAll();
     }
@@ -90,12 +116,16 @@ class Iso00Model extends Model
     }
 
     /**
-     * Dokumen yang boleh diakses user
+     * Dokumen yang bisa diakses user
      */
     public function getAccessibleByUser(int $userId)
     {
-        return $this->select(['iso_00.*'])
+        return $this->select([
+                'iso_00.*',
+                'iso_access_holders.holder_code AS holder_code'
+            ])
             ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id')
+            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id')
             ->join('iso_access_users', 'iso_access_users.holder_id = iso_access_documents.holder_id')
             ->where('iso_access_users.user_id', $userId)
             ->groupBy('iso_00.id')
@@ -104,19 +134,47 @@ class Iso00Model extends Model
     }
 
     /* =======================
-     |     LOGIKA BISNIS
+     |     LOGIKA BISNIS ISO
      ======================= */
 
-    public function addDocument(array $data)
+    /**
+     * Cek apakah dokumen terkunci
+     */
+    public function isLocked(array $doc): bool
     {
-        return $this->insert($data);
+        return ($doc['status'] ?? 'unsave') === 'unsave';
     }
 
-    public function updateDocument(int $id, array $data)
+    /**
+     * Naikkan revisi
+     */
+    public function bumpRevision(int $id)
     {
-        return $this->update($id, $data);
+        $doc = $this->find($id);
+
+        if (!$doc) return false;
+
+        return $this->update($id, [
+            'status'      => 'revisi',
+            'revision_no' => ($doc['revision_no'] ?? 0) + 1,
+            'is_locked'   => 0,
+        ]);
     }
 
+    /**
+     * Simpan (finalisasi)
+     */
+    public function saveFinal(int $id)
+    {
+        return $this->update($id, [
+            'status'    => 'save',
+            'is_locked' => 0,
+        ]);
+    }
+
+    /**
+     * Ambil revisi terakhir
+     */
     public function getLatestRevision(int $iso00Id)
     {
         return model('Iso001Model')

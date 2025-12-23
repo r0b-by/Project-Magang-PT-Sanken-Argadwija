@@ -79,11 +79,25 @@ class CreateIso00Table extends Migration
             ],
 
             'status' => [
-                'type' => 'ENUM',
-                'constraint' => ['save','non-save','revisi'],
-                'default' => 'save',
+                'type'       => 'ENUM',
+                'constraint' => ['unsave', 'save', 'revisi'],
+                'default'    => 'unsave',
+                'comment'    => 'Status dokumen: unsave=draft, save=final, revisi=perubahan',
             ],
 
+            'revision_no' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'default'    => 0,
+                'comment'    => 'Nomor revisi dokumen',
+            ],
+
+            'is_locked' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 0,
+                'comment'    => '0=terbuka, 1=terkunci (hanya berlaku saat status unsave)',
+            ],
             'uploaded_by' => [
                 'type' => 'INT',
                 'unsigned' => true,

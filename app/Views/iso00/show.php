@@ -1,4 +1,3 @@
-
 <!-- ========================================== -->
 <!-- 2. HALAMAN DETAIL DOKUMEN ISO -->
 <!-- ========================================== -->
@@ -68,11 +67,20 @@
                                 <i class="fas fa-circle me-1"></i>Status
                             </label>
                             <div>
-                                <span class="badge rounded-pill bg-<?= 
-                                    $dokumen['status'] == 'approved' ? 'success' : 
-                                    ($dokumen['status'] == 'save' ? 'info' : 'warning') ?> px-3 py-2">
-                                    <?= ucfirst($dokumen['status']) ?>
+                                <?php
+                                $statusBadge = match($dokumen['status']) {
+                                    'unsave' => 'secondary',
+                                    'save'   => 'success',
+                                    'revisi' => 'warning',
+                                    default  => 'dark'
+                                };
+                                ?>
+                                <span class="badge rounded-pill bg-<?= $statusBadge ?> px-3 py-2">
+                                    <?= strtoupper($dokumen['status']) ?>
                                 </span>
+                                <?php if ($dokumen['revision_no'] > 0): ?>
+                                    <span class="badge bg-warning ms-2">Revisi ke-<?= $dokumen['revision_no'] ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -92,7 +100,7 @@
                                 <div>
                                     <div><?= esc($dokumen['nama_file']) ?></div>
                                     <?php 
-                                    $filePath = WRITEPATH . 'uploads/' . $dokumen['nama_file'];
+                                    $filePath = WRITEPATH . $dokumen['file_path'];
                                     if (file_exists($filePath)) {
                                         echo "<small class='text-muted'>Ukuran: " 
                                              . round(filesize($filePath) / 1024, 2) . " KB</small>";
@@ -109,13 +117,11 @@
             <?php if (session()->get('role') == 'admin'): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex flex-column flex-sm-row gap-2">
-                        <a href="<?= base_url('iso00/view/' . $dokumen['id']) ?>"
-                        class="btn btn-primary flex-fill"
-                        target="_blank">
-                            <i class="fas fa-eye me-2"></i>Lihat PDF
-                        </a>
-                    </div>
+                    <a href="<?= base_url('iso00/view/' . $dokumen['id']) ?>"
+                       class="btn btn-primary flex-fill"
+                       target="_blank">
+                        <i class="fas fa-eye me-2"></i>Lihat PDF
+                    </a>
                 </div>
             </div>
             <?php endif; ?>
@@ -150,7 +156,7 @@
                 </div>
             </div>
 
-            <!-- Uploader -->
+            <!-- Updater -->
             <?php if (!empty($dokumen['updated_by'])): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-3">
@@ -185,16 +191,48 @@
     <div class="card border-0 shadow-sm mt-3">
         <div class="card-body p-3">
             <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+
+                <!-- ⬅️ KEMBALI -->
                 <a href="/iso00" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Kembali
                 </a>
-                <?php if (session()->get('user_id') == $dokumen['uploaded_by'] || session()->get('role') == 'admin'): ?>
-                <a href="/iso00/edit/<?= $dokumen['id'] ?>" class="btn btn-warning">
-                    <i class="fas fa-pen me-2"></i>Edit
-                </a>
+
+                <?php if (
+                    session()->get('user_id') == $dokumen['uploaded_by'] ||
+                    session()->get('role') === 'admin'
+                ): ?>
+
+                    <?php if ($dokumen['status'] === 'unsave'): ?>
+
+                        <!-- 🔒 EDIT DISABLED -->
+                        <button class="btn btn-outline-secondary" disabled
+                                title="Dokumen masih UNSAVE">
+                            <i class="fas fa-lock me-2"></i>Edit Terkunci
+                        </button>
+
+                        <!-- ✅ SIMPAN (UBAH KE SAVE) -->
+                        <form action="/iso00/save-status/<?= $dokumen['id'] ?>" method="post"
+                              onsubmit="return confirm('Apakah Anda yakin mengubah status dokumen menjadi SAVE?')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Simpan Dokumen
+                            </button>
+                        </form>
+
+                    <?php else: ?>
+
+                        <!-- ✏️ EDIT AKTIF -->
+                        <a href="/iso00/edit/<?= $dokumen['id'] ?>" class="btn btn-warning">
+                            <i class="fas fa-pen me-2"></i>Edit
+                        </a>
+
+                    <?php endif; ?>
+
                 <?php endif; ?>
+
             </div>
         </div>
     </div>
 </div>
 <?= $this->endSection() ?>
+                        

@@ -1,85 +1,96 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
-    <div class="container-fluid px-3 px-lg-4">
-        <!-- Menu Toggle for Mobile -->
-        <button class="btn btn-light border-0 me-2 d-lg-none rounded-circle p-2" 
-                type="button" 
-                data-bs-toggle="offcanvas" 
-                data-bs-target="#offcanvasSidebar"
-                style="width: 40px; height: 40px;">
-            <i class="fas fa-bars text-primary"></i>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg" style="background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0;">
+    <div class="container-fluid">
+        <!-- Sidebar Toggle untuk Mobile -->
+        <button class="btn d-lg-none" id="sidebarToggle">
+            <i class="fas fa-bars" style="color: #0F172A;"></i>
         </button>
         
-        <!-- Brand -->
-        <span class="navbar-brand fw-bold mb-0 d-flex align-items-center">
-            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                <i class="fas fa-folder-tree text-primary"></i>
-            </div>
-            <span class="d-none d-sm-inline">DMS</span>
-        </span>
+        <!-- Logo/Title -->
+        <a class="navbar-brand fw-bold ms-2 ms-lg-0" href="#" style="color: #0F172A;">
+            <i class="fas fa-folder-tree me-2" style="color: #2563EB;"></i>
+            Document Management System
+        </a>
         
-        <!-- User Menu -->
-        <div class="ms-auto">
-            <div class="dropdown">
-                <button class="btn btn-light border rounded-pill d-flex align-items-center px-2 py-1" 
+        <!-- Right Side Menu -->
+        <div class="d-flex align-items-center">
+            <!-- Notifikasi -->
+            <div class="dropdown me-3">
+                <button class="btn btn-link text-decoration-none position-relative p-0" 
                         type="button" 
-                        data-bs-toggle="dropdown">
-                    <?php if (session()->get('photo')): ?>
-                        <img src="/uploads/foto_user/<?= session()->get('photo') ?>" 
-                             class="rounded-circle me-2" 
-                             width="36" 
-                             height="36"
-                             style="object-fit: cover;"
-                             alt="Profile">
-                    <?php else: ?>
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2 fw-semibold" 
-                             style="width: 36px; height: 36px;">
-                            <?= strtoupper(substr(session()->get('fullname'), 0, 1)) ?>
-                        </div>
-                    <?php endif; ?>
-                    <span class="d-none d-md-inline me-2 fw-medium text-dark">
-                        <?= session()->get('fullname') ?>
+                        data-bs-toggle="dropdown"
+                        style="color: #64748B;">
+                    <i class="fas fa-bell fa-lg"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" 
+                          style="background-color: #16A34A; font-size: 0.6rem;">
+                        3
                     </span>
-                    <i class="fas fa-chevron-down text-muted small"></i>
                 </button>
-                <div class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2" style="min-width: 200px;">
-                    <div class="px-3 py-3 border-bottom">
-                        <div class="fw-semibold text-dark"><?= session()->get('fullname') ?></div>
-                        <div class="small text-muted mt-1">
-                            <i class="fas fa-circle text-success me-1" style="font-size: 0.5rem;"></i>
-                            <?= ucfirst(session()->get('role')) ?>
-                        </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 300px;">
+                    <li><h6 class="dropdown-header fw-bold" style="color: #0F172A;">Notifikasi</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-start" href="#">
+                            <div class="me-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 32px; height: 32px; background-color: #16A34A20;">
+                                    <i class="fas fa-check-circle" style="color: #16A34A; font-size: 0.8rem;"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <small class="fw-semibold" style="color: #0F172A;">Dokumen disetujui</small>
+                                <p class="mb-0 small" style="color: #64748B;">ISO-001 telah disetujui</p>
+                                <small class="text-muted">2 menit yang lalu</small>
+                            </div>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-center small" href="#" style="color: #2563EB;">
+                            Lihat semua notifikasi
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="dropdown">
+                <button class="btn d-flex align-items-center p-0" 
+                        type="button" 
+                        data-bs-toggle="dropdown"
+                        style="border: none; background: none;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                         style="width: 36px; height: 36px; background-color: #2563EB; color: white;">
+                        <span class="fw-bold">A</span>
                     </div>
-                    <a class="dropdown-item text-danger py-2 mt-1" href="/logout">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a>
-                </div>
+                    <div class="d-none d-md-block text-start">
+                        <div class="small fw-semibold" style="color: #0F172A;">Admin User</div>
+                        <div class="xsmall" style="color: #64748B;">Administrator</div>
+                    </div>
+                    <i class="fas fa-chevron-down ms-2 small" style="color: #64748B;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <i class="fas fa-user me-2" style="color: #64748B;"></i>
+                            <span style="color: #0F172A;">Profil Saya</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <i class="fas fa-cog me-2" style="color: #64748B;"></i>
+                            <span style="color: #0F172A;">Pengaturan</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <i class="fas fa-sign-out-alt me-2" style="color: #64748B;"></i>
+                            <span style="color: #0F172A;">Keluar</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </nav>
-
-<!-- Mobile Sidebar -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSidebar" style="width: 280px;">
-    <div class="offcanvas-header border-bottom bg-light">
-        <div class="d-flex align-items-center">
-            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
-                <i class="fas fa-folder-tree text-primary"></i>
-            </div>
-            <div>
-                <h6 class="offcanvas-title mb-0 fw-bold">DMS</h6>
-                <small class="text-muted">Document Management</small>
-            </div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body p-0">
-        <?php 
-        $role = session()->get('role'); 
-        if ($role === 'admin') {
-            echo view('layouts/components/sidebar_admin');
-        } elseif ($role === 'dept') {
-            echo view('layouts/components/sidebar_dept');
-        }
-        ?>
-    </div>
-</div>

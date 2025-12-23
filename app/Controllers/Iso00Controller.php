@@ -200,17 +200,23 @@ class Iso00Controller extends BaseController
             'halaman_dokumen'       => $this->request->getPost('halaman_dokumen'),
             'ruang_lingkup'         => $this->request->getPost('ruang_lingkup'),
             'tujuan'                => $this->request->getPost('tujuan'),
-            'status'                => 'save',
-            'uploaded_by'           => $user['id'],
-            'uploader_name'         => $user['name'],
-            'uploader_role'         => $user['role'],
-            'uploader_foto'         => $user['foto'],
-            'uploaded_at'           => date('Y-m-d H:i:s'),
+
+            // 🔐 STATUS & REVISI
+            'status'       => 'unsave',   // draft
+            'revision_no'  => 0,
+            'is_locked'    => 1,          // terkunci sampai disimpan
+
+            // 👤 UPLOADER
+            'uploaded_by'   => $user['id'],
+            'uploader_name' => $user['name'],
+            'uploader_role' => $user['role'],
+            'uploader_foto' => $user['foto'],
+            'uploaded_at'   => date('Y-m-d H:i:s'),
         ]);
 
-        return redirect()->to('/iso00')->with('success', 'Dokumen berhasil diupload');
+        return redirect()->to('/iso00')
+            ->with('warning', 'Dokumen masih berstatus DRAFT (Unsave). Silakan cek & simpan.');
     }
-
 
     // ============================================================
     // EDIT & UPDATE DOKUMEN MASTER + REVISI
@@ -218,10 +224,16 @@ class Iso00Controller extends BaseController
     public function edit($id)
     {
         $dokumen = $this->iso00->find($id);
-        if (!$dokumen) return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
+        if (!$dokumen) {
+            return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
+        }
+
         if (session()->get('role') !== 'admin' && $dokumen['uploaded_by'] != session()->get('user_id')) {
             return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses mengedit dokumen ini!');
         }
+
+        // Ambil nomor revisi terakhir untuk info di view
+        $dokumen['next_revision'] = $dokumen['revision_no'] + 1;
 
         return view('iso00/edit', ['dokumen' => $dokumen]);
     }
@@ -240,6 +252,7 @@ class Iso00Controller extends BaseController
         * 1. SIMPAN SNAPSHOT KE ISO_001 (HISTORY)
         * =======================================================*/
         $this->iso001->addRevision($master, [
+            'revision_no'   => $master['revision_no'] + 1,
             'revision_note' => $this->request->getPost('catatan_revisi')
         ]);
 
@@ -254,6 +267,7 @@ class Iso00Controller extends BaseController
             'ruang_lingkup'         => $this->request->getPost('ruang_lingkup'),
             'tujuan'                => $this->request->getPost('tujuan'),
             'status'                => 'revisi',
+            'revision_no'           => $master['revision_no'] + 1,
             'updated_by'            => $user['id'],
             'updated_at'            => date('Y-m-d H:i:s'),
         ];
@@ -300,7 +314,7 @@ class Iso00Controller extends BaseController
             return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses!');
         }
 
-        $data['dokumen'] = $this->iso00
+        $dokumen = $this->iso00
             ->select('
                 iso_00.*,
                 uploader.fullname AS uploader_name,
@@ -311,7 +325,86 @@ class Iso00Controller extends BaseController
             ->where('iso_00.id', $id)
             ->first();
 
+        if (!$dokumen) {
+            return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan!');
+        }
+
+        /* =====================================================
+        * STATUS HELPER
+        * ===================================================== */
+        $statusMap = [
+            'unsave' => [
+                'label' => 'UNSAVE',
+                'badge' => 'secondary',
+                'icon'  => 'lock'
+            ],
+            'save' => [
+                'label' => 'SAVE',
+                'badge' => 'success',
+                'icon'  => 'check-circle'
+            ],
+            'revisi' => [
+                'label' => 'REVISI',
+                'badge' => 'warning',
+                'icon'  => 'pen'
+            ],
+        ];
+
+        $statusInfo = $statusMap[$dokumen['status']] ?? [
+            'label' => strtoupper($dokumen['status']),
+            'badge' => 'dark',
+            'icon'  => 'question'
+        ];
+
+        /* =====================================================
+        * FLAG AKSES & AKSI
+        * ===================================================== */
+        $userId = session()->get('user_id');
+        $role   = session()->get('role');
+
+        $canManage = ($userId == $dokumen['uploaded_by'] || $role === 'admin');
+
+        $data = [
+            'dokumen'        => $dokumen,
+            'statusLabel'    => $statusInfo['label'],
+            'statusBadge'    => $statusInfo['badge'],
+            'statusIcon'     => $statusInfo['icon'],
+            'canManage'      => $canManage,
+            'canEdit'        => $canManage && $dokumen['status'] !== 'unsave',
+            'canSave'        => $canManage && $dokumen['status'] === 'unsave',
+            'revisionLabel'  => $dokumen['revision_no'] > 0
+                ? 'Revisi ke-' . $dokumen['revision_no']
+                : null,
+        ];
+
         return view('iso00/show', $data);
+    }
+
+    // ============================================================
+    // SAVE STATUS 
+    // ============================================================
+    public function saveStatus($id)
+    {
+        $dokumen = $this->iso00->find($id);
+
+        if (!$dokumen) {
+            return redirect()->to('/iso00')->with('error', 'Dokumen tidak ditemukan.');
+        }
+
+        // Cek akses user
+        if (session()->get('user_id') != $dokumen['uploaded_by'] && session()->get('role') !== 'admin') {
+            return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses!');
+        }
+
+        // Ubah status menjadi 'save'
+        $this->iso00->update($id, [
+            'status' => 'save',
+            'updated_by' => session()->get('user_id'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->to('/iso00/show/' . $id)
+                        ->with('success', 'Status dokumen berhasil diubah menjadi SAVE.');
     }
 
     public function viewFile($id)
