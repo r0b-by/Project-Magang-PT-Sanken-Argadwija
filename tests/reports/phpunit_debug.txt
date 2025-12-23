@@ -1,0 +1,232 @@
+PHPUnit Started (PHPUnit 10.5.26 using PHP 8.2.12 (cli) on WINNT)
+Test Runner Configured
+Bootstrap Finished (C:\Users\ASUS\OneDrive\Desktop\Qr Code ISO\iso-00\vendor/codeigniter4/framework/system/Test/bootstrap.php)
+Test Suite Loaded (21 tests)
+Test Runner Triggered Warning (No code coverage driver available)
+Event Facade Sealed
+Test Runner Started
+Test Suite Sorted
+Test Runner Execution Started (21 tests)
+Test Suite Started (C:\Users\ASUS\OneDrive\Desktop\Qr Code ISO\iso-00\phpunit.xml.dist, 21 tests)
+Test Suite Started (App, 21 tests)
+Test Suite Started (AuthControllerTest, 2 tests)
+Before First Test Method Called (AuthControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- AuthControllerTest::setUpBeforeClass
+Test Preparation Started (AuthControllerTest::testLoginProcessSuccess)
+Before Test Method Called (AuthControllerTest::setUp)
+Before Test Method Finished:
+- AuthControllerTest::setUp
+Test Prepared (AuthControllerTest::testLoginProcessSuccess)
+Assertion Succeeded (Constraint: is true, Value: true)
+Test Passed (AuthControllerTest::testLoginProcessSuccess)
+After Test Method Called (AuthControllerTest::tearDown)
+After Test Method Finished:
+- AuthControllerTest::tearDown
+Test Finished (AuthControllerTest::testLoginProcessSuccess)
+Test Preparation Started (AuthControllerTest::testLogoutClearsSession)
+Before Test Method Called (AuthControllerTest::setUp)
+Before Test Method Finished:
+- AuthControllerTest::setUp
+Test Prepared (AuthControllerTest::testLogoutClearsSession)
+Assertion Succeeded (Constraint: is true, Value: true)
+Test Passed (AuthControllerTest::testLogoutClearsSession)
+After Test Method Called (AuthControllerTest::tearDown)
+After Test Method Finished:
+- AuthControllerTest::tearDown
+Test Finished (AuthControllerTest::testLogoutClearsSession)
+Test Suite Finished (AuthControllerTest, 2 tests)
+Test Suite Started (BarcodeControllerTest, 2 tests)
+Before First Test Method Called (BarcodeControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- BarcodeControllerTest::setUpBeforeClass
+Test Preparation Started (BarcodeControllerTest::testGenerateSetsBarcode)
+Before Test Method Called (BarcodeControllerTest::setUp)
+Before Test Method Finished:
+- BarcodeControllerTest::setUp
+Test Prepared (BarcodeControllerTest::testGenerateSetsBarcode)
+Assertion Succeeded (Constraint: is true, Value: true)
+Assertion Succeeded (Constraint: is not empty, Value: 'http://example.com/scan/detail/1')
+Test Passed (BarcodeControllerTest::testGenerateSetsBarcode)
+After Test Method Called (BarcodeControllerTest::tearDown)
+After Test Method Finished:
+- BarcodeControllerTest::tearDown
+Test Finished (BarcodeControllerTest::testGenerateSetsBarcode)
+Test Preparation Started (BarcodeControllerTest::testPrintWithoutBarcodeRedirects)
+Before Test Method Called (BarcodeControllerTest::setUp)
+Before Test Method Finished:
+- BarcodeControllerTest::setUp
+Test Prepared (BarcodeControllerTest::testPrintWithoutBarcodeRedirects)
+Assertion Succeeded (Constraint: is true, Value: true)
+Test Passed (BarcodeControllerTest::testPrintWithoutBarcodeRedirects)
+After Test Method Called (BarcodeControllerTest::tearDown)
+After Test Method Finished:
+- BarcodeControllerTest::tearDown
+Test Finished (BarcodeControllerTest::testPrintWithoutBarcodeRedirects)
+Test Suite Finished (BarcodeControllerTest, 2 tests)
+Test Suite Started (DashboardControllerTest, 2 tests)
+Before First Test Method Called (DashboardControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- DashboardControllerTest::setUpBeforeClass
+Test Preparation Started (DashboardControllerTest::testAdminDashboardAccessible)
+Before Test Method Called (DashboardControllerTest::setUp)
+Before Test Method Finished:
+- DashboardControllerTest::setUp
+Test Prepared (DashboardControllerTest::testAdminDashboardAccessible)
+Assertion Succeeded (Constraint: is not null, Value: {enable export of objects to see this value}, Message: Response object is null)
+Assertion Succeeded (Constraint: is of type object, Value: {enable export of objects to see this value}, Message: Result is not an object; type: object)
+Assertion Succeeded (Constraint: is identical to 200, Value: 200)
+Assertion Succeeded (Constraint: is true, Value: true, Message: 200 is not a successful status code, or Response has an empty body.)
+Test Passed (DashboardControllerTest::testAdminDashboardAccessible)
+After Test Method Called (DashboardControllerTest::tearDown)
+After Test Method Finished:
+- DashboardControllerTest::tearDown
+Test Finished (DashboardControllerTest::testAdminDashboardAccessible)
+Test Preparation Started (DashboardControllerTest::testDeptDashboardAccessible)
+Before Test Method Called (DashboardControllerTest::setUp)
+Before Test Method Finished:
+- DashboardControllerTest::setUp
+Test Prepared (DashboardControllerTest::testDeptDashboardAccessible)
+Assertion Succeeded (Constraint: is not null, Value: {enable export of objects to see this value}, Message: Response object is null for dept)
+Assertion Succeeded (Constraint: is of type object, Value: {enable export of objects to see this value}, Message: Result is not an object; type: object)
+Assertion Succeeded (Constraint: is identical to 200, Value: 200)
+Assertion Succeeded (Constraint: is true, Value: true, Message: 200 is not a successful status code, or Response has an empty body.)
+Test Passed (DashboardControllerTest::testDeptDashboardAccessible)
+After Test Method Called (DashboardControllerTest::tearDown)
+After Test Method Finished:
+- DashboardControllerTest::tearDown
+Test Finished (DashboardControllerTest::testDeptDashboardAccessible)
+Test Suite Finished (DashboardControllerTest, 2 tests)
+Test Suite Started (HistoryIso00ControllerTest, 2 tests)
+Before First Test Method Called (HistoryIso00ControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- HistoryIso00ControllerTest::setUpBeforeClass
+Test Preparation Started (HistoryIso00ControllerTest::testIndexDeniedForUnauthorised)
+Before Test Method Called (HistoryIso00ControllerTest::setUp)
+Before Test Method Finished:
+- HistoryIso00ControllerTest::setUp
+Test Prepared (HistoryIso00ControllerTest::testIndexDeniedForUnauthorised)
+Test Errored (HistoryIso00ControllerTest::testIndexDeniedForUnauthorised)
+Unable to prepare statement: 1, no such column: db_iso_access_holders.dokumen_id
+After Test Method Called (HistoryIso00ControllerTest::tearDown)
+After Test Method Finished:
+- HistoryIso00ControllerTest::tearDown
+Test Finished (HistoryIso00ControllerTest::testIndexDeniedForUnauthorised)
+Test Preparation Started (HistoryIso00ControllerTest::testDeleteHistoryAsAdminRemovesRecord)
+Before Test Method Called (HistoryIso00ControllerTest::setUp)
+Before Test Method Finished:
+- HistoryIso00ControllerTest::setUp
+Test Prepared (HistoryIso00ControllerTest::testDeleteHistoryAsAdminRemovesRecord)
+Assertion Succeeded (Constraint: is true, Value: true)
+Assertion Succeeded (Constraint: is empty, Value: null)
+Test Passed (HistoryIso00ControllerTest::testDeleteHistoryAsAdminRemovesRecord)
+After Test Method Called (HistoryIso00ControllerTest::tearDown)
+After Test Method Finished:
+- HistoryIso00ControllerTest::tearDown
+Test Finished (HistoryIso00ControllerTest::testDeleteHistoryAsAdminRemovesRecord)
+Test Suite Finished (HistoryIso00ControllerTest, 2 tests)
+Test Suite Started (Iso00ControllerTest, 3 tests)
+Before First Test Method Called (Iso00ControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- Iso00ControllerTest::setUpBeforeClass
+Test Preparation Started (Iso00ControllerTest::testStoreWithoutFileReturnsError)
+Before Test Method Called (Iso00ControllerTest::setUp)
+Before Test Method Finished:
+- Iso00ControllerTest::setUp
+Test Prepared (Iso00ControllerTest::testStoreWithoutFileReturnsError)
+Test Errored (Iso00ControllerTest::testStoreWithoutFileReturnsError)
+Call to undefined function App\Controllers\back()
+After Test Method Called (Iso00ControllerTest::tearDown)
+After Test Method Finished:
+- Iso00ControllerTest::tearDown
+Test Finished (Iso00ControllerTest::testStoreWithoutFileReturnsError)
+Test Preparation Started (Iso00ControllerTest::testViewFileNotFound)
+Before Test Method Called (Iso00ControllerTest::setUp)
+Before Test Method Finished:
+- Iso00ControllerTest::setUp
+Test Prepared (Iso00ControllerTest::testViewFileNotFound)
+Test Errored (Iso00ControllerTest::testViewFileNotFound)
+File tidak ditemukan
+After Test Method Called (Iso00ControllerTest::tearDown)
+After Test Method Finished:
+- Iso00ControllerTest::tearDown
+Test Finished (Iso00ControllerTest::testViewFileNotFound)
+Test Preparation Started (Iso00ControllerTest::testUpdateAuthorizationDeniedForNonUploader)
+Before Test Method Called (Iso00ControllerTest::setUp)
+Before Test Method Finished:
+- Iso00ControllerTest::setUp
+Test Prepared (Iso00ControllerTest::testUpdateAuthorizationDeniedForNonUploader)
+Assertion Succeeded (Constraint: is true, Value: true)
+Test Passed (Iso00ControllerTest::testUpdateAuthorizationDeniedForNonUploader)
+After Test Method Called (Iso00ControllerTest::tearDown)
+After Test Method Finished:
+- Iso00ControllerTest::tearDown
+Test Finished (Iso00ControllerTest::testUpdateAuthorizationDeniedForNonUploader)
+Test Suite Finished (Iso00ControllerTest, 3 tests)
+Test Suite Started (IsoAccessControllerTest, 3 tests)
+Before First Test Method Called (IsoAccessControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- IsoAccessControllerTest::setUpBeforeClass
+Test Preparation Started (IsoAccessControllerTest::testIndexDeniedForNonAdmin)
+Before Test Method Called (IsoAccessControllerTest::setUp)
+Before Test Method Finished:
+- IsoAccessControllerTest::setUp
+Test Prepared (IsoAccessControllerTest::testIndexDeniedForNonAdmin)
+Assertion Succeeded (Constraint: is true, Value: true)
+Test Passed (IsoAccessControllerTest::testIndexDeniedForNonAdmin)
+After Test Method Called (IsoAccessControllerTest::tearDown)
+After Test Method Finished:
+- IsoAccessControllerTest::tearDown
+Test Finished (IsoAccessControllerTest::testIndexDeniedForNonAdmin)
+Test Preparation Started (IsoAccessControllerTest::testIndexAllowedForAdmin)
+Before Test Method Called (IsoAccessControllerTest::setUp)
+Before Test Method Finished:
+- IsoAccessControllerTest::setUp
+Test Prepared (IsoAccessControllerTest::testIndexAllowedForAdmin)
+Assertion Failed (Constraint: is equal to 200, Value: null)
+Test Failed (IsoAccessControllerTest::testIndexAllowedForAdmin)
+Failed asserting that null matches expected 200.
+After Test Method Called (IsoAccessControllerTest::tearDown)
+After Test Method Finished:
+- IsoAccessControllerTest::tearDown
+Test Finished (IsoAccessControllerTest::testIndexAllowedForAdmin)
+Test Preparation Started (IsoAccessControllerTest::testStoreHolderCreatesRecord)
+Before Test Method Called (IsoAccessControllerTest::setUp)
+Before Test Method Finished:
+- IsoAccessControllerTest::setUp
+Test Prepared (IsoAccessControllerTest::testStoreHolderCreatesRecord)
+Assertion Succeeded (Constraint: is true, Value: true)
+Assertion Succeeded (Constraint: is not empty, Value: Array &0 [
+    'id' => 1,
+    'holder_code' => 'H001',
+    'created_at' => '2025-12-23 15:56:43',
+    'updated_at' => '2025-12-23 15:56:43',
+])
+Test Passed (IsoAccessControllerTest::testStoreHolderCreatesRecord)
+After Test Method Called (IsoAccessControllerTest::tearDown)
+After Test Method Finished:
+- IsoAccessControllerTest::tearDown
+Test Finished (IsoAccessControllerTest::testStoreHolderCreatesRecord)
+Test Suite Finished (IsoAccessControllerTest, 3 tests)
+Test Suite Started (ScanControllerTest, 2 tests)
+Before First Test Method Called (ScanControllerTest::setUpBeforeClass)
+Before First Test Method Finished:
+- ScanControllerTest::setUpBeforeClass
+Test Preparation Started (ScanControllerTest::testProcessNotFound)
+Before Test Method Called (ScanControllerTest::setUp)
+Before Test Method Finished:
+- ScanControllerTest::setUp
+Test Prepared (ScanControllerTest::testProcessNotFound)
+Assertion Succeeded (Constraint: is true, Value: true)
+Test Passed (ScanControllerTest::testProcessNotFound)
+After Test Method Called (ScanControllerTest::tearDown)
+After Test Method Finished:
+- ScanControllerTest::tearDown
+Test Finished (ScanControllerTest::testProcessNotFound)
+Test Preparation Started (ScanControllerTest::testFileReturnsPdfHeaders)
+Before Test Method Called (ScanControllerTest::setUp)
+Before Test Method Finished:
+- ScanControllerTest::setUp
+Test Prepared (ScanControllerTest::testFileReturnsPdfHeaders)
+%PDF-1.4
+%\u00e2\u00e3\u00cf\u00d3

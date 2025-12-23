@@ -27,15 +27,15 @@ class DashboardDeptController extends BaseController
             return redirect()->to('/login');
         }
 
-        // Ambil dokumen yang bisa diakses user
-        $dokumen_saya = $this->accessUser->getDocumentsByUser($userId);
+        // Ambil dokumen yang bisa diakses user (pastikan selalu array)
+        $dokumen_saya = $this->accessUser->getDocumentsByUser($userId) ?: [];
 
-        // Ambil 10 log terbaru user
+        // Ambil 10 log terbaru user (pastikan selalu array)
         $log_saya = $this->log
             ->where('user_id', $userId)
             ->orderBy('id', 'DESC')
             ->limit(10)
-            ->findAll();
+            ->findAll() ?: [];
 
         // Kirim data ke view
         return view('dashboard/dept', [

@@ -1,0 +1,7 @@
+PHPUnit 10.5.26 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: C:\Users\ASUS\OneDrive\Desktop\Qr Code ISO\iso-00\phpunit.xml.dist
+
+......E.EE..F..%PDF-1.4
+%\u00e2\u00e3\u00cf\u00d3

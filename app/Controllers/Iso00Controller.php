@@ -69,7 +69,7 @@ class Iso00Controller extends BaseController
     private function generateSafeFileName($file, $path)
     {
         $original = $file->getClientName();
-        $ext      = $file->getClientExtension();
+        $ext      = strtolower($file->getClientExtension());
         $safe     = $this->sanitizeFileName($original);
 
         $final = $safe . '.' . $ext;
@@ -177,7 +177,7 @@ class Iso00Controller extends BaseController
     {
         $file = $this->request->getFile('upload_dokumen');
         if (!$file || !$file->isValid()) {
-            return back()->withInput()->with('error', 'File tidak valid');
+            return redirect()->back()->withInput()->with('error', 'File tidak valid');
         }
 
         $user = $this->currentUser();
@@ -186,8 +186,20 @@ class Iso00Controller extends BaseController
             mkdir($this->masterPath, 0775, true);
         }
 
+        // Validate file type (only allow PDF)
+        $allowedExt = ['pdf'];
+        $ext = strtolower($file->getClientExtension());
+        $mime = $file->getClientMimeType();
+        if (!in_array($ext, $allowedExt) || stripos($mime, 'pdf') === false) {
+            return redirect()->back()->withInput()->with('error', 'Hanya file PDF yang diizinkan.');
+        }
+
         $finalName = $this->generateSafeFileName($file, $this->masterPath);
-        $file->move($this->masterPath, $finalName);
+        try {
+            $file->move($this->masterPath, $finalName);
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan file: ' . $e->getMessage());
+        }
 
         $this->iso00->insert([
             'kode_dokumen'          => $this->request->getPost('kode_dokumen'),
@@ -242,7 +254,12 @@ class Iso00Controller extends BaseController
     {
         $master = $this->iso00->find($id);
         if (!$master) {
-            return back()->with('error', 'Dokumen tidak ditemukan');
+            return redirect()->back()->with('error', 'Dokumen tidak ditemukan');
+        }
+
+        // Cek akses user (sama seperti di edit/saveStatus)
+        if (session()->get('user_id') != $master['uploaded_by'] && session()->get('role') !== 'admin') {
+            return redirect()->to('/iso00')->with('error', 'Anda tidak memiliki akses mengedit dokumen ini!');
         }
 
         $user    = $this->currentUser();
@@ -278,16 +295,28 @@ class Iso00Controller extends BaseController
         $file = $this->request->getFile('upload_dokumen');
         if ($file && $file->isValid() && !$file->hasMoved()) {
 
+            // Validate file type (only allow PDF)
+            $allowedExt = ['pdf'];
+            $ext = strtolower($file->getClientExtension());
+            $mime = $file->getClientMimeType();
+            if (!in_array($ext, $allowedExt) || stripos($mime, 'pdf') === false) {
+                return redirect()->back()->withInput()->with('error', 'Hanya file PDF yang diizinkan.');
+            }
+
             if (!is_dir($this->masterPath)) {
                 mkdir($this->masterPath, 0775, true);
             }
 
             $newName = $this->generateSafeFileName($file, $this->masterPath);
-            $file->move($this->masterPath, $newName);
+            try {
+                $file->move($this->masterPath, $newName);
+            } catch (\Exception $e) {
+                return redirect()->back()->withInput()->with('error', 'Gagal menyimpan file: ' . $e->getMessage());
+            }
 
             // hapus file lama setelah sukses
             if (!empty($master['file_path']) && is_file($oldFile)) {
-                unlink($oldFile);
+                @unlink($oldFile);
             }
 
             $update['nama_file'] = $newName;
@@ -412,18 +441,21 @@ class Iso00Controller extends BaseController
         $dok = $this->iso00->find($id);
 
         if (!$dok || empty($dok['file_path'])) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('File tidak ditemukan');
+            return $this->response->setStatusCode(404)->setBody('File tidak ditemukan');
         }
 
         $fullPath = WRITEPATH . $dok['file_path'];
 
         if (!file_exists($fullPath)) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('File fisik tidak ada');
+            return $this->response->setStatusCode(404)->setBody('File fisik tidak ada');
         }
 
+        $mime = $dok['mime_type'] ?? 'application/octet-stream';
+        $filename = basename($dok['nama_file']);
+
         return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="' . $dok['nama_file'] . '"')
+            ->setHeader('Content-Type', $mime)
+            ->setHeader('Content-Disposition', 'inline; filename="' . $filename . '"')
             ->setBody(file_get_contents($fullPath));
     }
 
