@@ -14,6 +14,8 @@ class Iso00Model extends Model
     protected $allowedFields = [
         'kode_dokumen',
         'nama_dokumen_internal',
+        'department_id',   // FK ke table departments
+        'kode_dept',
 
         // file
         'nama_file',
@@ -27,7 +29,7 @@ class Iso00Model extends Model
         'ruang_lingkup',
         'tujuan',
 
-        // 🔐 STATUS & REVISI
+        // status & revisi
         'status',        // unsave | save | revisi
         'revision_no',   // 0,1,2,3...
         'is_locked',     // 1 = terkunci (unsave)
@@ -53,44 +55,34 @@ class Iso00Model extends Model
 
     public function revisions()
     {
-        return $this->hasMany(
-            \App\Models\Iso001Model::class,
-            'iso00_id',
-            'id'
-        );
+        return $this->hasMany(\App\Models\Iso001Model::class, 'iso00_id', 'id');
     }
 
     public function uploader()
     {
-        return $this->belongsTo(
-            \App\Models\UserModel::class,
-            'uploaded_by',
-            'id'
-        );
+        return $this->belongsTo(\App\Models\UserModel::class, 'uploaded_by', 'id');
     }
 
     public function updater()
     {
-        return $this->belongsTo(
-            \App\Models\UserModel::class,
-            'updated_by',
-            'id'
-        );
+        return $this->belongsTo(\App\Models\UserModel::class, 'updated_by', 'id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(\App\Models\DepartmentModel::class, 'department_id', 'id');
     }
 
     /* =======================
      |     QUERY SIAP PAKAI
      ======================= */
 
-    /**
-     * Semua dokumen + holder
-     */
     public function getWithHolder()
     {
         return $this->select([
                 'iso_00.*',
                 'iso_access_holders.id AS holder_id',
-                'iso_access_holders.holder_code AS holder_code'
+                'iso_access_holders.holder_code AS holder_code',
             ])
             ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
             ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id', 'left')
@@ -99,15 +91,12 @@ class Iso00Model extends Model
             ->findAll();
     }
 
-    /**
-     * Satu dokumen + holder
-     */
     public function getByIdWithHolder(int $id)
     {
         return $this->select([
                 'iso_00.*',
                 'iso_access_holders.id AS holder_id',
-                'iso_access_holders.holder_code AS holder_code'
+                'iso_access_holders.holder_code AS holder_code',
             ])
             ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
             ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id', 'left')
@@ -115,9 +104,6 @@ class Iso00Model extends Model
             ->first();
     }
 
-    /**
-     * Dokumen yang bisa diakses user
-     */
     public function getAccessibleByUser(int $userId)
     {
         return $this->select([
@@ -137,21 +123,19 @@ class Iso00Model extends Model
      |     LOGIKA BISNIS ISO
      ======================= */
 
-    /**
-     * Cek apakah dokumen terkunci
-     */
     public function isLocked(array $doc): bool
     {
         return ($doc['status'] ?? 'unsave') === 'unsave';
     }
 
-    /**
-     * Naikkan revisi
-     */
+    public function isFinalized(array $doc): bool
+    {
+        return ($doc['status'] ?? '') === 'save';
+    }
+
     public function bumpRevision(int $id)
     {
         $doc = $this->find($id);
-
         if (!$doc) return false;
 
         return $this->update($id, [
@@ -161,9 +145,6 @@ class Iso00Model extends Model
         ]);
     }
 
-    /**
-     * Simpan (finalisasi)
-     */
     public function saveFinal(int $id)
     {
         return $this->update($id, [
@@ -172,9 +153,6 @@ class Iso00Model extends Model
         ]);
     }
 
-    /**
-     * Ambil revisi terakhir
-     */
     public function getLatestRevision(int $iso00Id)
     {
         return model('Iso001Model')
@@ -183,40 +161,22 @@ class Iso00Model extends Model
             ->first();
     }
 
-    /**
- * Search dokumen terbatas
- * berdasarkan:
- * - kode dokumen
- * - holder code
- * - uploader name
- * - updated by
- */
-public function searchLimited(string $keyword)
-{
-    return $this->select([
-            'iso_00.*',
-            'iso_access_holders.holder_code'
-        ])
-        ->join(
-            'iso_access_documents',
-            'iso_access_documents.iso00_id = iso_00.id',
-            'left'
-        )
-        ->join(
-            'iso_access_holders',
-            'iso_access_holders.id = iso_access_documents.holder_id',
-            'left'
-        )
-        ->groupStart()
-            ->like('iso_00.kode_dokumen', $keyword)
-            ->orLike('iso_access_holders.holder_code', $keyword)
-            ->orLike('iso_00.uploader_name', $keyword)
-            ->orLike('iso_00.updated_by', $keyword)
-        ->groupEnd()
-        ->groupBy('iso_00.id')
-        ->orderBy('iso_00.kode_dokumen', 'ASC')
-        ->findAll();
-}
-
-
+    public function searchLimited(string $keyword)
+    {
+        return $this->select([
+                'iso_00.*',
+                'iso_access_holders.holder_code'
+            ])
+            ->join('iso_access_documents', 'iso_access_documents.iso00_id = iso_00.id', 'left')
+            ->join('iso_access_holders', 'iso_access_holders.id = iso_access_documents.holder_id', 'left')
+            ->groupStart()
+                ->like('iso_00.kode_dokumen', $keyword)
+                ->orLike('iso_access_holders.holder_code', $keyword)
+                ->orLike('iso_00.uploader_name', $keyword)
+                ->orLike('iso_00.updated_by', $keyword)
+            ->groupEnd()
+            ->groupBy('iso_00.id')
+            ->orderBy('iso_00.kode_dokumen', 'ASC')
+            ->findAll();
+    }
 }

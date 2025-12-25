@@ -32,6 +32,20 @@ $routes->group('users', ['filter' => 'role:admin'], function ($routes) {
 
 /*
 |--------------------------------------------------------------------------
+| MASTER DEPARTMENTS (ADMIN ONLY)
+|--------------------------------------------------------------------------
+*/
+$routes->group('departments', ['filter' => 'role:admin'], function($routes){
+    $routes->get('/', 'DepartmentController::index');       // List semua dept
+    $routes->get('create', 'DepartmentController::create'); // Form create
+    $routes->post('store', 'DepartmentController::store');  // Simpan ke DB
+    $routes->get('edit/(:num)', 'DepartmentController::edit/$1');   // Form edit
+    $routes->post('update/(:num)', 'DepartmentController::update/$1'); // Update DB
+    $routes->get('delete/(:num)', 'DepartmentController::delete/$1'); // Hapus
+});
+
+/*
+|--------------------------------------------------------------------------
 | ISO 00 — MASTER DOKUMEN
 |--------------------------------------------------------------------------
 */

@@ -10,15 +10,18 @@ class Iso001Model extends Model
 
     // History → INSERT ONLY
     protected $useTimestamps = true;
-    protected $createdField  = 'uploaded_at'; // 🔹 sesuaikan dengan migrasi
-    protected $updatedField  = ''; // ❗ history tidak pernah diupdate
+    protected $createdField  = 'uploaded_at';
+    protected $updatedField  = ''; // history tidak pernah diupdate
 
     protected $allowedFields = [
         'iso00_id',
+        'department_id',
+        'kode_dept',
+        'nama_dept',
         'versi',
         'revision_note',
 
-        // snapshot dari iso_00
+        // snapshot iso_00
         'kode_dokumen',
         'nama_dokumen_internal',
         'nama_file',
@@ -31,15 +34,29 @@ class Iso001Model extends Model
         'tujuan',
         'status',
 
-        // user snapshot
+        // snapshot user
         'uploaded_by',
         'uploader_name',
         'uploader_role',
     ];
 
     /* =====================================================
-     * BUSINESS LOGIC
-     * ===================================================*/
+     | RELASI
+     =====================================================*/
+
+    public function master()
+    {
+        return $this->belongsTo(\App\Models\Iso00Model::class, 'iso00_id', 'id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(\App\Models\DepartmentModel::class, 'department_id', 'id');
+    }
+
+    /* =====================================================
+     | BUSINESS LOGIC
+     =====================================================*/
 
     /**
      * Tambah revisi (snapshot dari iso_00)
@@ -51,32 +68,35 @@ class Iso001Model extends Model
                      ->first();
 
         $nextVersion = 'Rev-1';
-        if ($last) {
+        if ($last && !empty($last['versi'])) {
             $num = (int) str_replace('Rev-', '', $last['versi']);
             $nextVersion = 'Rev-' . ($num + 1);
         }
 
         $data = [
-            'iso00_id' => $master['id'],
-            'versi'    => $nextVersion,
+            'iso00_id'     => $master['id'],
+            'department_id'=> $master['department_id'] ?? null,
+            'kode_dept'    => $master['kode_dept'] ?? null,
+            'nama_dept'    => $master['nama_dept'] ?? null,
+            'versi'        => $nextVersion,
 
             // snapshot dokumen
-            'kode_dokumen' => $master['kode_dokumen'],
+            'kode_dokumen'          => $master['kode_dokumen'],
             'nama_dokumen_internal' => $master['nama_dokumen_internal'],
-            'nama_file' => $master['nama_file'],
-            'file_path' => $master['file_path'],
-            'file_size' => $master['file_size'],
-            'mime_type' => $master['mime_type'],
-            'tanggal_efektif' => $master['tanggal_efektif'],
-            'halaman_dokumen' => $master['halaman_dokumen'],
-            'ruang_lingkup' => $master['ruang_lingkup'],
-            'tujuan' => $master['tujuan'],
-            'status' => 'revisi',
+            'nama_file'             => $master['nama_file'],
+            'file_path'             => $master['file_path'],
+            'file_size'             => $master['file_size'],
+            'mime_type'             => $master['mime_type'],
+            'tanggal_efektif'       => $master['tanggal_efektif'],
+            'halaman_dokumen'       => $master['halaman_dokumen'],
+            'ruang_lingkup'         => $master['ruang_lingkup'],
+            'tujuan'                => $master['tujuan'],
+            'status'                => 'revisi',
 
             // snapshot user
-            'uploaded_by' => session()->get('user_id'),
-            'uploader_name' => session()->get('fullname'),
-            'uploader_role' => session()->get('role'),
+            'uploaded_by'   => session()->get('user_id') ?? 0,
+            'uploader_name' => session()->get('fullname') ?? 'system',
+            'uploader_role' => session()->get('role') ?? 'system',
         ];
 
         $data = array_merge($data, $extra);
@@ -92,6 +112,16 @@ class Iso001Model extends Model
         return $this->where('iso00_id', $iso00_id)
                     ->orderBy('id', 'DESC')
                     ->findAll();
+    }
+
+    /**
+     * Ambil revisi terakhir untuk dokumen master
+     */
+    public function getLatestRevision(int $iso00_id)
+    {
+        return $this->where('iso00_id', $iso00_id)
+                    ->orderBy('id', 'DESC')
+                    ->first();
     }
 
     /**

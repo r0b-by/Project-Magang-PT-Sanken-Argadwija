@@ -8,24 +8,54 @@ class CreateIso001Table extends Migration
     {
         $this->forge->addField([
 
+            /* =====================================================
+             * PRIMARY KEY
+             * ===================================================*/
             'id' => [
                 'type'           => 'INT',
                 'unsigned'       => true,
                 'auto_increment' => true
             ],
 
-            // Relasi ke master
+            /* =====================================================
+             * RELASI MASTER & DEPARTEMEN (SNAPSHOT)
+             * ===================================================*/
             'iso00_id' => [
                 'type'     => 'INT',
                 'unsigned' => true,
+                'null'     => false,
+                'comment'  => 'Relasi ke iso_00 (master dokumen)'
             ],
 
-            // Informasi revisi
+            'department_id' => [
+                'type'     => 'INT',
+                'unsigned' => true,
+                'null'     => true,
+                'comment'  => 'Relasi ke departments.id (boleh NULL)'
+            ],
+
+            'kode_dept' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 10,
+                'null'       => true,
+                'comment'    => 'Snapshot kode departemen saat revisi'
+            ],
+
+            'nama_dept' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 100,
+                'null'       => true,
+                'comment'    => 'Snapshot nama departemen saat revisi'
+            ],
+
+            /* =====================================================
+             * INFORMASI REVISI
+             * ===================================================*/
             'versi' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 20,
-                'comment'    => 'Rev-1, Rev-2, dst',
-                'null'       => true,
+                'null'       => false,
+                'comment'    => 'Rev-1, Rev-2, dst'
             ],
 
             'revision_note' => [
@@ -34,7 +64,7 @@ class CreateIso001Table extends Migration
             ],
 
             /* =====================================================
-             * SNAPSHOT DATA DARI ISO_00
+             * SNAPSHOT DATA ISO_00
              * ===================================================*/
             'kode_dokumen' => [
                 'type'       => 'VARCHAR',
@@ -93,10 +123,14 @@ class CreateIso001Table extends Migration
                 'null' => true,
             ],
 
+            /* =====================================================
+             * STATUS REVISI
+             * ===================================================*/
             'status' => [
                 'type'       => 'ENUM',
-                'constraint' => ['save','non-save','revisi'],
+                'constraint' => ['unsave', 'save', 'revisi'],
                 'default'    => 'revisi',
+                'comment'    => 'Status revisi dokumen'
             ],
 
             /* =====================================================
@@ -117,23 +151,52 @@ class CreateIso001Table extends Migration
                 'constraint' => 50,
             ],
 
-           'uploaded_at' => [
+            'uploaded_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
         ]);
 
+        /* =====================================================
+         * INDEX & CONSTRAINT
+         * ===================================================*/
         $this->forge->addKey('id', true);
         $this->forge->addKey('iso00_id');
+        $this->forge->addKey('department_id');
+        $this->forge->addUniqueKey(['iso00_id', 'versi']);
 
-        $this->forge->addForeignKey('iso00_id', 'iso_00', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('uploaded_by', 'users', 'id', 'CASCADE', 'CASCADE');
+        /* =====================================================
+         * FOREIGN KEY
+         * ===================================================*/
+        $this->forge->addForeignKey(
+            'iso00_id',
+            'iso_00',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
 
-        $this->forge->createTable('iso_001');
+        $this->forge->addForeignKey(
+            'department_id',
+            'departments',
+            'id',
+            'SET NULL',
+            'CASCADE'
+        );
+
+        $this->forge->addForeignKey(
+            'uploaded_by',
+            'users',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+
+        $this->forge->createTable('iso_001', true, ['ENGINE' => 'InnoDB']);
     }
 
     public function down()
     {
-        $this->forge->dropTable('iso_001');
+        $this->forge->dropTable('iso_001', true);
     }
 }

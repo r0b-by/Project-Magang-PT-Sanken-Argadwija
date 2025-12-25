@@ -67,19 +67,19 @@
                         <small class="text-muted">Nama Dokumen Internal</small>
                     </div>
 
-
                     <!-- KODE DEPARTEMEN -->
                     <div class="col-md-3 mb-2">
-                        <select class="form-select form-select-sm" id="kode_dept" required>
+                        <select class="form-select form-select-sm" id="department_id" name="department_id" required>
                             <option value="">Pilih Dept</option>
-                            <option value="QS">QS</option>
-                            <option value="HRD">HRD</option>
-                            <option value="IT">IT</option>
-                            <option value="FIN">FIN</option>
-                            <option value="MK">MK</option>
-                            <option value="PRD">PRD</option>
+                            <?php if (!empty($departments)): ?>
+                                <?php foreach($departments as $dept): ?>
+                                    <option value="<?= $dept['id'] ?>" data-kode="<?= $dept['kode_dept'] ?>">
+                                        <?= $dept['kode_dept'] ?> - <?= $dept['nama_dept'] ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
-                        <small class="text-muted">Kode Departemen</small>
+                        <small class="text-muted">Departemen</small>
                     </div>
 
                     <!-- KODE RUNNING -->
@@ -147,7 +147,34 @@
 </div>
 
 <script>
+    // Isi Nama Dokumen Internal otomatis
+    document.getElementById('kode_internal').addEventListener('change', function(){
+        const selected = this.selectedOptions[0];
+        document.getElementById('nama_internal').value = selected.dataset.name || '';
+        updateKodeDokumen();
+    });
 
+    // Update Kode Dokumen Final otomatis
+    const kodeDeptSelect = document.getElementById('department_id');
+    const kodeRunning = document.getElementById('kode_running');
+    const kodeFinal = document.getElementById('kode_dokumen');
+
+    function updateKodeDokumen() {
+        const kodeInternal = document.getElementById('kode_internal').value;
+        const deptOption = kodeDeptSelect.selectedOptions[0];
+        const kodeDept = deptOption ? deptOption.dataset.kode : '';
+        const running = kodeRunning.value;
+
+        if(kodeInternal && kodeDept && running) {
+            kodeFinal.value = `${kodeInternal}-${kodeDept}${running}`;
+        } else {
+            kodeFinal.value = '';
+        }
+    }
+
+    kodeDeptSelect.addEventListener('change', updateKodeDokumen);
+    kodeRunning.addEventListener('input', updateKodeDokumen);
 </script>
 
 <?= $this->endSection() ?>
+a

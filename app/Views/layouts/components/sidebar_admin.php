@@ -52,6 +52,70 @@ $role = $session->get('role');
                 </a>
             </li>
 
+            <!-- DEPARTMENT -->
+<li class="nav-item mt-4 mb-2">
+    <div class="small text-uppercase px-3 fw-semibold" 
+         style="color: rgba(255, 255, 255, 0.5); font-size: 0.7rem; letter-spacing: 0.5px;">
+        Department
+    </div>
+</li>
+
+<li class="nav-item">
+    <?php 
+    $isDeptActive = strpos(current_url(), base_url('departments')) !== false;
+    ?>
+    <a class="nav-link py-2 px-3 rounded-3 d-flex align-items-center justify-content-between
+       <?= $isDeptActive ? 'active' : '' ?>"
+       style="<?= $isDeptActive 
+               ? 'background-color: #2563EB; color: white;' 
+               : 'color: rgba(255, 255, 255, 0.8);' ?>"
+       href="#" 
+       data-bs-toggle="collapse" 
+       data-bs-target="#departmentMenu"
+       id="departmentDropdownToggle"
+       aria-expanded="<?= $isDeptActive ? 'true' : 'false' ?>">
+        <span class="d-flex align-items-center">
+            <i class="fas fa-building me-3"></i>
+            <span>Department</span>
+        </span>
+        <i class="fas fa-chevron-down small dropdown-chevron"></i>
+    </a>
+
+    <div class="collapse <?= $isDeptActive ? 'show' : '' ?>" id="departmentMenu">
+        <ul class="nav flex-column ms-4 mt-1" style="border-left: 1px solid #1E293B;">
+
+            <!-- Tambah Department -->
+            <li class="nav-item">
+                <a class="nav-link py-2 px-3 rounded-3 d-flex align-items-center
+                    <?= strpos(current_url(), base_url('departments/create')) !== false ? 'active' : '' ?>"
+                   style="<?= strpos(current_url(), base_url('departments/create')) !== false 
+                           ? 'background-color: #2563EB; color: white;' 
+                           : 'color: rgba(255, 255, 255, 0.7);' ?>"
+                   href="<?= base_url('departments/create') ?>">
+                    <i class="fas fa-plus me-3"></i>
+                    <span>Tambah Department</span>
+                </a>
+            </li>
+
+            <!-- Daftar Department -->
+            <li class="nav-item">
+                <a class="nav-link py-2 px-3 rounded-3 d-flex align-items-center
+                    <?= preg_match('#/departments($|/)#', current_url()) && strpos(current_url(), 'create') === false
+                        ? 'active' : '' ?>"
+                   style="<?= preg_match('#/departments($|/)#', current_url()) && strpos(current_url(), 'create') === false
+                           ? 'background-color: #2563EB; color: white;' 
+                           : 'color: rgba(255, 255, 255, 0.7);' ?>"
+                   href="<?= base_url('departments') ?>">
+                    <i class="fas fa-list me-3"></i>
+                    <span>Daftar Department</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+</li>
+
+
             <!-- DOKUMEN -->
             <li class="nav-item mt-4 mb-2">
                 <div class="small text-uppercase px-3 fw-semibold" 
